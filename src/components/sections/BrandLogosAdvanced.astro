@@ -1,0 +1,299 @@
+---
+// src/components/sections/BrandLogosAdvanced.astro
+
+export interface BrandLogo {
+    id: number;
+    image: string;
+    alt?: string;
+    link?: string;
+    width?: string;
+    height?: string;
+}
+
+export interface Props {
+    brands?: BrandLogo[];
+    subtitle?: string;
+    title?: string;
+    showTitle?: boolean;
+    displayMode?: 'slider' | 'grid' | 'marquee';
+    columns?: {
+        xs?: number;
+        sm?: number;
+        md?: number;
+        lg?: number;
+        xl?: number;
+    };
+    sliderConfig?: {
+        slidesPerView?: number;
+        spaceBetween?: number;
+        loop?: boolean;
+        autoplay?: boolean;
+        delay?: number;
+        speed?: number;
+    };
+    containerPadding?: string;
+    backgroundClass?: string;
+    imageSize?: string;
+    imageHeight?: string;
+    grayscale?: boolean;
+    hoverEffect?: 'scale' | 'opacity' | 'brightness' | 'none';
+    enablePauseOnHover?: boolean;
+    gap?: string;
+    animation?: 'fade' | 'zoom' | 'none';
+}
+
+const {
+    brands = [
+        { id: 1, image: "assets/img/brand-logo-1.png", alt: "Brand 1" },
+        { id: 2, image: "assets/img/brand-logo-3.png", alt: "Brand 2" },
+        { id: 3, image: "assets/img/brand-logo-2.png", alt: "Brand 3" },
+        { id: 4, image: "assets/img/brand-logo-4.png", alt: "Brand 4" },
+        { id: 5, image: "assets/img/brand-logo-6.png", alt: "Brand 5" },
+        { id: 6, image: "assets/img/brand-logo-5.png", alt: "Brand 6" },
+        { id: 7, image: "assets/img/brand-logo-1.png", alt: "Brand 7" },
+        { id: 8, image: "assets/img/brand-logo-3.png", alt: "Brand 8" }
+    ],
+    showTitle = false,
+    subtitle = "# Our Partners",
+    title = "Trusted by Leading Brands",
+    displayMode = 'slider',
+    columns = { xs: 2, sm: 3, md: 4, lg: 5, xl: 6 },
+    sliderConfig = {
+        slidesPerView: 5,
+        spaceBetween: 30,
+        loop: true,
+        autoplay: true,
+        delay: 3000,
+        speed: 800
+    },
+    containerPadding = "xl:pb-120 lg:pb-100 md:pb-80 pb-60",
+    backgroundClass = "bg-transparent",
+    imageSize = "w-auto",
+    imageHeight = "h-16 md:h-20",
+    grayscale = true,
+    hoverEffect = 'opacity',
+    enablePauseOnHover = true,
+    gap = "gap-6 md:gap-8",
+    animation = 'none'
+} = Astro.props;
+
+// Helper function for hover effect classes
+const getHoverEffectClass = (effect: string) => {
+    switch (effect) {
+        case 'scale':
+            return 'hover:scale-110 transition-all duration-300';
+        case 'opacity':
+            return 'hover:opacity-100 opacity-70 transition-opacity duration-300';
+        case 'brightness':
+            return 'hover:brightness-100 brightness-75 transition-all duration-300';
+        case 'none':
+        default:
+            return '';
+    }
+};
+
+// Helper function for grayscale class
+const getGrayscaleClass = (grayscale: boolean) => {
+    return grayscale ? 'grayscale hover:grayscale-0' : '';
+};
+
+// Helper function for animation classes
+const getAnimationClass = (animation: string) => {
+    switch (animation) {
+        case 'fade':
+            return 'animate-fade-in';
+        case 'zoom':
+            return 'animate-zoom-in';
+        case 'none':
+        default:
+            return '';
+    }
+};
+
+// Grid column classes
+const getGridColumns = () => {
+    const cols = columns || { xs: 2, sm: 3, md: 4, lg: 5, xl: 6 };
+    return `grid-cols-${cols.xs || 2} sm:grid-cols-${cols.sm || 3} md:grid-cols-${cols.md || 4} lg:grid-cols-${cols.lg || 5} xl:grid-cols-${cols.xl || 6}`;
+};
+---
+
+<section class={`${backgroundClass} ${containerPadding}`}>
+    <div class="container">
+        {showTitle && (
+            <div class="text-center lg:mx-auto lg:w-[60%] w-full pb-50">
+                <span class="pb-10 block font-sora font-semibold capitalize xxl:text-xxl xl:text-xl sm:text-lg text-base text-primary">{subtitle}</span>
+                <h2 class="xl:text-5xl md:text-4xl sm:text-3xl text-2.5xl font-semibold text-secondary font-sora leading-[1.2]">{title}</h2>
+            </div>
+        )}
+        
+        {displayMode === 'slider' && (
+            <div class="swiper brand-slide-advanced">
+                <div class="swiper-wrapper">
+                    {brands.map((brand) => (
+                        <div class="swiper-slide">
+                            {brand.link ? (
+                                <a href={brand.link} target="_blank" rel="noopener noreferrer" class="block">
+                                    <img 
+                                        src={brand.image} 
+                                        alt={brand.alt || `Brand ${brand.id}`} 
+                                        class={`${imageSize} ${imageHeight} ${getGrayscaleClass(grayscale)} ${getHoverEffectClass(hoverEffect)} ${getAnimationClass(animation)} mx-auto object-contain`}
+                                        loading="lazy"
+                                    />
+                                </a>
+                            ) : (
+                                <img 
+                                    src={brand.image} 
+                                    alt={brand.alt || `Brand ${brand.id}`} 
+                                    class={`${imageSize} ${imageHeight} ${getGrayscaleClass(grayscale)} ${getHoverEffectClass(hoverEffect)} ${getAnimationClass(animation)} mx-auto object-contain`}
+                                    loading="lazy"
+                                />
+                            )}
+                        </div>
+                    ))}
+                </div>
+            </div>
+        )}
+        
+        {displayMode === 'grid' && (
+            <div class={`grid ${getGridColumns()} ${gap} items-center`}>
+                {brands.map((brand) => (
+                    <div class="flex justify-center">
+                        {brand.link ? (
+                            <a href={brand.link} target="_blank" rel="noopener noreferrer" class="block">
+                                <img 
+                                    src={brand.image} 
+                                    alt={brand.alt || `Brand ${brand.id}`} 
+                                    class={`${imageSize} ${imageHeight} ${getGrayscaleClass(grayscale)} ${getHoverEffectClass(hoverEffect)} ${getAnimationClass(animation)} object-contain`}
+                                    loading="lazy"
+                                />
+                            </a>
+                        ) : (
+                            <img 
+                                src={brand.image} 
+                                alt={brand.alt || `Brand ${brand.id}`} 
+                                class={`${imageSize} ${imageHeight} ${getGrayscaleClass(grayscale)} ${getHoverEffectClass(hoverEffect)} ${getAnimationClass(animation)} object-contain`}
+                                loading="lazy"
+                            />
+                        )}
+                    </div>
+                ))}
+            </div>
+        )}
+        
+        {displayMode === 'marquee' && (
+            <div class="overflow-hidden">
+                <div class="flex animate-marquee gap-12">
+                    {[...brands, ...brands, ...brands].map((brand, index) => (
+                        <div class="flex-shrink-0 flex items-center">
+                            {brand.link ? (
+                                <a href={brand.link} target="_blank" rel="noopener noreferrer" class="block">
+                                    <img 
+                                        src={brand.image} 
+                                        alt={brand.alt || `Brand ${index}`} 
+                                        class={`${imageSize} ${imageHeight} ${getGrayscaleClass(grayscale)} ${getHoverEffectClass(hoverEffect)} object-contain mx-4`}
+                                        loading="lazy"
+                                    />
+                                </a>
+                            ) : (
+                                <img 
+                                    src={brand.image} 
+                                    alt={brand.alt || `Brand ${index}`} 
+                                    class={`${imageSize} ${imageHeight} ${getGrayscaleClass(grayscale)} ${getHoverEffectClass(hoverEffect)} object-contain mx-4`}
+                                    loading="lazy"
+                                />
+                            )}
+                        </div>
+                    ))}
+                </div>
+            </div>
+        )}
+    </div>
+</section>
+
+<style is:global>
+    @keyframes marquee {
+        0% {
+            transform: translateX(0);
+        }
+        100% {
+            transform: translateX(-33.33%);
+        }
+    }
+
+    .animate-marquee {
+        animation: marquee 30s linear infinite;
+    }
+
+    @keyframes fade-in {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+
+    @keyframes zoom-in {
+        from {
+            opacity: 0;
+            transform: scale(0.9);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+
+    .animate-fade-in {
+        animation: fade-in 0.6s ease-out;
+    }
+
+    .animate-zoom-in {
+        animation: zoom-in 0.6s ease-out;
+    }
+
+    {enablePauseOnHover && `
+        .swiper-brand-slide-advanced:hover .swiper-slide-active {
+            animation-play-state: paused;
+        }
+    `}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const brandSliders = document.querySelectorAll('.brand-slide-advanced');
+    
+    brandSliders.forEach((slider) => {
+        const swiper = new Swiper(slider, {
+            slidesPerView: {sliderConfig.slidesPerView || 5},
+            spaceBetween: {sliderConfig.spaceBetween || 30},
+            loop: {sliderConfig.loop !== false},
+            autoplay: {sliderConfig.autoplay !== false} ? {
+                delay: {sliderConfig.delay || 3000},
+                disableOnInteraction: false,
+            } : false,
+            speed: {sliderConfig.speed || 800},
+            breakpoints: {
+                320: { slidesPerView: 2, spaceBetween: 15 },
+                640: { slidesPerView: 3, spaceBetween: 20 },
+                768: { slidesPerView: 4, spaceBetween: 25 },
+                1024: { slidesPerView: 5, spaceBetween: 30 },
+                1280: { slidesPerView: 6, spaceBetween: 35 },
+            },
+            on: {
+                init: function() {
+                    const sliderElement = this.el;
+                    if (enablePauseOnHover) {
+                        sliderElement.addEventListener('mouseenter', () => {
+                            if (this.autoplay) this.autoplay.stop();
+                        });
+                        sliderElement.addEventListener('mouseleave', () => {
+                            if (this.autoplay) this.autoplay.start();
+                        });
+                    }
+                }
+            }
+        });
+    });
+});
+</script>

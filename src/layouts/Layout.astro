@@ -1,23 +1,167 @@
-<!doctype html>
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro Basics</title>
-	</head>
-	<body>
-		<slot />
-	</body>
-</html>
+---
+// src/layouts/Layout.astro
 
-<style>
-	html,
-	body {
-		margin: 0;
-		width: 100%;
-		height: 100%;
-	}
-</style>
+import { client } from '../lib/sanity';
+
+export interface Props {
+  title?: string;
+  description?: string;
+  fetchFromSanity?: boolean;
+}
+
+const { 
+  title = "Madula - Health & Medical", 
+  description = "Health & Medical website",
+  fetchFromSanity = true 
+} = Astro.props;
+
+// Default SEO data
+let seoData = {
+  title: title,
+  description: description,
+  keywords: "Madula, health website template, medical Tailwind CSS template, responsive medical design, doctor clinic website, healthcare template, hospital HTML site, medical UI, Tailwind HTML template, medical dashboard, modern health UI, clinic website template",
+  ogTitle: "Madula – Health & Medical Tailwind CSS Template | Dexignlab",
+  ogDescription: "Madula is a clean and responsive medical website template built with Tailwind CSS. Perfect for clinics, hospitals, and healthcare professionals.",
+  ogImage: "https://madula.dexignlab.com/tailwind/social-image.png",
+  ogUrl: "https://madula.dexignlab.com/tailwind/",
+  twitterCard: "summary_large_image",
+  twitterTitle: "Madula – Health & Medical Tailwind CSS Template | Dexignlab",
+  twitterDescription: "Madula is a responsive medical and health website template built with Tailwind CSS, ideal for clinics, hospitals, and healthcare services.",
+  twitterImage: "https://madula.dexignlab.com/tailwind/social-image.png",
+  favicon: "/assets/img/favicon.png",
+};
+
+// Fetch SEO settings from Sanity
+if (fetchFromSanity) {
+  try {
+    const query = `*[_type == "siteSettings"][0]{
+      seo {
+        title,
+        description,
+        keywords,
+        ogTitle,
+        ogDescription,
+        ogImage {
+          asset->{
+            url
+          }
+        },
+        ogUrl,
+        twitterCard,
+        twitterTitle,
+        twitterDescription,
+        twitterImage {
+          asset->{
+            url
+          }
+        },
+        favicon {
+          asset->{
+            url
+          }
+        }
+      }
+    }`;
+    
+    const result = await client.fetch(query);
+    
+    if (result?.seo) {
+      seoData = {
+        ...seoData,
+        ...result.seo,
+        ogImage: result.seo.ogImage?.asset?.url || seoData.ogImage,
+        twitterImage: result.seo.twitterImage?.asset?.url || seoData.twitterImage,
+        favicon: result.seo.favicon?.asset?.url || seoData.favicon,
+      };
+    }
+  } catch (error) {
+    console.error('Error fetching SEO data:', error);
+  }
+}
+
+// Use page title if provided, otherwise use SEO title
+const pageTitle = title || seoData.title;
+const pageDescription = description || seoData.description;
+---
+
+<!DOCTYPE html>
+<html lang="zxx">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <!-- Meta Tags -->
+  <meta name="keywords" content={seoData.keywords} />
+  <meta name="description" content={pageDescription} />
+  
+  <!-- Open Graph -->
+  <meta property="og:title" content={seoData.ogTitle || pageTitle} />
+  <meta property="og:description" content={seoData.ogDescription || pageDescription} />
+  <meta property="og:image" content={seoData.ogImage} />
+  <meta property="og:url" content={seoData.ogUrl} />
+  <meta property="og:type" content="website" />
+  
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content={seoData.twitterCard} />
+  <meta name="twitter:title" content={seoData.twitterTitle || seoData.ogTitle || pageTitle} />
+  <meta name="twitter:description" content={seoData.twitterDescription || seoData.ogDescription || pageDescription} />
+  <meta name="twitter:image" content={seoData.twitterImage || seoData.ogImage} />
+  
+  <title>{pageTitle}</title>
+  <link rel="icon" href={seoData.favicon} />
+  
+  <!-- Icons -->
+  <link rel="stylesheet" type="text/css" href="/assets/icons/flaticon/flaticon.css" />
+  <link rel="stylesheet" type="text/css" href="/assets/icons/fontawesome/css/all.min.css" />
+  <link type="text/css" rel="stylesheet" href="/assets/icons/themify-icons/css/themify-icons.css" />
+  
+  <!-- Plugins -->
+  <link rel="stylesheet" href="/assets/plugins/swiper/swiper-bundle.min.css" />
+  
+  <!-- Styles -->
+  <link rel="stylesheet" href="/assets/css/style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@100..800&family=Urbanist:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet" />
+</head>
+<body class="selection:bg-primary selection:text-white">
+  <!-- Preloader -->
+  <div class="preloader">
+    <div id="loader"></div>
+  </div>
+  
+  <!-- Header Slot - will be filled by child components -->
+  <slot name="header" />
+  
+  <!-- Main Content Slot -->
+  <slot />
+  
+  <!-- Footer Slot -->
+  <slot name="footer" />
+  
+  <!-- Search Popup -->
+  <div class="search-popup">
+    <button class="close-search"><i class="fa-solid fa-xmark"></i></button>
+    <form method="post" action="#">
+      <div class="form-group relative overflow-hidden">
+        <input type="search" name="search-field" value="" placeholder="Search Here" required="" class="placeholder:text-black" />
+        <button type="submit"><i class="fa fa-search"></i></button>
+      </div>
+    </form>
+  </div>
+  
+  <!-- Progress -->
+  <div id="scroll-percentage"><span id="scroll-percentage-value"></span></div>
+  
+  <!-- Scripts -->
+  <script is:inline src="/assets/js/jquery.min.js"></script>
+  <script is:inline src="/assets/plugins/swiper/swiper-bundle.min.js"></script>
+  <script is:inline src="/assets/plugins/counter/waypoints-min.js"></script>
+  <script is:inline src="/assets/js/circle-progres.js"></script>
+  <script is:inline src="/assets/js/dz.carousel.js"></script>
+  <script is:inline src="/assets/js/custom.js"></script>
+  <script is:inline src="/assets/js/preloader.js"></script>
+  <script is:inline src="/assets/js/dz.ajax.js"></script>
+  
+  <!-- Scripts Slot for page-specific scripts -->
+  <slot name="scripts" />
+</body>
+</html>

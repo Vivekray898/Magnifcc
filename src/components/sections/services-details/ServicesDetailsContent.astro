@@ -1,0 +1,299 @@
+---
+// src/components/sections/services-details/ServicesDetailsContent.astro
+
+import { client } from '../../../lib/sanity';
+
+export interface Props {
+  slug?: string;
+  fetchFromSanity?: boolean;
+}
+
+const { slug, fetchFromSanity = true } = Astro.props;
+
+// Default data
+const defaultData = {
+  icon: `<svg width="45" height="45" viewBox="0 0 45 45" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M6.75 12.5H26.875M6.75 21.125H21.125M6.75 29.75H13.9375M19.1267 38.375H3.87499C3.11251 38.375 2.38124 38.0722 1.84206 37.533C1.3029 36.9938 1 36.2624 1 35.5V3.87501C1 3.1125 1.3029 2.38123 1.84206 1.84208C2.38124 1.3029 3.11251 1 3.87499 1H24.2473C25.0092 1.00016 25.74 1.3028 26.2789 1.84142L31.7836 7.34609C32.3222 7.88504 32.6248 8.61579 32.625 9.37776V19.2346M37.5501 24.16H30.2821V30.3329H24.1095V37.6009H30.2821V43.7733H37.5501V37.6009H43.7227V30.3329H37.5501V24.16Z" stroke="#fff" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>`,
+  title: "Medical Services",
+  description: "We believe that prevention is the key to maintaining a healthy, beautiful smile. Our comprehensive preventive care services are designed to detect and address potential dental issues before they become serious, helping you avoid discomfort and costly treatments in the future.",
+  longDescription: "We believe that prevention is the key to maintaining a healthy, beautiful smile. Our comprehensive preventive care services are designed to detect and address potential dental issues before they become serious, helping you avoid discomfort and costly treatments in the future. Our Preventive Care Services Routine Dental Exams Regular check-ups allow us to monitor your oral health and catch any issues early.",
+  sectionTitle: "Fluoride Treatments",
+  sectionContent: "Strengthen your enamel and protect your teeth from decay with safe and effective fluoride applications. Dental Sealants A protective coating applied to the chewing surfaces of molars to prevent cavities, especially in children and teenagers Oral Cancer Screenings Early detection of oral cancer can save lives. We conduct thorough screenings during routine exams to ensure your health and safety.",
+  image: "assets/img/services-details.jpg",
+  bottomText: "We provide tailored advice on brushing, flossing, and dietary habits to help you maintain excellent oral hygiene at home. X-Rays and Imaging Advanced digital X-rays help us detect hidden dental issues, such as cavities, bone loss, or impacted teeth, before they cause problems.",
+  faqs: [
+    { question: "How often should I visit the dentist?", answer: "Yes, we provide prompt care for dental emergencies, including severe toothaches, broken teeth, and dental injuries. Contact us immediately if you need urgent care." },
+    { question: "Do you offer emergency dental services?", answer: "Yes, we provide prompt care for dental emergencies, including severe toothaches, broken teeth, and dental injuries. Contact us immediately if you need urgent care." },
+    { question: "How can I improve my oral hygiene at home?", answer: "Yes, we provide prompt care for dental emergencies, including severe toothaches, broken teeth, and dental injuries. Contact us immediately if you need urgent care." },
+    { question: "What insurance plans do you accept?", answer: "Yes, we provide prompt care for dental emergencies, including severe toothaches, broken teeth, and dental injuries. Contact us immediately if you need urgent care." },
+    { question: "What should I do if I experience dental anxiety?", answer: "Yes, we provide prompt care for dental emergencies, including severe toothaches, broken teeth, and dental injuries. Contact us immediately if you need urgent care." },
+  ],
+  servicesList: [
+    { title: "Preventive Care", link: "/services/preventive-care" },
+    { title: "Restorative Dentistry", link: "/services/restorative-dentistry" },
+    { title: "Cosmetic Dentistry", link: "/services/cosmetic-dentistry" },
+    { title: "Orthodontic Treatments", link: "/services/orthodontic-treatments" },
+    { title: "Emergency Dental Care", link: "/services/emergency-dental" },
+  ],
+  socialLinks: [
+    { icon: "fa-brands fa-facebook-f", url: "https://www.facebook.com/" },
+    { icon: "fa-brands fa-x-twitter", url: "https://x.com/" },
+    { icon: "fa-brands fa-instagram", url: "https://www.instagram.com/" },
+    { icon: "fa-brands fa-youtube", url: "https://www.youtube.com/" },
+  ],
+  prevService: { title: "Prev Services", link: "javascript:void(0);" },
+  nextService: { title: "Next Services", link: "javascript:void(0);" },
+};
+
+let data = defaultData;
+
+// Fetch from Sanity by slug
+if (fetchFromSanity && slug) {
+  try {
+    const query = `*[_type == "servicesDetails" && slug.current == "${slug}"][0]{
+      icon,
+      title,
+      description,
+      longDescription,
+      sectionTitle,
+      sectionContent,
+      image {
+        asset->{
+          _id,
+          url
+        }
+      },
+      bottomText,
+      faqs[] {
+        question,
+        answer
+      },
+      servicesList[] {
+        title,
+        link
+      },
+      socialLinks[] {
+        icon,
+        url
+      },
+      prevService {
+        title,
+        link
+      },
+      nextService {
+        title,
+        link
+      }
+    }`;
+    
+    const result = await client.fetch(query);
+    
+    if (result && Object.keys(result).length > 0) {
+      data = { ...defaultData, ...result };
+      if (result.image?.asset?.url) {
+        data.image = result.image.asset.url;
+      }
+      
+      // Fetch all services for navigation
+      try {
+        const allServicesQuery = `*[_type == "servicesDetails"]{
+          title,
+          slug
+        } | order(_createdAt asc)`;
+        
+        const allServices = await client.fetch(allServicesQuery);
+        
+        if (allServices && allServices.length > 0) {
+          const currentIndex = allServices.findIndex((s: any) => s.slug?.current === slug);
+          
+          if (currentIndex > 0) {
+            const prevService = allServices[currentIndex - 1];
+            data.prevService = {
+              title: prevService.title || 'Previous Service',
+              link: `/services/${prevService.slug?.current}`,
+            };
+          }
+          
+          if (currentIndex < allServices.length - 1 && currentIndex !== -1) {
+            const nextService = allServices[currentIndex + 1];
+            data.nextService = {
+              title: nextService.title || 'Next Service',
+              link: `/services/${nextService.slug?.current}`,
+            };
+          }
+        }
+      } catch (navError) {
+        console.error('Error fetching navigation:', navError);
+      }
+    } else {
+      console.warn(`No service found for slug: ${slug}, using default data`);
+    }
+  } catch (error) {
+    console.error('Error fetching services details data:', error);
+  }
+}
+
+const {
+  icon,
+  title,
+  description,
+  longDescription,
+  sectionTitle,
+  sectionContent,
+  image,
+  bottomText,
+  faqs,
+  servicesList,
+  socialLinks,
+  prevService,
+  nextService,
+} = data;
+---
+
+<!-- Rest of the component remains the same -->
+<section class="xxl:py-120 lg:py-100 md:py-80 py-60">
+  <div class="container">
+    <div class="grid grid-cols-12 gap-25">
+      <!-- Sidebar -->
+      <div class="lg:col-span-4 col-span-12">
+        <div class="top-130 sticky">
+          <!-- Search -->
+          <div class="xl:p-30 p-20 border border-[#D8D8D8] mb-24">
+            <h3 class="xl:text-2xl text-xl font-semibold pb-20 text-secondary capitalize font-sora">Search Here</h3>
+            <form class="relative">
+              <input type="email" name="email" placeholder="Enter Your Email" class="w-full h-60 pl-24 border border-[#d8d8d8] placeholder:text-gary outline-none">
+              <button class="absolute right-20 bg-transparent text-base top-17 text-secondary"><i class="fa-solid fa-magnifying-glass"></i></button>
+            </form>
+          </div>
+          
+          <!-- Services List -->
+          <div class="xl:p-30 p-20 border border-[#D8D8D8] mb-24">
+            <h3 class="xl:text-2xl text-xl font-semibold pb-20 text-secondary capitalize font-sora">Services List</h3>
+            <ul class="services-list">
+              {servicesList && servicesList.length > 0 ? (
+                servicesList.map((service, index) => (
+                  <li key={index} class="xxl:mb-24 mb-16 w-full relative">
+                    <a href={service.link}>{service.title}<i class="fa-solid fa-arrow-right"></i></a>
+                  </li>
+                ))
+              ) : (
+                <li class="xxl:mb-24 mb-16 w-full relative">
+                  <a href="javascript:void(0);">No services available</a>
+                </li>
+              )}
+            </ul>
+          </div>
+          
+          <!-- Social Links -->
+          <div class="xl:p-30 p-20 border border-[#D8D8D8] mb-24">
+            <h3 class="xl:text-2xl text-xl font-semibold pb-20 text-secondary capitalize font-sora">tags</h3>
+            <ul class="flex gap-x-10">
+              {socialLinks && socialLinks.length > 0 ? (
+                socialLinks.map((social, index) => (
+                  <li key={index}>
+                    <a href={social.url} class="flex items-center justify-center xxl:size-50 size-40 max-xxl:text-sm border border-[#D8D8D8] rounded-full hover:bg-primary duration-500 hover:text-white hover:border-transparent" target="_blank">
+                      <i class={social.icon}></i>
+                    </a>
+                  </li>
+                ))
+              ) : (
+                <>
+                  <li>
+                    <a href="https://www.facebook.com/" class="flex items-center justify-center xxl:size-50 size-40 max-xxl:text-sm border border-[#D8D8D8] rounded-full hover:bg-primary duration-500 hover:text-white hover:border-transparent" target="_blank">
+                      <i class="fa-brands fa-facebook-f"></i>
+                    </a>
+                  </li>
+                  <li>
+                    <a href="https://x.com/" class="flex items-center justify-center xxl:size-50 size-40 max-xxl:text-sm border border-[#D8D8D8] rounded-full hover:bg-primary duration-500 hover:text-white hover:border-transparent" target="_blank">
+                      <i class="fa-brands fa-x-twitter"></i>
+                    </a>
+                  </li>
+                  <li>
+                    <a href="https://www.instagram.com/" class="flex items-center justify-center xxl:size-50 size-40 max-xxl:text-sm border border-[#D8D8D8] rounded-full hover:bg-primary duration-500 hover:text-white hover:border-transparent" target="_blank">
+                      <i class="fa-brands fa-instagram"></i>
+                    </a>
+                  </li>
+                  <li>
+                    <a href="https://www.youtube.com/" class="flex items-center justify-center xxl:size-50 size-40 max-xxl:text-sm border border-[#D8D8D8] rounded-full hover:bg-primary duration-500 hover:text-white hover:border-transparent" target="_blank">
+                      <i class="fa-brands fa-youtube"></i>
+                    </a>
+                  </li>
+                </>
+              )}
+            </ul>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Main Content -->
+      <div class="lg:col-span-8 col-span-12">
+        <div>
+          <!-- Icon -->
+          <i class="items-center flex size-90 justify-center rounded-full bg-primary" set:html={icon || defaultData.icon} />
+          
+          <!-- Title -->
+          <h2 class="pt-20 pb-10 xxl:text-5.2xl xl:text-4.65xl lg:text-3.8xl md:text-3.8xl sm:text-3xl text-2.5xl font-bold font-sora text-secondary">
+            <a href="javascript:void(0);">{title || defaultData.title}</a>
+          </h2>
+          
+          <!-- Description -->
+          <p class="text-base xxl:leading-30 xl:leading-28 leading-26 text-gary font-normal">{description || defaultData.description}</p>
+          
+          <!-- Section Title -->
+          <h3 class="xxl:text-2.3xl xl:text-2.5xl sm:text-2xl text-xxl max-sm:leading-32 font-bold font-sora text-secondary pt-40 max-xl:pt-30 pb-10">{sectionTitle || defaultData.sectionTitle}</h3>
+          
+          <!-- Section Content -->
+          <p class="text-base xxl:leading-30 xl:leading-28 leading-26 text-gary font-normal">{sectionContent || defaultData.sectionContent}</p>
+          
+          <!-- Image -->
+          <div class="w-full group xxl:py-50 py-40">
+            <figure class="overflow-hidden">
+              <img src={image || defaultData.image} alt={title || defaultData.title} class="w-full group-hover:scale-[1.1] group-hover:rotate-[3deg] duration-500" loading="lazy">
+            </figure>
+          </div>
+          
+          <!-- Bottom Text -->
+          <p class="text-base xxl:leading-30 xl:leading-28 leading-26 text-gary font-normal">{bottomText || defaultData.bottomText}</p>
+          
+          <!-- FAQs -->
+          <h3 class="xxl:text-2.3xl xl:text-2.5xl sm:text-2xl text-xxl max-sm:leading-32 font-bold font-sora text-secondary xxl:pt-50 xl:40 pt-30 pb-10">Frequently Asked Questions</h3>
+          
+          <div class="accordion xxl:pt-50 pt-40 xxl:pb-25 pb-15">
+            {(faqs && faqs.length > 0 ? faqs : defaultData.faqs).map((faq, index) => (
+              <div class={`accordion-item ${index === 0 ? 'active' : ''}`} key={index}>
+                <a href="javascript:void(0)" class="heading block capitalize text-black font-bold text-2xl relative duration-500 w-full">
+                  <div class="icon block absolute top-11 -translate-y-1/2 right-13 duration-500"><i class="fa-solid fa-plus"></i></div>
+                  <div class="title">{faq.question}</div>
+                </a>
+                <div class="content pb-24 pt-0 bg-[#24243500]" style={index === 0 ? 'display: block;' : 'display: none;'}>
+                  <p class="xxl:text-lg text-sm font-medium text-gary xxl:leading-30 xl:leading-28 leading-26">{faq.answer}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+          
+          <!-- Prev/Next Navigation -->
+          <div class="justify-between flex mt-60 bg-[#f4f4ff] p-20">
+            <a href={prevService?.link || 'javascript:void(0);'} class="font-bold flex items-center gap-20 text-secondary">
+              <i class="bg-primary xxl:size-60 xl:size-50 size-40 flex items-center justify-center hover:bg-secondary duration-500">
+                <svg width="20" height="11" viewBox="0 0 20 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M0.731215 3.66545L3.95657 0.257795C4.03405 0.176108 4.12623 0.111272 4.22779 0.0670259C4.32935 0.0227798 4.43828 0 4.5483 0C4.65832 0 4.76726 0.0227798 4.86882 0.0670259C4.97038 0.111272 5.06256 0.176108 5.14003 0.257795C5.29526 0.421085 5.38239 0.641974 5.38239 0.872218C5.38239 1.10246 5.29526 1.32335 5.14003 1.48664L2.17304 4.61541H19.1666C19.3876 4.61541 19.5996 4.70723 19.7559 4.87067C19.9122 5.03411 20 5.25578 20 5.48693C20 5.71807 19.9122 5.93974 19.7559 6.10319C19.5996 6.26663 19.3876 6.35845 19.1666 6.35845H2.12303L5.14003 9.50464C5.21815 9.58566 5.28015 9.68205 5.32246 9.78826C5.36477 9.89446 5.38656 10.0084 5.38656 10.1234C5.38656 10.2385 5.36477 10.3524 5.32246 10.4586C5.28015 10.5648 5.21815 10.6612 5.14003 10.7422C5.06256 10.8239 4.97038 10.8887 4.86882 10.933C4.76726 10.9772 4.65832 11 4.5483 11C4.43828 11 4.32935 10.9772 4.22779 10.933C4.12623 10.8887 4.03405 10.8239 3.95657 10.7422L0.731215 7.3607C0.262995 6.87047 0 6.20594 0 5.51307C0 4.82021 0.262995 4.15568 0.731215 3.66545Z" fill="white"/>
+                </svg>
+              </i>
+              {prevService?.title || 'Previous'}
+            </a>
+            <a href={nextService?.link || 'javascript:void(0);'} class="font-bold flex items-center gap-20 text-secondary">
+              {nextService?.title || 'Next'}
+              <i class="bg-primary xxl:size-60 xl:size-50 size-40 flex items-center justify-center hover:bg-secondary duration-500">
+                <svg width="20" height="11" viewBox="0 0 20 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M19.2688 3.66545L16.0434 0.257795C15.966 0.176108 15.8738 0.111272 15.7722 0.0670259C15.6707 0.0227798 15.5617 0 15.4517 0C15.3417 0 15.2327 0.0227798 15.1312 0.0670259C15.0296 0.111272 14.9374 0.176108 14.86 0.257795C14.7047 0.421085 14.6176 0.641974 14.6176 0.872218C14.6176 1.10246 14.7047 1.32335 14.86 1.48664L17.827 4.61541H0.833425C0.612387 4.61541 0.400402 4.70723 0.244105 4.87067C0.087807 5.03411 0 5.25578 0 5.48693C0 5.71807 0.087807 5.93974 0.244105 6.10319C0.400402 6.26663 0.612387 6.35845 0.833425 6.35845H17.877L14.86 9.50464C14.7819 9.58566 14.7198 9.68205 14.6775 9.78826C14.6352 9.89446 14.6134 10.0084 14.6134 10.1234C14.6134 10.2385 14.6352 10.3524 14.6775 10.4586C14.7198 10.5648 14.7819 10.6612 14.86 10.7422C14.9374 10.8239 15.0296 10.8887 15.1312 10.933C15.2327 10.9772 15.3417 11 15.4517 11C15.5617 11 15.6707 10.9772 15.7722 10.933C15.8738 10.8887 15.966 10.8239 16.0434 10.7422L19.2688 7.3607C19.737 6.87047 20 6.20594 20 5.51307C20 4.82021 19.737 4.15568 19.2688 3.66545Z" fill="white"/>
+                </svg>
+              </i>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

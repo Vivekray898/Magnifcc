@@ -1,0 +1,21 @@
+---
+// src/pages/contact.astro
+
+import Layout from "../layouts/Layout.astro";
+import Header from '../components/common/Header.astro';
+import Footer from '../components/common/Footer.astro';
+import ContactHero from '../components/sections/contact/ContactHero.astro';
+import ContactForm from '../components/sections/contact/ContactForm.astro';
+---
+
+<Layout title="Contact Us" description="Get in touch with us">
+  <Header fetchFromSanity={true} slot="header" />
+  
+  <!-- Contact Hero -->
+  <ContactHero fetchFromSanity={true} />
+  
+  <!-- Contact Form & Info -->
+  <ContactForm fetchFromSanity={true} />
+  
+  <Footer fetchFromSanity={true} slot="footer" />
+</Layout>

@@ -1,0 +1,36 @@
+@layer components{
+	.search-popup .form-group input{
+		@apply relative block text-lg leading-50 text-black h-70 w-full py-10 px-30 bg-white duration-500 font-medium capitalize outline-none;
+	}
+	.search-popup form { 
+		 @apply absolute max-w-700 top-1/2 left-15 right-15 -mt-35 mx-auto mb-0 origin-center bg-white duration-[500ms] scale-x-0;
+	}
+	.search-active .search-popup form {
+		@apply scale-x-[1] duration-[1200ms];
+	}
+	.search-popup {
+		@apply fixed left-0 top-0 h-[100vh] w-full z-99 -translate-y-full -mt-540 bg-[#5454ffd9] duration-[1500ms];
+	}
+	
+	.search-active .search-popup {
+		@apply translate-y-0 mt-0;
+	}
+	
+	.search-active .search-popup .close-search {
+		@apply visible opacity-100 duration-[1500ms];
+	}
+	.search-popup .close-search {
+		@apply top-[6%] absolute left-[94%] mx-auto rounded-full text-center bg-[#021935] size-50 cursor-pointer shadow-[0_0_10px_rgba(0,0,0,0.05)] duration-500 leading-50 text-white;
+	}
+	button.close-search i {
+		@apply text-lg text-white inline-block font-sora;
+	}
+	@media (max-width: 1400px) {
+    .progressbar canvas {
+        @apply !size-130;
+		}
+	}
+	.services-two:hover a {
+		@apply text-white;
+	}
+}

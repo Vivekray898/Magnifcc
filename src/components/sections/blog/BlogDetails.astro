@@ -1,0 +1,194 @@
+---
+// src/components/sections/blog/BlogDetails.astro
+
+import { client } from '../../../lib/sanity';
+import BlogContent from './BlogContent.tsx';
+import BlogSidebar from './BlogSidebar.astro';
+import BlogComments from './BlogComments.astro';
+import BlogCommentForm from './BlogCommentForm.astro';
+
+export interface Props {
+  slug?: string;
+  fetchFromSanity?: boolean;
+}
+
+const { slug, fetchFromSanity = true } = Astro.props;
+
+// Default data
+const defaultData = {
+  title: "In-Depth Health Insights",
+  image: "/assets/img/blog-details-1.jpg",
+  author: "Admin",
+  comments: 0,
+  content: [],
+  quote: null,
+  shareExperience: null,
+  galleryImages: [],
+  bottomSection: null,
+  tags: ["Wellness", "Mental", "Exercise"],
+  socialLinks: [
+    { icon: "fa-brands fa-facebook-f", url: "https://www.facebook.com/" },
+    { icon: "fa-brands fa-x-twitter", url: "https://x.com/" },
+    { icon: "fa-brands fa-instagram", url: "https://www.instagram.com/" },
+    { icon: "fa-brands fa-youtube", url: "https://www.youtube.com/" },
+  ],
+  prevPost: { title: "Prev blog", link: "javascript:void(0);" },
+  nextPost: { title: "Next blog", link: "javascript:void(0);" },
+  authorBio: null,
+  commentList: [], // Empty by default
+};
+
+let data = defaultData;
+
+// Fetch from Sanity by slug
+if (fetchFromSanity && slug) {
+  try {
+    const query = `*[_type == "blogPost" && slug.current == "${slug}"][0]{
+      title,
+      excerpt,
+      content,
+      publishDate,
+      author,
+      comments,
+      featuredImage {
+        asset->{
+          _id,
+          url
+        }
+      },
+      tags,
+      featured,
+      quote {
+        text,
+        author
+      },
+      shareExperience {
+        title,
+        content
+      },
+      galleryImages[] {
+        asset->{
+          _id,
+          url
+        }
+      },
+      bottomSection {
+        title,
+        content
+      },
+      authorBio {
+        name,
+        avatar {
+          asset->{
+            _id,
+            url
+          }
+        },
+        bio,
+        socialIcon,
+        socialLink
+      },
+      prevPost {
+        title,
+        link
+      },
+      nextPost {
+        title,
+        link
+      },
+      // Fetch comments if you have a comments array in your schema
+      // commentsList[] {
+      //   name,
+      //   avatar,
+      //   date,
+      //   content,
+      //   isReply
+      // }
+    }`;
+    
+    const result = await client.fetch(query);
+    
+    if (result) {
+      const galleryUrls = result.galleryImages?.map((img: any) => img?.asset?.url).filter(Boolean) || [];
+      
+      data = {
+        ...defaultData,
+        title: result.title || defaultData.title,
+        image: result.featuredImage?.asset?.url || defaultData.image,
+        author: result.author || defaultData.author,
+        comments: result.comments || 0,
+        content: result.content || defaultData.content,
+        tags: result.tags || defaultData.tags,
+        quote: result.quote || defaultData.quote,
+        shareExperience: result.shareExperience || defaultData.shareExperience,
+        galleryImages: galleryUrls.length > 0 ? galleryUrls : defaultData.galleryImages,
+        bottomSection: result.bottomSection || defaultData.bottomSection,
+        authorBio: result.authorBio ? {
+          ...result.authorBio,
+          avatar: result.authorBio.avatar?.asset?.url || '/assets/img/Johari-lslam.jpg',
+        } : defaultData.authorBio,
+        prevPost: result.prevPost || defaultData.prevPost,
+        nextPost: result.nextPost || defaultData.nextPost,
+        // commentList: result.commentsList || [],
+      };
+    }
+  } catch (error) {
+    console.error('Error fetching blog details:', error);
+  }
+}
+
+const {
+  title,
+  image,
+  author,
+  comments,
+  content,
+  quote,
+  shareExperience,
+  galleryImages,
+  bottomSection,
+  tags = defaultData.tags,
+  socialLinks = defaultData.socialLinks,
+  prevPost = defaultData.prevPost,
+  nextPost = defaultData.nextPost,
+  authorBio = defaultData.authorBio,
+  commentList = [], // Empty by default, will be populated from Sanity in future
+} = data;
+---
+
+<section class="xxl:py-120 lg:py-100 md:py-80 py-60">
+  <div class="container">
+    <div class="grid grid-cols-12 gap-25">
+      <!-- Main Content -->
+      <div class="lg:col-span-8 col-span-12">
+        <BlogContent 
+          title={title}
+          image={image}
+          author={author}
+          comments={comments}
+          content={content}
+          quote={quote}
+          shareExperience={shareExperience}
+          galleryImages={galleryImages}
+          bottomSection={bottomSection}
+          tags={tags}
+          socialLinks={socialLinks}
+          prevPost={prevPost}
+          nextPost={nextPost}
+          authorBio={authorBio}
+        />
+        
+        <!-- Comments - No dummy data, only real comments -->
+        <BlogComments commentList={commentList} />
+        
+        <!-- Comment Form -->
+        <BlogCommentForm fetchFromSanity={true} />
+      </div>
+      
+      <!-- Sidebar -->
+      <div class="lg:col-span-4 col-span-12">
+        <BlogSidebar fetchFromSanity={true} />
+      </div>
+    </div>
+  </div>
+</section>

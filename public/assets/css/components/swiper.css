@@ -1,0 +1,185 @@
+	.services-slider .swiper-button {
+		@apply absolute top-0 w-130 right-[10%] block h-60 z-[111] rounded-full;
+	}
+	
+	.services-slider .services-swiper-button-prev, .services-slider .services-swiper-button-next {
+		@apply size-50 border-[#D8D8D8] rounded-full border text-secondary absolute top-0 z-10 cursor-pointer flex items-center justify-center duration-500;
+	}
+	
+	.reviewtwo-slider .swiper-button-prev, .reviewtwo-slider .swiper-button-next {
+		@apply size-50 border-[#D8D8D8] rounded-full border text-secondary absolute top-0 z-10 cursor-pointer flex items-center justify-center;
+	}
+	
+	.reviewtwo-slider .swiper-button {
+		@apply absolute top-30 w-130 right-[10%] block h-60 z-[111] rounded-full;
+	}
+	
+	.dental-project-slide .swiper-button {
+		@apply absolute top-30 w-130 right-[10%] block h-60 z-[111] rounded-full;
+	}
+	
+	.dental-project-slide .swiper-button-prev, .dental-project-slide .swiper-button-next {
+		@apply size-50 border-[#D8D8D8] rounded-full border text-secondary absolute top-0 z-10 cursor-pointer flex items-center justify-center duration-500;
+	}
+	
+	
+	@media (max-width: 1200px) {
+	.services-slider .swiper-button{
+		@apply top-20;
+	}
+	}
+	.services-slider .services-swiper-button-next {
+		@apply right-10 left-auto;
+	}
+	@media (max-width: 768px) {
+    .services-slider .swiper-button {
+        @apply relative top-5 w-130 right-auto left-[35%];
+    }
+	}
+	
+	@media (max-width: 575px) {
+    .btn {
+        @apply py-14 px-24 text-sm;
+    }
+	}
+	
+	@media (max-width: 768px) {
+    .reviewtwo-slider .swiper-button, .dental-project-slide .swiper-button {
+        @apply relative right-auto left-[36%];
+    }
+	}		
+	@media (min-width: 991px) {	
+	.swiper-review-two-img {
+		@apply border-r  border-[#d8d8d8] mr-40;
+	}
+	}
+	@layer components{
+	@media (min-width:1600px){
+	.swiper.services-slider {
+		@apply !-mx-100 !-mt-110 !pt-110 ;
+	}
+	}
+	.swiper.services-slider {
+		@apply !-mt-110 !pt-110 ;
+	}
+	.brand-slide .swiper-slide {
+		@apply !text-center !flex !justify-center;
+	}
+	@media (max-width: 1400px) {
+    .swiper.services-slider {
+        @apply -mx-80;
+	}
+	}
+	.swiper-review-two-img .swiper-slide-thumb-active img {
+		@apply border border-primary;
+	}
+	.swiper-review-two .swiper-pagination{
+		@apply !w-100 !right-0 !absolute  !left-auto !bottom-10;
+	}
+	.swiper-review-two span.swiper-pagination-bullet-active {
+		@apply !bg-primary;
+	}
+	.swiper-review-two .swiper-pagination span {
+		@apply !size-12;
+	}
+	
+	.swiper-button-prev {
+		@apply right-10 left-auto;
+	}
+	
+	.swiper-button-next, .swiper-button-prev {
+		@apply absolute top-1/2 z-10 cursor-pointer flex items-center justify-center !text-[#011834];
+ 
+	}
+	.swiper-button-next {
+		@apply left-10 right-auto;
+	}
+	.swiper-button-next:after, .swiper-rtl .swiper-button-prev:after,
+	.swiper-button-prev:after, .swiper-rtl .swiper-button-next:after {
+		@apply hidden;
+	}
+	.review-slider .swiper-button i:hover {
+		@apply text-primary duration-500;
+	}
+
+	.image-slider:hover .swiper-button .swiper-button-next {
+		@apply !right-20 duration-500 bg-transparent;
+	}
+	.image-slider .swiper-button .swiper-button-next {
+		@apply !-right-200  duration-500;
+	}
+	.image-slider .swiper-button > div {
+		@apply !w-160;
+	}
+	
+	.image-slider .swiper-button span {
+		@apply size-160 bg-[#ffffff52] flex items-center justify-center text-white rounded-full text-2xl uppercase duration-500;
+	}
+	.image-slider:hover .swiper-button .swiper-button-prev {
+		@apply !left-20 duration-500 bg-transparent;
+	}
+	
+	
+	.image-slider .swiper-button .swiper-button-prev {
+		@apply !-left-200  duration-500;
+	}
+	.image-slider .swiper-button span:hover {
+		@apply bg-white text-black duration-500;
+	}
+	.dental-project-slide {
+		@apply -mx-100 -mt-110 !pt-110;
+	}
+
+
+	@media (max-width: 1200px) {
+    .image-slider .swiper-button span {
+       @apply size-120 text-lg;
+    }
+	}
+
+	@media (max-width: 992px) {
+    .image-slider img {
+       @apply h-auto;
+	}
+	}
+	
+	@media (max-width: 576px) {
+    .image-slider .swiper-button span {
+       @apply size-50 text-xs;
+    }
+	}
+	
+	.swiper-review-two-img img {
+		@apply border border-transparent;
+	}
+	.services-slider .services-swiper-button-prev:hover{
+		@apply bg-primary text-white duration-500;
+	}
+	
+	.services-slider .services-swiper-button-next:hover{
+		@apply bg-primary text-white duration-500;
+	}
+	
+	.services-slider .services-swiper-button-prev:hover i{
+		@apply text-white duration-500;
+	}
+	.services-slider .services-swiper-button-next:hover i{
+		@apply text-white duration-500;
+	}
+	
+	.swiper-button-prev:hover,.swiper-button-next:hover {
+		@apply bg-primary duration-500;
+	}
+	.swiper-button-prev:hover i,
+	.swiper-button-next:hover i{
+		@apply text-white duration-500;
+	}
+	.review-slider .swiper-button-prev:hover , .review-slider .swiper-button-next:hover {
+		@apply bg-transparent;
+	}
+	
+	.review-slider .swiper-button-prev:hover i, .review-slider .swiper-button-next:hover i{
+		@apply text-primary;
+	}
+	
+}

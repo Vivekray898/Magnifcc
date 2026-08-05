@@ -1,0 +1,109 @@
+---
+// src/components/sections/BrandLogos.astro
+
+import { client } from '../../lib/sanity';
+
+export interface Props {
+  class?: string;
+  fetchFromSanity?: boolean;
+}
+
+const { class: className = '', fetchFromSanity = true } = Astro.props;
+
+// Default brand logos (local files)
+const defaultBrands = [
+  'brand-logo-1.png',
+  'brand-logo-3.png',
+  'brand-logo-2.png',
+  'brand-logo-4.png',
+  'brand-logo-6.png',
+  'brand-logo-5.png',
+  'brand-logo-3.png',
+];
+
+let brands = defaultBrands;
+
+// Fetch from Sanity
+if (fetchFromSanity) {
+  try {
+    const query = `*[_type == "homePage"][0]{
+      brands {
+        logos[] {
+          name,
+          url,
+          logo {
+            asset->{
+              _id,
+              url
+            }
+          }
+        }
+      }
+    }`;
+    
+    const result = await client.fetch(query);
+    
+    if (result?.brands?.logos?.length > 0) {
+      // Map Sanity data to just the image URLs
+      brands = result.brands.logos.map((item: any) => {
+        return item.logo?.asset?.url || defaultBrands[0];
+      });
+    }
+  } catch (error) {
+    console.error('Error fetching brand logos data:', error);
+    // Keep using default brands
+  }
+}
+---
+
+<div class={`container xl:pb-120 lg:pb-100 md:pb-80 pb-60 ${className}`}>
+  <div class="swiper brand-slide">
+    <div class="swiper-wrapper">
+      {brands.map((logo, index) => (
+        <div class="swiper-slide" key={index}>
+          {logo.startsWith('http') ? (
+            <img src={logo} alt={`Brand ${index + 1}`} loading="lazy" />
+          ) : (
+            <img src={`/assets/img/${logo}`} alt={`Brand ${index + 1}`} loading="lazy" />
+          )}
+        </div>
+      ))}
+    </div>
+  </div>
+</div>
+
+<script>
+  // Initialize Swiper
+  document.addEventListener('DOMContentLoaded', () => {
+    const swiperEl = document.querySelector('.brand-slide');
+    if (!swiperEl) return;
+
+    new Swiper(swiperEl, {
+      slidesPerView: 2,
+      spaceBetween: 20,
+      loop: true,
+      autoplay: {
+        delay: 3000,
+        disableOnInteraction: false,
+      },
+      breakpoints: {
+        640: {
+          slidesPerView: 3,
+          spaceBetween: 30,
+        },
+        768: {
+          slidesPerView: 4,
+          spaceBetween: 40,
+        },
+        1024: {
+          slidesPerView: 5,
+          spaceBetween: 50,
+        },
+        1280: {
+          slidesPerView: 6,
+          spaceBetween: 60,
+        },
+      },
+    });
+  });
+</script>

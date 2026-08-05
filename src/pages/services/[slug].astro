@@ -1,0 +1,49 @@
+---
+// src/pages/services/[slug].astro
+
+import Layout from "../../layouts/Layout.astro";
+import Header from "../../components/common/Header.astro";
+import Footer from "../../components/common/Footer.astro";
+import ServicesDetailsHero from "../../components/sections/services-details/ServicesDetailsHero.astro";
+import ServicesDetailsContent from "../../components/sections/services-details/ServicesDetailsContent.astro";
+import { client } from "../../lib/sanity";
+
+export async function getStaticPaths() {
+  try {
+    const query = `*[_type == "servicesDetails"]{
+      slug
+    }`;
+    
+    const services = await client.fetch(query);
+    
+    if (services && services.length > 0) {
+      return services.map((service: any) => ({
+        params: { slug: service.slug?.current || 'service' },
+      }));
+    }
+  } catch (error) {
+    console.error('Error fetching service slugs:', error);
+  }
+  
+  // Fallback paths
+  return [
+    { params: { slug: 'medical-services' } },
+    { params: { slug: 'preventive-care' } },
+    { params: { slug: 'surgical-care' } },
+  ];
+}
+
+const { slug } = Astro.params;
+---
+
+<Layout title="Services Details" description="Detailed information about our services">
+  <Header fetchFromSanity={true} slot="header" />
+  
+  <!-- Services Details Hero -->
+  <ServicesDetailsHero fetchFromSanity={true} />
+  
+  <!-- Services Details Content -->
+  <ServicesDetailsContent slug={slug} fetchFromSanity={true} />
+  
+  <Footer fetchFromSanity={true} slot="footer" />
+</Layout>

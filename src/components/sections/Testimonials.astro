@@ -1,0 +1,464 @@
+---
+// src/components/sections/Testimonials.astro
+// A reusable testimonials section with star ratings and navigation
+
+import { client } from '../../lib/sanity';
+
+export interface Testimonial {
+  id: string | number;
+  name: string;
+  role: string;
+  avatar: string;
+  content: string;
+  rating: number;
+}
+
+export interface Props {
+  /** Array of testimonials to display */
+  testimonials?: Testimonial[];
+  /** Section title */
+  title?: string;
+  /** Section subtitle (badge text) */
+  subtitle?: string;
+  /** Additional CSS classes */
+  class?: string;
+  /** Whether to fetch from Sanity */
+  fetchFromSanity?: boolean;
+}
+
+const { 
+  fetchFromSanity = true,
+  class: className = "",
+} = Astro.props;
+
+// Default values
+const defaultSubtitle = "# Testimonials";
+const defaultTitle = "What Our Patients Say?";
+const defaultTestimonials: Testimonial[] = [
+  {
+    id: 1,
+    name: "Dr. Michael Tan",
+    role: "Senior Doctor",
+    avatar: "/assets/img/review-img-1.jpg",
+    content: "The team at Md Nuristan Sheik went above and beyond during my treatment. From the doctors to the nurses, everyone was professional, caring, and made me feel truly valued. Highly recommend their services!",
+    rating: 5,
+  },
+  {
+    id: 2,
+    name: "DR Tamim Hossin",
+    role: "Surgical Doctor",
+    avatar: "/assets/img/review-img-2.jpg",
+    content: "The team at Md Nuristan Sheik went above and beyond during my treatment. From the doctors to the nurses, everyone was compassionate and highly skilled. They made a difficult time much easier to bear.",
+    rating: 5,
+  },
+  {
+    id: 3,
+    name: "Dr. James Carter",
+    role: "Specialist Physician Doctor",
+    avatar: "/assets/img/team-3.png",
+    content: "The team at Md Nuristan Sheik went above and beyond during my treatment. From the doctors to the nurses, everyone was exceptional in their care and attention to detail. Truly grateful for their support.",
+    rating: 5,
+  },
+];
+
+let testimonials = defaultTestimonials;
+let title = defaultTitle;
+let subtitle = defaultSubtitle;
+
+// Fetch from Sanity
+if (fetchFromSanity) {
+  try {
+    const query = `*[_type == "homePage"][0]{
+      testimonialsSection {
+        subtitle,
+        title,
+        testimonials[] {
+          name,
+          role,
+          text,
+          rating,
+          avatar {
+            asset->{
+              _id,
+              url
+            }
+          }
+        }
+      }
+    }`;
+    
+    const result = await client.fetch(query);
+    
+    if (result?.testimonialsSection) {
+      // Update subtitle and title
+      if (result.testimonialsSection.subtitle) {
+        subtitle = result.testimonialsSection.subtitle;
+      }
+      if (result.testimonialsSection.title) {
+        title = result.testimonialsSection.title;
+      }
+      
+      // Map testimonials
+      if (result.testimonialsSection.testimonials?.length > 0) {
+        testimonials = result.testimonialsSection.testimonials.map((item: any, index: number) => ({
+          id: index + 1,
+          name: item.name || 'Anonymous',
+          role: item.role || 'Patient',
+          avatar: item.avatar?.asset?.url || '/assets/img/team-3.png',
+          content: item.text || '',
+          rating: item.rating || 5,
+        }));
+      }
+    }
+  } catch (error) {
+    console.error('Error fetching testimonials data:', error);
+    // Keep using default data
+  }
+}
+
+// Generate unique ID for this instance
+const sliderId = `review-slider-${Math.random().toString(36).substring(7)}`;
+---
+
+<section class={`lg:py-120 md:py-80 py-60 ${className}`}>
+  <div class="container">
+    <div class="text-center lg:mx-auto lg:w-[60%] w-full pb-50">
+      <span class="pb-10 block font-sora font-semibold capitalize xxl:text-xxl xl:text-xl sm:text-lg text-base text-primary">
+        {subtitle}
+      </span>
+      <h2 class="xl:text-5xl md:text-4xl sm:text-3xl text-2.5xl font-semibold text-secondary font-sora leading-[1.2]">
+        {title}
+      </h2>
+    </div>
+
+    <div class="swiper-container relative" id={sliderId}>
+      <div class="swiper-wrapper">
+        {testimonials.map((testimonial) => (
+          <div class="swiper-slide" key={testimonial.id}>
+            <div class="testimonial-card">
+              <!-- Star Rating -->
+              <ul class="flex text-sm gap-4 mb-10" role="img" aria-label={`Rating: ${testimonial.rating} out of 5 stars`}>
+                {[...Array(5)].map((_, index) => (
+                  <li key={index}>
+                    <i class={`fa-solid fa-star ${index < testimonial.rating ? 'text-yellow' : 'text-gray-300'} text-lg`}></i>
+                  </li>
+                ))}
+              </ul>
+
+              <!-- Testimonial Content -->
+              <p class="md:text-2xl sm:text-xl text-lg leading-34 font-medium pb-21 text-gary">
+                "{testimonial.content}"
+              </p>
+
+              <!-- Author Info -->
+              <div class="flex items-center gap-x-15 mt-auto">
+                <img 
+                  src={testimonial.avatar} 
+                  alt={testimonial.name} 
+                  class="rounded-full size-14 object-cover" 
+                  loading="lazy"
+                  width="56"
+                  height="56"
+                />
+                <div>
+                  <h5 class="text-base font-bold pb-4 text-secondary font-sora leading-[1.2]">
+                    {testimonial.name}
+                  </h5>
+                  <span class="text-sm text-gray-500">{testimonial.role}</span>
+                </div>
+              </div>
+
+              <!-- Quote Icon -->
+              <img 
+                src="/assets/img/quotes.png" 
+                alt="quotes" 
+                class="absolute right-[0%] bottom-[3%] bg-transparent mt-50 w-10 opacity-70" 
+                loading="lazy"
+                width="40"
+                height="40"
+              />
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <!-- Navigation Controls -->
+      <div class="swiper-navigation-wrapper">
+        <div class="swiper-button-next" aria-label="Next slide">
+          <i class="fa-solid fa-chevron-right"></i>
+        </div>
+        <div class="swiper-button-prev" aria-label="Previous slide">
+          <i class="fa-solid fa-chevron-left"></i>
+        </div>
+      </div>
+
+      <!-- Pagination -->
+      <div class="swiper-pagination"></div>
+    </div>
+  </div>
+</section>
+
+<script>
+  // Initialize Swiper for testimonials when the component mounts
+  document.addEventListener('DOMContentLoaded', () => {
+    // Use Intersection Observer for lazy initialization
+    const containers = document.querySelectorAll('.swiper-container');
+    
+    containers.forEach((container) => {
+      // Check if Swiper is already initialized on this element
+      if (container.swiper) return;
+
+      // Use Intersection Observer to initialize only when visible
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting && !container.swiper) {
+            initSwiper(container);
+            observer.unobserve(container);
+          }
+        });
+      }, { threshold: 0.1 });
+      
+      observer.observe(container);
+    });
+
+    function initSwiper(container) {
+      // Check if Swiper is available
+      if (typeof Swiper === 'undefined') {
+        console.warn('Swiper library not loaded');
+        return;
+      }
+
+      const nextBtn = container.querySelector('.swiper-button-next');
+      const prevBtn = container.querySelector('.swiper-button-prev');
+      const pagination = container.querySelector('.swiper-pagination');
+      
+      // Ensure we have at least 2 slides for proper navigation
+      const slides = container.querySelectorAll('.swiper-slide');
+      const slidesPerView = slides.length < 3 ? slides.length : 3;
+
+      new Swiper(container, {
+        slidesPerView: 1,
+        spaceBetween: 30,
+        loop: slides.length > 2,
+        freeMode: false,
+        navigation: {
+          nextEl: nextBtn,
+          prevEl: prevBtn,
+        },
+        pagination: {
+          el: pagination,
+          clickable: true,
+          dynamicBullets: true,
+        },
+        breakpoints: {
+          640: {
+            slidesPerView: Math.min(2, slides.length),
+            spaceBetween: 30,
+          },
+          768: {
+            slidesPerView: Math.min(2, slides.length),
+            spaceBetween: 40,
+          },
+          1024: {
+            slidesPerView: Math.min(3, slides.length),
+            spaceBetween: 50,
+          },
+        },
+        on: {
+          init: function() {
+            // Update navigation state
+            updateNavigation(this);
+          },
+          slideChange: function() {
+            updateNavigation(this);
+          }
+        }
+      });
+    }
+
+    function updateNavigation(swiperInstance) {
+      const nextBtn = swiperInstance.el.querySelector('.swiper-button-next');
+      const prevBtn = swiperInstance.el.querySelector('.swiper-button-prev');
+      
+      if (nextBtn) {
+        nextBtn.style.display = swiperInstance.isEnd ? 'none' : 'flex';
+      }
+      if (prevBtn) {
+        prevBtn.style.display = swiperInstance.isBeginning ? 'none' : 'flex';
+      }
+    }
+  });
+</script>
+
+<style>
+  .swiper-container {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    padding: 20px 0 40px;
+  }
+
+  .testimonial-card {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+    position: relative;
+    transition: transform 0.3s ease;
+  }
+
+  .testimonial-card:hover {
+    transform: translateY(-4px);
+  }
+
+  .swiper-slide {
+    height: auto;
+    padding: 10px;
+  }
+
+  /* Navigation styles */
+  .swiper-navigation-wrapper {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 30px;
+    position: relative;
+    z-index: 10;
+  }
+
+  .swiper-button-next,
+  .swiper-button-prev {
+    position: relative;
+    width: 50px;
+    height: 50px;
+    background: white;
+    border-radius: 50%;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    color: #021935;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    outline: none;
+    flex-shrink: 0;
+  }
+
+  .swiper-button-next:hover,
+  .swiper-button-prev:hover {
+    background: #F05DA8;
+    color: white;
+    transform: scale(1.05);
+  }
+
+  .swiper-button-next:active,
+  .swiper-button-prev:active {
+    transform: scale(0.95);
+  }
+
+  .swiper-button-next::after,
+  .swiper-button-prev::after {
+    display: none;
+  }
+
+  .swiper-button-next i,
+  .swiper-button-prev i {
+    font-size: 18px;
+  }
+
+  .swiper-button-disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+
+  /* Pagination styles */
+  .swiper-pagination {
+    position: relative;
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .swiper-pagination-bullet {
+    width: 10px;
+    height: 10px;
+    background: #ddd;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    opacity: 1;
+  }
+
+  .swiper-pagination-bullet-active {
+    background: #F05DA8;
+    width: 30px;
+    border-radius: 5px;
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 1023px) {
+    .swiper-button-next,
+    .swiper-button-prev {
+      width: 42px;
+      height: 42px;
+    }
+    
+    .swiper-button-next i,
+    .swiper-button-prev i {
+      font-size: 16px;
+    }
+  }
+
+  @media (max-width: 767px) {
+    .swiper-button-next,
+    .swiper-button-prev {
+      width: 36px;
+      height: 36px;
+    }
+    
+    .swiper-button-next i,
+    .swiper-button-prev i {
+      font-size: 14px;
+    }
+    
+    .swiper-navigation-wrapper {
+      gap: 15px;
+      margin-top: 20px;
+    }
+    
+    .testimonial-card {
+      padding: 15px;
+    }
+    
+    .swiper-container {
+      padding: 10px 0 30px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .swiper-button-next,
+    .swiper-button-prev {
+      width: 32px;
+      height: 32px;
+    }
+    
+    .swiper-button-next i,
+    .swiper-button-prev i {
+      font-size: 12px;
+    }
+    
+    .swiper-slide {
+      padding: 5px;
+    }
+    
+    .testimonial-card {
+      padding: 12px;
+    }
+  }
+</style>

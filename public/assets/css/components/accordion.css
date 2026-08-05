@@ -1,0 +1,37 @@
+@layer components{
+	.accordion-item.active {
+		@apply bg-white border-b-2 border-[#d8d8d8] duration-500;
+	}
+	
+	.accordion-item.active i{
+		@apply text-primary;
+	}
+	
+	.accordion-item{
+		@apply mb-25 bg-transparent text-secondary;
+	}
+	.accordion-item.active .icon {
+		@apply rotate-[45deg] top-0 duration-500;
+	}
+	.content{
+		@apply hidden;
+	}
+	.accordion-item.active .title {
+		@apply border-0;
+	}
+	.title{
+		@apply text-start font-sora text-secondary text-2xl bg-white font-bold border-b-2 border-[#d8d8d8] pb-24;
+	}
+	
+	@media (max-width: 1400px) {
+	.title{
+		@apply text-xl;
+	}
+	}
+	
+	@media (max-width: 1200px) {
+	.title{
+		@apply text-lg;
+	}
+	}
+}

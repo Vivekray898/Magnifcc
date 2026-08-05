@@ -1,0 +1,176 @@
+---
+// src/components/sections/Marquee.astro
+
+import { client } from '../../lib/sanity';
+import { imageUrlFor } from '../../lib/sanity-image';
+
+export interface Props {
+  variant?: 'primary' | 'secondary';
+  className?: string;
+  fetchFromSanity?: boolean;
+}
+
+const { variant = 'primary', className = '', fetchFromSanity = true } = Astro.props;
+
+// Default items
+const defaultItems = [
+  { icon: 'health-img-3.png', text: 'Medical group' },
+  { icon: 'health-img-2.png', text: 'Core Services' },
+  { icon: 'health-img-1.png', text: 'Technology' },
+  { icon: 'health-img-2.png', text: 'Health blogs' },
+];
+
+let items = defaultItems;
+const imageBase = '/assets/img/';
+
+// Fetch from Sanity
+if (fetchFromSanity) {
+  try {
+    const query = `*[_type == "homePage"][0]{
+      marqueeItems {
+        items[] {
+          text,
+          icon {
+            asset->{
+              _id,
+              url
+            }
+          }
+        }
+      }
+    }`;
+    
+    const result = await client.fetch(query);
+    
+    if (result?.marqueeItems?.items?.length > 0) {
+      // Map Sanity data to match the expected format
+      items = result.marqueeItems.items.map((item: any) => ({
+        text: item.text || '',
+        icon: item.icon?.asset?.url || 'health-img-3.png', // Fallback to default icon if no image
+      }));
+    }
+  } catch (error) {
+    console.error('Error fetching marquee data:', error);
+    // Keep using default items
+  }
+}
+
+// Determine which marquee style to render
+const isPrimary = variant === 'primary';
+const isSecondary = variant === 'secondary';
+---
+
+<!-- Primary Marquee - as seen in the HTML -->
+{
+  isPrimary && (
+    <div class={`flex overflow-hidden relative z-[11] ${className}`}>
+      <div class="py-20 bg-primary flex">
+        <div class="animate-scroll-one flex">
+          {items.map((item, index) => (
+            <div key={`primary-1-${index}`} class="lg:ml-60 ml-33 w-[max-content] lg:gap-30 gap-20 flex items-center">
+              <img 
+                src={item.icon.startsWith('http') ? item.icon : `${imageBase}${item.icon}`}
+                alt={item.text} 
+                class="max-xxl:w-60 max-lg:w-36"
+                loading="lazy"
+              />
+              <h3 class="xxl:text-5.2xl lg:text-4.65xl text-3xl uppercase font-bold text-white font-sora whitespace-nowrap">
+                {item.text}
+              </h3>
+            </div>
+          ))}
+        </div>
+        <div class="animate-scroll-one ml-60 gap-30 flex items-center">
+          {items.map((item, index) => (
+            <div key={`primary-2-${index}`} class="lg:ml-60 ml-33 w-[max-content] lg:gap-30 gap-20 flex items-center">
+              <img 
+                src={item.icon.startsWith('http') ? item.icon : `${imageBase}${item.icon}`}
+                alt={item.text} 
+                class="max-xxl:w-60 max-lg:w-36"
+                loading="lazy"
+              />
+              <h3 class="xxl:text-5.2xl lg:text-4.65xl text-3xl uppercase font-bold text-white font-sora whitespace-nowrap">
+                {item.text}
+              </h3>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+<!-- Secondary Marquee - with rotation and negative margin -->
+{
+  isSecondary && (
+    <div class={`gap-30 flex items-center -mt-70 z-[1] md:pb-120 pb-70 -ml-10 overflow-hidden relative ${className}`}>
+      <div class="flex bg-secondary py-20 rotate-[357deg]">
+        <div class="animate-scroll-two flex">
+          {items.map((item, index) => (
+            <div key={`secondary-1-${index}`} class="lg:ml-60 ml-33 w-[max-content] lg:gap-30 gap-20 flex items-center">
+              <img 
+                src={item.icon.startsWith('http') ? item.icon : `${imageBase}${item.icon}`}
+                alt={item.text} 
+                class="max-xxl:w-60 max-lg:w-36"
+                loading="lazy"
+              />
+              <h3 class="xxl:text-5.2xl lg:text-4.65xl text-3xl uppercase font-bold text-white font-sora whitespace-nowrap">
+                {item.text}
+              </h3>
+            </div>
+          ))}
+        </div>
+        <div class="animate-scroll-two ml-[-100%] gap-30 flex items-center">
+          {items.map((item, index) => (
+            <div key={`secondary-2-${index}`} class="lg:ml-60 ml-33 w-[max-content] lg:gap-30 gap-20 flex items-center">
+              <img 
+                src={item.icon.startsWith('http') ? item.icon : `${imageBase}${item.icon}`}
+                alt={item.text} 
+                class="max-xxl:w-60 max-lg:w-36"
+                loading="lazy"
+              />
+              <h3 class="xxl:text-5.2xl lg:text-4.65xl text-3xl uppercase font-bold text-white font-sora whitespace-nowrap">
+                {item.text}
+              </h3>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+<style>
+  /* Animation keyframes - exact match to HTML */
+  .animate-scroll-one {
+    animation: scroll-left 40s linear infinite;
+  }
+
+  .animate-scroll-two {
+    animation: scroll-right 40s linear infinite;
+  }
+
+  @keyframes scroll-left {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-100%);
+    }
+  }
+
+  @keyframes scroll-right {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-100%);
+    }
+  }
+
+  /* Hover pause effect - matches the HTML style */
+  .animate-scroll-one:hover,
+  .animate-scroll-two:hover {
+    animation-play-state: paused;
+  }
+</style>

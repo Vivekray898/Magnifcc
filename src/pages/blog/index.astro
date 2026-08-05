@@ -1,0 +1,21 @@
+---
+// src/pages/blog/index.astro
+
+import Layout from "../../layouts/Layout.astro";
+import Header from '../../components/common/Header.astro';
+import Footer from '../../components/common/Footer.astro';
+import BlogHero from '../../components/sections/blog/BlogHero.astro';
+import BlogList from '../../components/sections/blog/BlogList.astro';
+---
+
+<Layout title="Our Blog" description="Health and wellness insights">
+  <Header fetchFromSanity={true} slot="header" />
+  
+  <!-- Blog Hero -->
+  <BlogHero fetchFromSanity={true} />
+  
+  <!-- Blog List -->
+  <BlogList fetchFromSanity={true} />
+  
+  <Footer fetchFromSanity={true} slot="footer" />
+</Layout>

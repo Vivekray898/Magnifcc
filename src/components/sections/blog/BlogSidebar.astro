@@ -1,0 +1,217 @@
+---
+// src/components/sections/blog/BlogSidebar.astro
+
+import { client } from '../../../lib/sanity';
+
+export interface Props {
+  fetchFromSanity?: boolean;
+}
+
+const { fetchFromSanity = true } = Astro.props;
+
+// Default sidebar data
+const defaultSidebar = {
+  servicesList: [
+    { title: "Preventive Care", link: "/services/preventive-care" },
+    { title: "Restorative Dentistry", link: "/services/restorative-dentistry" },
+    { title: "Cosmetic Dentistry", link: "/services/cosmetic-dentistry" },
+    { title: "Orthodontic Treatments", link: "/services/orthodontic-treatments" },
+    { title: "Emergency Dental Care", link: "/services/emergency-dental" },
+  ],
+  socialLinks: [
+    { icon: "fa-brands fa-facebook-f", url: "https://www.facebook.com/" },
+    { icon: "fa-brands fa-x-twitter", url: "https://x.com/" },
+    { icon: "fa-brands fa-instagram", url: "https://www.instagram.com/" },
+    { icon: "fa-brands fa-youtube", url: "https://www.youtube.com/" },
+  ],
+  instagramImages: [1,2,3,4,5,6],
+  instagramFollowText: "Follow Us Instagram",
+  instagramFollowLink: "https://www.instagram.com/",
+  tags: ["Wellness", "Health", "Medical"],
+};
+
+let sidebar = defaultSidebar;
+
+// Fetch services from servicesDetails
+let servicesFromSanity: Array<{ title: string; link: string }> = [];
+
+if (fetchFromSanity) {
+  try {
+    // First, fetch the sidebar settings from blogPage
+    const sidebarQuery = `*[_type == "blogPage"][0]{
+      sidebar {
+        socialLinks[] {
+          icon,
+          url
+        },
+        instagramImages[] {
+          asset->{
+            url
+          }
+        },
+        instagramFollowText,
+        instagramFollowLink,
+        tags
+      }
+    }`;
+    
+    const sidebarResult = await client.fetch(sidebarQuery);
+    
+    if (sidebarResult?.sidebar) {
+      sidebar = {
+        ...defaultSidebar,
+        ...sidebarResult.sidebar,
+        instagramImages: sidebarResult.sidebar.instagramImages?.length > 0 
+          ? sidebarResult.sidebar.instagramImages 
+          : defaultSidebar.instagramImages,
+        tags: sidebarResult.sidebar.tags?.length > 0 
+          ? sidebarResult.sidebar.tags 
+          : defaultSidebar.tags,
+      };
+    }
+    
+    // Fetch all services from servicesDetails for the services list
+    const servicesQuery = `*[_type == "servicesDetails"]{
+      title,
+      slug
+    } | order(_createdAt asc)`;
+    
+    const servicesResult = await client.fetch(servicesQuery);
+    
+    if (servicesResult && servicesResult.length > 0) {
+      servicesFromSanity = servicesResult.map((service: any) => ({
+        title: service.title || 'Untitled Service',
+        link: `/services/${service.slug?.current || 'service'}`,
+      }));
+    }
+  } catch (error) {
+    console.error('Error fetching sidebar data:', error);
+  }
+}
+
+// Use services from Sanity if available, otherwise use default
+const servicesList = servicesFromSanity.length > 0 ? servicesFromSanity : defaultSidebar.servicesList;
+const { socialLinks, instagramImages, instagramFollowText, instagramFollowLink, tags } = sidebar;
+---
+
+<div class="top-130 sticky">
+  <!-- Search -->
+  <div class="xl:p-30 p-20 border border-[#D8D8D8] mb-24">
+    <h3 class="xl:text-2xl text-xl font-semibold pb-20 text-secondary capitalize font-sora">Search Here</h3>
+    <form class="relative">
+      <input type="email" name="email" placeholder="Enter Your Email" class="w-full h-60 pl-24 border border-[#d8d8d8] placeholder:text-gary outline-none">
+      <button class="absolute right-20 bg-transparent text-base top-17 text-secondary"><i class="fa-solid fa-magnifying-glass"></i></button>
+    </form>
+  </div>
+  
+  <!-- Services List - Auto-populated from servicesDetails -->
+  <div class="xl:p-30 p-20 border border-[#D8D8D8] mb-24">
+    <h3 class="xl:text-2xl text-xl font-semibold pb-20 text-secondary capitalize font-sora">Services List</h3>
+    <ul class="services-list">
+      {servicesList && servicesList.length > 0 ? servicesList.map((service, index) => (
+        <li key={index} class="xxl:mb-24 mb-16 w-full relative">
+          <a href={service.link}>{service.title}<i class="fa-solid fa-arrow-right"></i></a>
+        </li>
+      )) : (
+        <li class="xxl:mb-24 mb-16 w-full relative">
+          <a href="javascript:void(0);">No services available</a>
+        </li>
+      )}
+    </ul>
+  </div>
+  
+  <!-- Social Icon -->
+  <div class="xl:p-30 p-20 border border-[#D8D8D8] mb-24">
+    <h3 class="xl:text-2xl text-xl font-semibold pb-20 text-secondary capitalize font-sora">Social Icon</h3>
+    <ul class="flex gap-x-10">
+      {socialLinks && socialLinks.length > 0 ? socialLinks.map((social, index) => (
+        <li key={index}>
+          <a href={social.url} class="flex items-center justify-center xxl:size-50 size-40 max-xxl:text-sm border border-[#D8D8D8] rounded-full hover:bg-primary duration-500 hover:text-white hover:border-transparent" target="_blank">
+            <i class={social.icon}></i>
+          </a>
+        </li>
+      )) : (
+        <>
+          <li>
+            <a href="https://www.facebook.com/" class="flex items-center justify-center xxl:size-50 size-40 max-xxl:text-sm border border-[#D8D8D8] rounded-full hover:bg-primary duration-500 hover:text-white hover:border-transparent" target="_blank">
+              <i class="fa-brands fa-facebook-f"></i>
+            </a>
+          </li>
+          <li>
+            <a href="https://x.com/" class="flex items-center justify-center xxl:size-50 size-40 max-xxl:text-sm border border-[#D8D8D8] rounded-full hover:bg-primary duration-500 hover:text-white hover:border-transparent" target="_blank">
+              <i class="fa-brands fa-x-twitter"></i>
+            </a>
+          </li>
+          <li>
+            <a href="https://www.instagram.com/" class="flex items-center justify-center xxl:size-50 size-40 max-xxl:text-sm border border-[#D8D8D8] rounded-full hover:bg-primary duration-500 hover:text-white hover:border-transparent" target="_blank">
+              <i class="fa-brands fa-instagram"></i>
+            </a>
+          </li>
+          <li>
+            <a href="https://www.youtube.com/" class="flex items-center justify-center xxl:size-50 size-40 max-xxl:text-sm border border-[#D8D8D8] rounded-full hover:bg-primary duration-500 hover:text-white hover:border-transparent" target="_blank">
+              <i class="fa-brands fa-youtube"></i>
+            </a>
+          </li>
+        </>
+      )}
+    </ul>
+  </div>
+  
+  <!-- Instagram Follow -->
+  <div class="xl:p-30 p-20 border border-[#D8D8D8] mb-24 instagram-img">
+    <h3 class="xl:text-2xl text-xl font-semibold pb-20 text-secondary capitalize font-sora">Instagram Follow</h3>
+    <ul class="flex items-center justify-between xxl:gap-10 xl:gap-8 gap-7 flex-wrap" id="lightgallery">
+      {instagramImages && instagramImages.length > 0 ? instagramImages.map((img, index) => (
+        <li class="w-[31%] h-auto" key={index}>
+          <a href={typeof img === 'string' ? img : img?.asset?.url || `/assets/img/instagram-${index + 1}.jpg`} 
+             data-src={typeof img === 'string' ? img : img?.asset?.url || `/assets/img/instagram-${index + 1}.jpg`} 
+             class="lg-item">
+            <figure class="relative size-full overflow-hidden">
+              <img src={typeof img === 'string' ? img : img?.asset?.url || `/assets/img/instagram-${index + 1}.jpg`} 
+                   alt="gallery" 
+                   class="w-full" 
+                   loading="lazy">
+            </figure>
+          </a>
+        </li>
+      )) : (
+        [1,2,3,4,5,6].map((num) => (
+          <li class="w-[31%] h-auto" key={num}>
+            <a href={`/assets/img/instagram-${num}.jpg`} data-src={`/assets/img/instagram-${num}.jpg`} class="lg-item">
+              <figure class="relative size-full overflow-hidden">
+                <img src={`/assets/img/instagram-${num}.jpg`} alt="gallery" class="w-full" loading="lazy">
+              </figure>
+            </a>
+          </li>
+        ))
+      )}
+    </ul>
+    <a href={instagramFollowLink || 'javascript:void(0);'} class="btn w-full mt-20 text-center" target="_blank">
+      <span class="relative z-10 duration-500"><i class="pr-10 ml-13 fa-brands fa-instagram"></i>{instagramFollowText}</span>
+    </a>
+  </div>
+  
+  <!-- Tags -->
+  <div class="xl:p-30 p-20 border border-[#D8D8D8] mb-24">
+    <h3 class="xl:text-2xl text-xl font-semibold pb-20 text-secondary capitalize font-sora">tags</h3>
+    <ul class="flex flex-wrap gap-11 mr-auto">
+      {tags && tags.length > 0 ? tags.map((tag, index) => (
+        <li key={index}>
+          <a href="javascript:void(0);" class="text-base border border-[#d8d8d8] py-10 px-12 bg-[#f8f8f8] block text-secondary font-sora text-base hover:bg-primary hover:text-white duration-500">{tag}</a>
+        </li>
+      )) : (
+        <>
+          <li>
+            <a href="javascript:void(0);" class="text-base border border-[#d8d8d8] py-10 px-12 bg-[#f8f8f8] block text-secondary font-sora text-base hover:bg-primary hover:text-white duration-500">Wellness</a>
+          </li>
+          <li>
+            <a href="javascript:void(0);" class="text-base border border-[#d8d8d8] py-10 px-12 bg-[#f8f8f8] block text-secondary font-sora text-base hover:bg-primary hover:text-white duration-500">Health</a>
+          </li>
+          <li>
+            <a href="javascript:void(0);" class="text-base border border-[#d8d8d8] py-10 px-12 bg-[#f8f8f8] block text-secondary font-sora text-base hover:bg-primary hover:text-white duration-500">Medical</a>
+          </li>
+        </>
+      )}
+    </ul>
+  </div>
+</div>

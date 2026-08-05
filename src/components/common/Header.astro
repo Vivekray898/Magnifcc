@@ -1,0 +1,148 @@
+---
+// src/components/common/Header.astro
+
+import { getHeader } from '../../lib/queries';
+import { imageUrlFor } from '../../lib/sanity-image';
+
+export interface Props {
+  fetchFromSanity?: boolean;
+}
+
+const { fetchFromSanity = true } = Astro.props;
+
+// Default header data (matching original HTML)
+const defaultData = {
+  logo: null,
+  navItems: [
+    { label: 'Home', link: 'index.html', hasDropdown: true, dropdownItems: [
+      { label: 'Home 1', link: 'index.html' },
+      { label: 'Home 2', link: 'index-2.html' },
+      { label: 'Home 3', link: 'index-3.html' },
+    ]},
+    { label: 'About', link: 'about.html', hasDropdown: false, dropdownItems: [] },
+    { label: 'Research', link: 'javascript:void(0);', hasDropdown: true, dropdownItems: [
+      { label: 'Portfolio', link: 'portfolio.html' },
+      { label: 'Portfolio Details', link: 'portfolio-details.html' },
+    ]},
+    { label: 'Page', link: 'javascript:void(0);', hasDropdown: true, dropdownItems: [
+      { label: 'Services', link: 'services.html' },
+      { label: 'Services Details', link: 'services-details.html' },
+      { label: 'Testimonials', link: 'testimonials.html' },
+      { label: 'Pricing Table', link: 'pricing-table.html' },
+      { label: 'FAQ', link: 'faq.html' },
+      { label: 'Appointment', link: 'appointment.html' },
+    ]},
+    { label: 'Blog', link: 'javascript:void(0);', hasDropdown: true, dropdownItems: [
+      { label: 'Our Blog', link: 'our-blog.html' },
+      { label: 'Blog Details', link: 'blog-details.html' },
+    ]},
+    { label: 'Contact', link: 'contact.html', hasDropdown: false, dropdownItems: [] },
+  ],
+  ctaButton: { text: 'Book Appointment', link: 'appointment.html', show: true },
+  searchEnabled: true,
+};
+
+let data = defaultData;
+let logoSrc = '/assets/img/logo.png';
+
+// Fetch from Sanity
+if (fetchFromSanity) {
+  try {
+    const result = await getHeader();
+    if (result) {
+      data = { ...defaultData, ...result };
+      if (result.logo?.asset?.url) {
+        logoSrc = result.logo.asset.url;
+      }
+    }
+  } catch (error) {
+    console.error('Error fetching header data:', error);
+  }
+}
+
+const { navItems, ctaButton, searchEnabled } = data;
+---
+
+<header class="z-99 sticky-header main-bar-wraper navbar-expand-lg duretion-500">
+  <div class="main-bar">
+    <div class="container">
+      <div class="bottom-bar">
+        <div class="two-bar">
+          <div class="flex items-center justify-between">
+            <div class="logo">
+              <a href="index.html">
+                <img alt="logo" src={logoSrc}>
+              </a>
+            </div>
+          </div>
+        </div>
+        <a href="javascript:void(0)" id="mobile-menu" class="menu-start">
+          <i class="fa-solid fa-bars"></i>
+        </a>
+        <nav class="navbar lg:block hidden">
+          <ul class="navbar-links">
+            {navItems.map((item, index) => (
+              <li key={index} class={`navbar-dropdown ${item.hasDropdown ? 'menu-item-children' : ''}`}>
+                <a href={item.link}>{item.label}</a>
+                {item.hasDropdown && item.dropdownItems?.length > 0 && (
+                  <ul class="sub-menu">
+                    {item.dropdownItems.map((subItem, subIndex) => (
+                      <li key={subIndex}><a href={subItem.link}>{subItem.label}</a></li>
+                    ))}
+                  </ul>
+                )}
+              </li>
+            ))}
+          </ul>
+        </nav>
+        <div class="header-menu-right">
+          {searchEnabled && (
+            <div class="header-search-button search-box-outer">
+              <a href="javascript:void(0)" class="search-btn">
+                <i>
+                  <svg fill="#000000" width="30px" height="30px" viewBox="0 -0.24 28.423 28.423"
+                    data-name="02 - Search Button" xmlns="http://www.w3.org/2000/svg">
+                    <path id="Path_215" data-name="Path 215"
+                      d="M14.953,2.547A12.643,12.643,0,1,0,27.6,15.19,12.649,12.649,0,0,0,14.953,2.547Zm0,2A10.643,10.643,0,1,1,4.31,15.19,10.648,10.648,0,0,1,14.953,4.547Z"
+                      transform="translate(-2.31 -2.547)" fill-rule="evenodd" />
+                    <path id="Path_216" data-name="Path 216"
+                      d="M30.441,28.789l-6.276-6.276a1,1,0,1,0-1.414,1.414L29.027,30.2a1,1,0,1,0,1.414-1.414Z"
+                      transform="translate(-2.31 -2.547)" fill-rule="evenodd" />
+                  </svg>
+                </i>
+              </a>
+            </div>
+          )}
+          {ctaButton?.show && (
+            <a href={ctaButton.link} class="btn xl:block hidden">
+              <span>{ctaButton.text}<i class="fa-solid fa-arrow-right"></i></span>
+            </a>
+          )}
+        </div>
+      </div>
+    </div>
+    <!-- Mobile Nav -->
+    <div class="mobile-nav" id="mobile-nav">
+      <div class="res-log mb-30">
+        <a href="index.html">
+          <img alt="logo" src={logoSrc} class="w-auto">
+        </a>
+      </div>
+      <ul>
+        {navItems.map((item, index) => (
+          <li key={index} class={item.hasDropdown ? 'menu-item-has-children' : ''}>
+            <a href={item.link}>{item.label}</a>
+            {item.hasDropdown && item.dropdownItems?.length > 0 && (
+              <ul class="sub-menu">
+                {item.dropdownItems.map((subItem, subIndex) => (
+                  <li key={subIndex}><a href={subItem.link}>{subItem.label}</a></li>
+                ))}
+              </ul>
+            )}
+          </li>
+        ))}
+      </ul>
+      <a href="JavaScript:void(0)" id="res-cross"></a>
+    </div>
+  </div>
+</header>

@@ -1,0 +1,135 @@
+---
+// src/components/sections/Portfolio.astro
+
+import { client } from '../../lib/sanity';
+
+export interface Props {
+  fetchFromSanity?: boolean;
+}
+
+const { fetchFromSanity = true } = Astro.props;
+
+// Default portfolio items
+const defaultPortfolioItems = [
+    {
+        id: 1,
+        image: "assets/img/portfolio-1.jpg",
+        category: "Sustainability Goals",
+        title: "Reducing waste",
+        link: "portfolio-details.html"
+    },
+    {
+        id: 2,
+        image: "assets/img/portfolio-2.jpg",
+        category: "Sustainability Goals",
+        title: "Health education",
+        link: "portfolio-details.html"
+    },
+    {
+        id: 3,
+        image: "assets/img/portfolio-3.jpg",
+        category: "Sustainability Goals",
+        title: "Healthcare through",
+        link: "portfolio-details.html"
+    },
+    {
+        id: 4,
+        image: "assets/img/portfolio-4.jpg",
+        category: "Sustainability Goals",
+        title: "Medical innovation",
+        link: "portfolio-details.html"
+    },
+    {
+        id: 5,
+        image: "assets/img/portfolio-5.jpg",
+        category: "Sustainability Goals",
+        title: "Reniyl waste through",
+        link: "portfolio-details.html"
+    }
+];
+
+let portfolioItems = defaultPortfolioItems;
+let subtitle = '# Medical Portfolio';
+let title = 'One Portfolio at a Time.';
+
+// Fetch from Sanity
+if (fetchFromSanity) {
+  try {
+    const query = `*[_type == "homePage"][0]{
+      portfolioSection {
+        subtitle,
+        title,
+        items[] {
+          title,
+          category,
+          link,
+          image {
+            asset->{
+              _id,
+              url
+            }
+          }
+        }
+      }
+    }`;
+    
+    const result = await client.fetch(query);
+    
+    if (result?.portfolioSection) {
+      // Update subtitle and title
+      if (result.portfolioSection.subtitle) {
+        subtitle = result.portfolioSection.subtitle;
+      }
+      if (result.portfolioSection.title) {
+        title = result.portfolioSection.title;
+      }
+      
+      // Map portfolio items
+      if (result.portfolioSection.items?.length > 0) {
+        portfolioItems = result.portfolioSection.items.map((item: any, index: number) => ({
+          id: index + 1,
+          image: item.image?.asset?.url || defaultPortfolioItems[index % defaultPortfolioItems.length].image,
+          category: item.category || 'Sustainability Goals',
+          title: item.title || 'Portfolio Item',
+          link: item.link || 'portfolio-details.html',
+        }));
+      }
+    }
+  } catch (error) {
+    console.error('Error fetching portfolio data:', error);
+    // Keep using default items
+  }
+}
+---
+
+<section class="lg:py-120 md:py-80 py-60">
+    <div class="container">
+        <div class="xl:pb-50 lg:pb-40 pb-30 w-[fit-content]"> 
+            <span class="capitalize font-semibold xxl:text-xxl xl:text-xl sm:text-lg text-base text-primary font-sora pb-6 block">{subtitle}</span>
+            <h2 class="xl:text-5xl md:text-4xl sm:text-3xl text-2.5xl font-semibold text-secondary font-sora leading-[1.2]">{title}</h2> 
+        </div>
+        <div class="swiper services-slider">
+            <div class="swiper-wrapper">
+                {portfolioItems.map((item) => (
+                    <div class="swiper-slide group" key={item.id}>
+                        <div class="relative mx-10 mb-20 portfolio-style"> 
+                            <figure class="overflow-hidden">
+                                <img src={item.image} alt={item.title} class="group-hover:scale-[1.1] group-hover:rotate-[3deg] duration-500 w-full" loading="lazy">
+                            </figure>
+                            <div class="absolute bottom-30 xxl:left-30 left-20 z-[2]">
+                                <span class="text-white leading-24 bg-[#ffffff26] py-10 px-15 inline-block rounded-tr-[10px] rounded-tl-[10px] pb-2 group-hover:text-secondary group-hover:bg-white duration-500">{item.category}</span>
+                                <h5><a href={item.link} class="xxl:text-xxl text-lg font-sora text-white xxl:leading-32 leading-28 bg-[#ffffff26] p-15 rounded-bl-[10px] rounded-br-[10px] rounded-tr-[10px] pt-3 font-bold pb-7 group-hover:text-secondary group-hover:bg-white duration-500">{item.title}</a></h5>
+                            </div> 
+                            <a href={item.link} class="absolute -bottom-20 right-20 bg-secondary text-white size-65 rounded-full justify-center items-center flex border-5 border-white z-[11] group-hover:bg-primary duration-500"><i class="fa-solid fa-arrow-right"></i></a>
+                        </div>
+                    </div>
+                ))}
+            </div>
+            
+            <div class="swiper-button">
+                <div class="services-swiper-button-next"><i class="fa-solid fa-arrow-right"></i></div>
+                <div class="services-swiper-button-prev"><i class="fa-solid fa-arrow-left"></i></div>
+            </div>
+        </div>
+    </div>
+</section>

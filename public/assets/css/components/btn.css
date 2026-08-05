@@ -1,0 +1,91 @@
+@layer components{			
+	.btn {
+		@apply cursor-pointer border-0 py-18 px-40 m-0 relative inline-block capitalize font-bold text-2sm rounded-full overflow-hidden bg-secondary text-white duration-500;
+	}
+	.btn:before {
+		@apply content-[''] absolute top-0 h-[103%] z-0 bg-primary w-[120%] left-[-10%] duration-500 [transition-timing-function:cubic-bezier(0.3,1,0.8,1)] skew-x-[30deg] duration-500;
+	}
+	
+	.btn span {
+		@apply relative z-10;
+	}
+	.btn i {
+		@apply ml-13 text-base;
+	}
+	.btn:hover:before {
+		@apply [transform:translate3d(100%,0,0)];
+	}
+	@media (max-width: 991px) {
+	.btn:focus:before {
+		@apply [transform:translate3d(100%,0,0)];
+	}
+	}
+	ul.experience-team a {
+		@apply size-60 flex bg-secondary items-center rounded-full justify-center text-3xl text-white border-2 border-white duration-500;
+	}
+	@media (max-width: 1400px){ 
+	ul.experience-team a {
+		@apply size-50 text-2xxl;
+	}
+	}
+	ul.experience-team a:hover {
+		@apply bg-primary;
+	}
+	@media (max-width: 991px) {
+	ul.experience-team a:focus {
+		@apply bg-primary;
+	}
+	}
+	.btn.two:before {
+		@apply bg-white;
+	}
+	.btn.two {
+		@apply bg-primary border border-[#D8D8D8] text-[#011834];
+	}
+	.btn.two:hover {
+		@apply text-white;
+	}
+	@media (max-width: 991px) {
+	.btn.two:focus {
+		@apply text-white;
+	}
+	}
+	.pricing-plan.two .btn:hover {
+		@apply border border-transparent bg-secondary;
+ 
+	}
+	@media (max-width: 991px) {
+	.pricing-plan.two .btn:focus {
+		@apply border border-transparent bg-secondary;
+ 
+	}
+	}
+	
+	.search-popup .form-group button {
+		@apply absolute right-30 top-0 h-70 bg-transparent text-center text-2xl text-secondary cursor-pointer duration-500;
+	}
+	#scroll-percentage {
+		@apply absolute shadow-[0px_0px_20px_0px_rgba(184,184,184,0.75)] size-60 bg-secondary rounded-full fixed bottom-30 right-30 scale-[0] grid cursor-pointer invisible opacity-0 duration-500 z-[1011] 
+		bg-conic-(--btn-gradient);
+	}
+	#scroll-percentage.active {
+		@apply bottom-30 scale-[1] opacity-100 visible duration-500;
+	}
+	#scroll-percentage-value {
+		@apply ml-3 mt-3 size-[calc(100%-6px)] bg-white text-black rounded-full grid place-items-center text-sm font-semibold;
+	}
+	#scroll-percentage-value i {
+		@apply text-xl flex items-center justify-center;
+	}
+	@media (max-width: 1400px) {
+    .btn {
+			@apply py-16 px-30;
+		}
+	}
+	@media (max-width: 1200px) {
+    .btn {
+       @apply px-20;
+    }
+	}
+	
+}

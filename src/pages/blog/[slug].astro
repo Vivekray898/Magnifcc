@@ -1,0 +1,49 @@
+---
+// src/pages/blog/[slug].astro
+
+import Layout from "../../layouts/Layout.astro";
+import Header from '../../components/common/Header.astro';
+import Footer from '../../components/common/Footer.astro';
+import BlogHero from '../../components/sections/blog/BlogHero.astro';
+import BlogDetails from '../../components/sections/blog/BlogDetails.astro';
+import { client } from '../../lib/sanity';
+
+export async function getStaticPaths() {
+  try {
+    const query = `*[_type == "blogPost"]{
+      slug
+    }`;
+    
+    const posts = await client.fetch(query);
+    
+    if (posts && posts.length > 0) {
+      return posts.map((post: any) => ({
+        params: { slug: post.slug?.current || 'post' },
+      }));
+    }
+  } catch (error) {
+    console.error('Error fetching blog slugs:', error);
+  }
+  
+  // Fallback paths
+  return [
+    { params: { slug: 'how-to-maintain-a-balanced-diet-and-exercise' } },
+    { params: { slug: 'coping-strategies-for-stress-anxiety-and-depression' } },
+    { params: { slug: 'latest-medical-technologies-and-treatments-available' } },
+  ];
+}
+
+const { slug } = Astro.params;
+---
+
+<Layout title="Blog Details" description="Detailed blog post">
+  <Header fetchFromSanity={true} slot="header" />
+  
+  <!-- Blog Hero -->
+  <BlogHero fetchFromSanity={true} />
+  
+  <!-- Blog Details -->
+  <BlogDetails slug={slug} fetchFromSanity={true} />
+  
+  <Footer fetchFromSanity={true} slot="footer" />
+</Layout>

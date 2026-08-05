@@ -1,0 +1,42 @@
+---
+// src/pages/about.astro
+
+import Layout from "../layouts/Layout.astro";
+import Header from '../components/common/Header.astro';
+import Footer from '../components/common/Footer.astro';
+import AboutHero from '../components/sections/AboutHero.astro';
+import About from '../components/sections/About.astro';
+import Marquee from '../components/sections/Marquee.astro';
+import Portfolio from '../components/sections/Portfolio.astro';
+import WhyChooseUs from '../components/sections/WhyChooseUs.astro';
+import Pricing from '../components/sections/Pricing.astro';
+import Testimonials from '../components/sections/Testimonials.astro';
+---
+
+<Layout title="About Us" description="Learn more about our healthcare services">
+  <Header fetchFromSanity={true} slot="header" />
+
+  <!-- About Hero Section -->
+  <AboutHero fetchFromSanity={true} />
+
+  <!-- About Content Section -->
+  <About fetchFromSanity={true} />
+
+  <!-- Marquee Sections -->
+  <Marquee variant="primary" fetchFromSanity={true} />
+  <Marquee variant="secondary" fetchFromSanity={true} />
+
+  <!-- Portfolio Section -->
+  <Portfolio fetchFromSanity={true} />
+
+  <!-- Why Choose Us Section -->
+  <WhyChooseUs fetchFromSanity={true} />
+
+  <!-- Pricing Section -->
+  <Pricing fetchFromSanity={true} />
+
+  <!-- Testimonials Section -->
+  <Testimonials fetchFromSanity={true} />
+
+  <Footer fetchFromSanity={true} slot="footer" />
+</Layout>

@@ -1,0 +1,10 @@
+:root {
+  --common-colour: #021935;   /* Keeps the deep executive navy for headings & footers */
+  --theme-colour: #e11d48;    /* Deep Rose / Pink (Replaces the default blue #5050f4) */
+  --color-gary: #646464;      /* Muted gray for body text */
+  --color-lightgary: #f1f5f9;  /* Clean light slate gray for card backgrounds */
+  --color-yellow: #ffa808;    /* Kept for rating stars or highlight badges */
+  
+  /* Bonus: Add a soft pink tint variable for light card highlights/badges */
+  --color-pink-light: #ffe4e6; 
+}

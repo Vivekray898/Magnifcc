@@ -1,0 +1,189 @@
+---
+// src/components/sections/MarqueeAdvanced.astro
+
+export interface MarqueeItem {
+    id: number;
+    text: string;
+    image: string;
+    link?: string;
+}
+
+export interface RowConfig {
+    items: MarqueeItem[];
+    direction?: 'left' | 'right';
+    speed?: 'slow' | 'normal' | 'fast';
+    backgroundColor?: string;
+    textColor?: string;
+    rotation?: number;
+    imageSize?: string;
+    gap?: string;
+    paddingY?: string;
+    zIndex?: number;
+    marginTop?: string;
+    marginBottom?: string;
+    duplicateItems?: number;
+}
+
+export interface Props {
+    rows?: RowConfig[];
+    defaultConfig?: Partial<RowConfig>;
+    enablePauseOnHover?: boolean;
+}
+
+const {
+    rows = [
+        {
+            items: [
+                { id: 1, text: "Medical group", image: "assets/img/health-img-3.png" },
+                { id: 2, text: "Core Services", image: "assets/img/health-img-2.png" },
+                { id: 3, text: "Technology", image: "assets/img/health-img-1.png" },
+                { id: 4, text: "Health blogs", image: "assets/img/health-img-2.png" }
+            ],
+            direction: 'left',
+            speed: 'normal',
+            backgroundColor: 'bg-primary',
+            textColor: 'text-white',
+            rotation: 0,
+            imageSize: 'max-xxl:w-60 max-lg:w-36',
+            gap: 'lg:gap-30 gap-20',
+            paddingY: 'py-20',
+            zIndex: 11,
+            marginTop: 'mt-0',
+            marginBottom: 'mb-0',
+            duplicateItems: 2
+        },
+        {
+            items: [
+                { id: 5, text: "Medical group", image: "assets/img/health-img-3.png" },
+                { id: 6, text: "Core Services", image: "assets/img/health-img-2.png" },
+                { id: 7, text: "Technology", image: "assets/img/health-img-1.png" },
+                { id: 8, text: "Health blogs", image: "assets/img/health-img-2.png" }
+            ],
+            direction: 'right',
+            speed: 'fast',
+            backgroundColor: 'bg-secondary',
+            textColor: 'text-white',
+            rotation: 357,
+            imageSize: 'max-xxl:w-60 max-lg:w-36',
+            gap: 'lg:gap-30 gap-20',
+            paddingY: 'py-20',
+            zIndex: 10,
+            marginTop: '-mt-70',
+            marginBottom: 'mb-0',
+            duplicateItems: 2
+        }
+    ],
+    defaultConfig = {},
+    enablePauseOnHover = true
+} = Astro.props;
+
+// Merge default config with each row
+const processedRows = rows.map(row => ({
+    ...defaultConfig,
+    ...row
+}));
+
+// Speed mappings
+const speedMap = {
+    slow: 'scroll-slow',
+    normal: 'scroll-one',
+    fast: 'scroll-fast'
+};
+
+// Get animation class based on direction and speed
+const getAnimationClass = (dir: string, speed: string) => {
+    const speedClass = speedMap[speed] || speedMap.normal;
+    if (dir === 'right') {
+        return `animate-${speedClass}-reverse`;
+    }
+    return `animate-${speedClass}`;
+};
+---
+
+{processedRows.map((row, index) => {
+    const duplicatedItems = Array(row.duplicateItems || 2).fill(row.items).flat();
+    const animationClass = getAnimationClass(row.direction || 'left', row.speed || 'normal');
+    const rotationStyle = row.rotation ? `transform: rotate(${row.rotation}deg);` : '';
+    const zIndexValue = row.zIndex || 11;
+    
+    return (
+        <div 
+            class={`overflow-hidden relative z-${zIndexValue} ${row.marginTop || 'mt-0'} ${row.marginBottom || 'mb-0'}`}
+            style={rotationStyle}
+        >
+            <div class={`${row.paddingY || 'py-20'} ${row.backgroundColor || 'bg-primary'} flex`}>
+                <div class={`${animationClass} flex`}>
+                    {duplicatedItems.map((item) => (
+                        <div class={`lg:ml-60 ml-33 w-[max-content] ${row.gap || 'lg:gap-30 gap-20'} flex items-center`}>
+                            <img src={item.image} alt={item.text} class={row.imageSize || 'max-xxl:w-60 max-lg:w-36'}>
+                            <h3 class={`xxl:text-5.2xl lg:text-4.65xl text-3xl uppercase font-bold ${row.textColor || 'text-white'} font-sora`}>
+                                {item.link ? (
+                                    <a href={item.link} class="hover:opacity-80 transition-opacity duration-300">
+                                        {item.text}
+                                    </a>
+                                ) : (
+                                    item.text
+                                )}
+                            </h3>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        </div>
+    );
+})}
+
+<style is:global>
+    @keyframes scrollLeft {
+        0% {
+            transform: translateX(0);
+        }
+        100% {
+            transform: translateX(-50%);
+        }
+    }
+
+    @keyframes scrollRight {
+        0% {
+            transform: translateX(-50%);
+        }
+        100% {
+            transform: translateX(0);
+        }
+    }
+
+    .animate-scroll-one {
+        animation: scrollLeft 20s linear infinite;
+    }
+
+    .animate-scroll-slow {
+        animation: scrollLeft 30s linear infinite;
+    }
+
+    .animate-scroll-fast {
+        animation: scrollLeft 12s linear infinite;
+    }
+
+    .animate-scroll-one-reverse {
+        animation: scrollRight 20s linear infinite;
+    }
+
+    .animate-scroll-slow-reverse {
+        animation: scrollRight 30s linear infinite;
+    }
+
+    .animate-scroll-fast-reverse {
+        animation: scrollRight 12s linear infinite;
+    }
+
+    {enablePauseOnHover && `
+        .overflow-hidden:hover .animate-scroll-one,
+        .overflow-hidden:hover .animate-scroll-slow,
+        .overflow-hidden:hover .animate-scroll-fast,
+        .overflow-hidden:hover .animate-scroll-one-reverse,
+        .overflow-hidden:hover .animate-scroll-slow-reverse,
+        .overflow-hidden:hover .animate-scroll-fast-reverse {
+            animation-play-state: paused;
+        }
+    `}
+</style>

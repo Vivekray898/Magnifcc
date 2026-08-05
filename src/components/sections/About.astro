@@ -1,0 +1,271 @@
+---
+// src/components/sections/About.astro
+
+import { client } from '../../lib/sanity';
+
+export interface Props {
+  fetchFromSanity?: boolean;
+  data?: {
+    subtitle?: string;
+    heading?: string;
+    description?: string;
+    image1?: any;
+    image2?: any;
+    signatureImage?: any;
+    features?: string[];
+    progressStats?: Array<{
+      percentage: number;
+      label: string;
+    }>;
+  };
+}
+
+const { fetchFromSanity = true, data: propData } = Astro.props;
+
+// Default fallback data
+const defaultData = {
+  subtitle: '# About Us',
+  heading: 'Excellence in Healthcare Rooted in Trust.',
+  description: 'For years, we\'ve dedicated ourselves to delivering exceptional medical care with integrity, compassion, and respect. Our commitment to excellence goes beyond treatments—we aim to build lasting relationships with every patient, ensuring they feel supported and empowered throughout their health journey.',
+  image1: null,
+  image2: null,
+  signatureImage: null,
+  features: [
+    'Transforming healthcare experiences through',
+    'Providing care with kindness and understanding',
+    'Striving for the highest standards in every service',
+    'Dedicated to improving public health outcomes'
+  ],
+  progressStats: [
+    { percentage: 85, label: 'Qualified Doctors' },
+    { percentage: 60, label: 'Open Communication' },
+  ],
+};
+
+let data = defaultData;
+let image1Url = '/assets/img/about-1.jpg';
+let image2Url = '/assets/img/about-2.jpg';
+let signatureUrl = '/assets/img/signature.png';
+
+// Fetch from Sanity
+if (fetchFromSanity && !propData) {
+  try {
+    const query = `*[_type == "homePage"][0]{
+      aboutSection {
+        subtitle,
+        heading,
+        description,
+        image1 {
+          asset->{
+            _id,
+            url
+          }
+        },
+        image2 {
+          asset->{
+            _id,
+            url
+          }
+        },
+        signatureImage {
+          asset->{
+            _id,
+            url
+          }
+        },
+        features,
+        progressStats
+      }
+    }`;
+    
+    const result = await client.fetch(query);
+    
+    if (result?.aboutSection) {
+      data = {
+        ...defaultData,
+        ...result.aboutSection,
+      };
+      
+      if (result.aboutSection.image1?.asset?.url) {
+        image1Url = result.aboutSection.image1.asset.url;
+      }
+      if (result.aboutSection.image2?.asset?.url) {
+        image2Url = result.aboutSection.image2.asset.url;
+      }
+      if (result.aboutSection.signatureImage?.asset?.url) {
+        signatureUrl = result.aboutSection.signatureImage.asset.url;
+      }
+    }
+  } catch (error) {
+    console.error('Error fetching about data:', error);
+  }
+} else if (propData) {
+  data = {
+    ...defaultData,
+    ...propData,
+  };
+}
+
+const {
+  subtitle,
+  heading,
+  description,
+  features = defaultData.features,
+  progressStats = defaultData.progressStats,
+} = data;
+---
+
+<section class="lg:py-120 md:py-80 py-60">
+  <div class="container">
+    <!-- Top Section: Image 1 + Content -->
+    <div class="grid grid-cols-12 gap-25">
+      <div class="lg:col-span-6 col-span-12">
+        <div class="w-full group">
+          <figure class="overflow-hidden">
+            <img 
+              src={image1Url} 
+              alt="About us" 
+              class="w-full group-hover:scale-[1.1] group-hover:rotate-[3deg] duration-500"
+              loading="lazy"
+            />
+          </figure>
+        </div>
+      </div>
+      <div class="lg:col-span-6 col-span-12">
+        <div class="lg:ml-16">
+          <span class="capitalize font-semibold xxl:text-xxl xl:text-xl sm:text-lg text-base text-primary font-sora pb-6 block">{subtitle}</span>
+          <h2 class="xxl:text-4.8xl xl:text-4xl sm:text-3xl text-2xl font-semibold text-secondary xl:leading-[1.2] font-sora">{heading}</h2>
+          <p class="text-base leading-28 text-gary font-normal xl:mt-25 mt-20 leading-30">{description}</p>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Bottom Section: Features + Image 2 + Stats -->
+    <div class="grid grid-cols-12 lg:mt-40 mt-15 gap-25"> 
+      <div class="lg:col-span-5 col-span-12">
+        <div class="max-lg:pb-15">
+          <ul class="pt-40 pb-34">
+            {features.map((feature, index) => (
+              <li key={index} class="pb-21 font-semibold font-sora pl-20 relative text-secondary before:absolute before:size-10 before:bg-primary before:rounded-full before:left-0 before:top-8 max-xl:text-sm">
+                {feature}
+              </li>
+            ))}
+          </ul>
+          <div class="flex items-center">
+            <a href="about.html" class="btn two">
+              <span>More About Us<i class="fa-solid fa-arrow-right"></i></span>
+            </a>
+            <img 
+              src={signatureUrl} 
+              alt="Signature" 
+              class="sm:ml-30 ml-20 sm:border-l sm:border-[#D8D8D8] sm:pl-30 py-20 sm:py-10"
+              loading="lazy"
+            />
+          </div>
+        </div>
+      </div>
+      <div class="lg:col-span-4 col-span-12">
+        <div class="w-full group">
+          <figure class="overflow-hidden">
+            <img 
+              src={image2Url} 
+              alt="About us" 
+              class="w-full group-hover:scale-[1.1] group-hover:rotate-[3deg] duration-500"
+              loading="lazy"
+            />
+          </figure>
+        </div>
+      </div>
+      <div class="lg:col-span-3 col-span-12 flex justify-center flex-wrap max-lg:gap-30">
+        {progressStats.map((stat, index) => (
+          <div key={index} class="sm:pb-17 lg:flex justify-center flex-wrap">
+            <div class="xl:w-150 progressbar text-center">
+              <div class="circle-wrapper">
+                <svg class="circle-svg" viewBox="0 0 120 120">
+                  <!-- Background ring -->
+                  <circle cx="60" cy="60" r="54" fill="none" stroke="#e5e7eb" stroke-width="8" />
+                  <!-- Progress ring -->
+                  <circle 
+                    class="progress-ring" 
+                    cx="60" 
+                    cy="60" 
+                    r="54" 
+                    fill="none" 
+                    stroke="#F05DA8" 
+                    stroke-width="8" 
+                    stroke-linecap="round"
+                    stroke-dasharray="339.292"
+                    stroke-dashoffset="339.292"
+                    data-percent={stat.percentage}
+                  />
+                </svg>
+                <span class="percentage-text">{stat.percentage}%</span>
+              </div>
+            </div>
+            <h2 class="xxl:text-lg sm:text-base text-sm font-semibold capitalize font-sora text-secondary xxl:pt-10">{stat.label}</h2>
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .circle-wrapper {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    margin: 0 auto;
+  }
+  
+  .circle-svg {
+    width: 100%;
+    height: 100%;
+    transform: rotate(-90deg);
+  }
+  
+  .progress-ring {
+    transition: stroke-dashoffset 1.5s ease;
+  }
+  
+  .percentage-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 28px;
+    font-weight: 700;
+    color: #021935;
+    font-family: 'Sora', sans-serif;
+  }
+  
+  .progressbar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const rings = document.querySelectorAll('.progress-ring');
+    
+    rings.forEach(ring => {
+      const percent = parseInt(ring.getAttribute('data-percent')) || 0;
+      
+      // Animate on scroll
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            const circumference = 2 * Math.PI * 54; // ~339.292
+            const offset = circumference - (percent / 100) * circumference;
+            ring.style.strokeDashoffset = offset;
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.3 });
+      
+      observer.observe(ring);
+    });
+  });
+</script>

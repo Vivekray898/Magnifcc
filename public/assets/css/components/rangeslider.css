@@ -1,0 +1,43 @@
+	.price .ui-slider-range {
+			@apply bg-[var(--primary)];
+		}
+	.price .ui-state-default {
+			@apply border-[var(--primary)];
+		}
+@layer components{
+	
+
+	
+	.theme-box .range-slider {
+		@apply mt-3.75;
+	}
+	.theme-box .price .amount {
+		@apply font-semibold;
+	}
+	.price .amount {
+		@apply text-[#404040] font-bold mb-3.75 text-left w-full;
+	}
+	
+	#ThemeRangeSlider .ui-widget-content {
+		@apply bg-[#aaaaaa];
+	}
+	.price .ui-widget-content{
+		@apply mx-[8px];
+	}
+	.ui-state-default, .ui-widget-content .ui-state-default, .ui-widget-header .ui-state-default {
+		@apply border-2 border-[var(--primary)] bg-white font-normal text-[#55555];
+	}
+	.ui-slider-horizontal .ui-slider-handle {
+		@apply ml-[-0.6em] top-[-0.5em];
+	}
+	
+	.ui-slider .ui-slider-handle{
+		@apply rounded-full shadow-[-1px_1px_4px_0_rgba(0,0,0,0.3)] size-[22px] absolute z-[2];
+	}
+	.ui-slider {
+		@apply relative text-left;
+	}
+	.ui-slider-horizontal {
+		@apply h-[.4em];
+	}
+}

@@ -1,0 +1,112 @@
+---
+// src/components/sections/blog/BlogCommentForm.astro
+
+import { client } from '../../../lib/sanity';
+
+export interface Props {
+  fetchFromSanity?: boolean;
+}
+
+const { fetchFromSanity = true } = Astro.props;
+
+let formData = {
+  title: "Leave A Comment :",
+  namePlaceholder: "Your Name",
+  emailPlaceholder: "Your Email",
+  phonePlaceholder: "Phone Number",
+  messagePlaceholder: "Write A Message...",
+  buttonText: "Post Comment",
+  recaptchaSiteKey: "",
+};
+
+if (fetchFromSanity) {
+  try {
+    const query = `*[_type == "blogPage"][0]{
+      commentForm {
+        title,
+        namePlaceholder,
+        emailPlaceholder,
+        phonePlaceholder,
+        messagePlaceholder,
+        buttonText,
+        recaptchaSiteKey
+      }
+    }`;
+    
+    const result = await client.fetch(query);
+    
+    if (result?.commentForm) {
+      formData = { ...formData, ...result.commentForm };
+    }
+  } catch (error) {
+    console.error('Error fetching comment form data:', error);
+  }
+}
+---
+
+<div class="md:pt-60 pt-40">
+  <h3 class="sm:text-3xl text-2.5xl font-bold pb-40 font-sora text-secondary leading-[1.2]">{formData.title}</h3>
+  <form class="xxl:p-40 p-30 border border-[#D8D8D8] rounded-[20px] bg-white" id="commentForm">
+    <div class="grid grid-cols-12 sm:gap-x-30">
+      <div class="lg:col-span-6 col-span-12">
+        <input 
+          class="w-full h-50 pl-20 border border-[#D8D8D8] mb-24 rounded-[10px] outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all" 
+          type="text" 
+          name="dzName" 
+          placeholder={formData.namePlaceholder}
+          required
+        >
+      </div>
+      <div class="lg:col-span-6 col-span-12">
+        <input 
+          class="w-full h-50 pl-20 border border-[#D8D8D8] mb-24 rounded-[10px] outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all" 
+          type="email" 
+          name="dzEmail" 
+          placeholder={formData.emailPlaceholder}
+          required
+        >
+      </div>
+      <div class="lg:col-span-6 col-span-12">
+        <input 
+          class="w-full h-50 pl-20 border border-[#D8D8D8] mb-24 rounded-[10px] outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all" 
+          type="tel" 
+          name="dzPhoneNumber" 
+          placeholder={formData.phonePlaceholder}
+        >
+      </div>
+      <div class="lg:col-span-6 col-span-12">
+        <input 
+          class="w-full h-50 pl-20 border border-[#D8D8D8] mb-24 rounded-[10px] outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all" 
+          type="text" 
+          name="dzWebsite" 
+          placeholder="Your Website (optional)"
+        >
+      </div>
+      <div class="col-span-12">
+        <textarea 
+          name="dzMessage" 
+          required 
+          placeholder={formData.messagePlaceholder} 
+          class="w-full h-180 p-20 border border-[#D8D8D8] mb-24 rounded-[10px] outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all resize-none"
+        ></textarea>
+      </div>
+      
+      {formData.recaptchaSiteKey && (
+        <div class="col-span-12">
+          <div class="w-full mb-24">
+            <div class="flex flex-wrap align-stretch w-full">
+              <div class="g-recaptcha" data-sitekey={formData.recaptchaSiteKey} data-callback="verifyRecaptchaCallback" data-expired-callback="expiredRecaptchaCallback"></div>
+              <input class="form-control" style="display:none;" data-recaptcha="true" required data-error="Please complete the Captcha">
+            </div>
+          </div>
+        </div>
+      )}
+      
+      <div class="col-span-12">
+        <button name="submit" type="submit" value="Submit" class="btn w-full">
+          <span>{formData.buttonText} <i class="fa-solid fa-arrow-right"></i></span>
+        </button>
+      </div>
+    </div>
+  </form>
+</div>

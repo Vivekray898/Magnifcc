@@ -1,0 +1,194 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sora: "Sora";
+  --font-urbanist: "Urbanist";
+  --font-montserrat: "Montserrat";
+
+  --radius-none: 0px;
+  --radius-md: 3px;
+  
+  
+  --color-primary: var(--theme-colour);
+  --color-secondary: var(--common-colour);
+  --color-gary:var(--color-gary);
+  --color-lightgary:var(--color-lightgary);
+  --color-yellow:var(--color-yellow);
+  
+  --breakpoint-*: initial;
+  --breakpoint-sm: 576px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 992px;
+  --breakpoint-2lg: 1024px;
+  --breakpoint-xl: 1200px;
+  --breakpoint-xxl: 1400px;
+  --breakpoint-3xl: 1600px;
+  --breakpoint-4xl: 1700px;
+   
+  --max-breakpoint-sm: 576px;
+  --max-breakpoint-md: 767px;
+  --max-breakpoint-lg: 991px;
+  --max-breakpoint-xl: 1200px;
+  --max-breakpoint-xxl: 1400px;
+  --max-breakpoint-3xl: 1600px;
+  --max-breakpoint-4xl: 1700px;
+  
+  
+  --text-xxs: 10px;
+  --text-2xs: 13px;
+  --text-2sm: 15px;
+  --text-xxl: 22px;
+  --text-2xl: 24px;
+  --text-2.3xl: 32px;
+  --text-2.5xl: 28px;
+  --text-3xl: 30px;
+  --text-4xl: 35px;
+  --text-4.6xl: 36px;
+  --text-3.8xl: 38px;
+  --text-4.5xl: 45px;
+  --text-4.3xl: 43px;
+  --text-4.75xl: 40px;
+  --text-4.8xl: 45px;
+  --text-5xl: 50px;
+  --text-5.2xl: 52px;
+  --text-6xl: 60px;
+  --text-6.3xl: 63px;
+  --text-7.5xl: 82px;
+  --text-2xxl: 26px;
+  --text-4.65xl: 42px;
+  --text-7xl: 70px;
+  --text-7.7xl: 92px;
+  --text-8.5xl: 100px;
+  --text-9xl: 120px;
+  --text-9.5xl: 155px;
+  --text-10xl: 164px;
+
+  
+  
+  --bg-close-icon: url("data:image/svg+xml,%3Csvg width='22' height='22' viewBox='0 0 22 22' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M21 1L1 21' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M1 1L21 21' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); 
+
+  --bg-gradient: rgb(255,255,255)_23%,rgb(84,84,255)_23%;
+	  
+  --spacing: 1px;
+  
+  --animate-bellring: bellring 5s infinite;
+  --animate-topshap: topshap 5s infinite;
+  --animate-fa-spin: fa-spin 10s linear infinite;
+  --animate-scroll-one: scroll-one 40s linear infinite;
+  --animate-scroll-two: scroll-two 40s linear infinite;
+  --animate-bellRing : bellRing 5s infinite;
+  
+  --z-index-1: 1;
+  --z-index-999999999999999999: 999999999999999999;
+  
+  @keyframes bellring {
+		0%, 100% {
+		  transform-origin: top;
+		}
+		15% {
+		  transform: rotateZ(10deg);
+		}
+		30% {
+		  transform: rotateZ(-10deg);
+		}
+		45% {
+		  transform: rotateZ(5deg);
+		}
+		60% {
+		  transform: rotateZ(-5deg);
+		}
+		75% {
+		  transform: rotateZ(2deg);
+		}
+	}
+	@keyframes topshap {
+		0% {
+		  transform: translateY(0px);
+		}
+		50% {
+		  transform: translateY(10px);
+		}
+		100% {
+		  transform: translateY(0px);
+		}
+	}
+
+	@keyframes fa-spin {
+		0% {
+			transform: rotate(0deg);
+		}
+
+		100% {
+			transform: rotate(360deg);
+		}
+	}
+	@keyframes scroll-one {
+		0% {
+			transform: translateX(0);
+		}
+
+		100% {
+			transform: translateX(-100%);
+		}
+	}
+		
+	@keyframes scroll-two {
+		0% { 
+			transform: translateX(0); 
+		} 
+		100% { 
+			transform: translateX(100%); 
+		}
+	}	   	
+	@keyframes bellRing {
+		0%, 100% {
+		  transform-origin: top;
+		}
+		15% {
+			transform: rotateZ(10deg);
+		} 
+		30% {
+			transform: rotateZ(-10deg);
+		} 
+		45% {
+			transform: rotateZ(5deg);
+		} 
+		60% {
+			transform: rotateZ(-5deg);
+		} 
+		75% {
+			transform: rotateZ(2deg);
+		}
+	} 
+  
+}
+
+	
+@utility container {
+  margin-inline: auto;
+  padding-left:15px;
+  padding-right:15px;
+}
+
+/* SKIN CSS */
+@import "./abstract/variable.css";
+
+/* BASE CSS */
+@import "./base/global.css";
+@import "./base/font.css";
+@import "./base/grid.css";
+
+/* COMPONENTS CSS */
+@import "./components/carousel.css";
+@import "./components/btn.css";
+@import "./components/form.css";
+@import "./components/accordion.css";
+@import "./components/rangeslider.css";
+@import "./components/swiper.css";
+
+
+/* LAYOUT CSS */
+@import "./layout/header.css";
+
+/* PAGES CSS */
+@import "./pages/index.css";

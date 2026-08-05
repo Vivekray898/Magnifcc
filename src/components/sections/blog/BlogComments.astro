@@ -1,0 +1,79 @@
+---
+// src/components/sections/blog/BlogComments.astro
+
+export interface Comment {
+  name: string;
+  avatar: string;
+  date: string;
+  content: string;
+  isReply?: boolean;
+}
+
+export interface Props {
+  commentList?: Comment[];
+}
+
+const { commentList = [] } = Astro.props;
+
+// Filter out dummy/reply comments if needed
+const realComments = commentList.filter(comment => !comment.isReply);
+const replyComments = commentList.filter(comment => comment.isReply);
+---
+
+<div class="md:pt-60 pt-40">
+  <h3 class="sm:text-3xl text-2.5xl font-bold pb-40 font-sora text-secondary leading-[1.2]">
+    {realComments && realComments.length > 0 ? `${String(realComments.length).padStart(2, '0')} Comment${realComments.length > 1 ? 's' : ''} :` : 'No Comments Yet'}
+  </h3>
+  
+  {realComments && realComments.length > 0 ? (
+    <ul>
+      {realComments.map((comment, index) => (
+        <li key={index} class={`${index < realComments.length - 1 ? 'pb-30 border-b border-[#d8d8d8] mb-30' : ''} flex items-start max-sm:flex-wrap sm:gap-30 gap-20 relative`}>
+          <img 
+            src={comment.avatar || '/assets/img/avatar-placeholder.jpg'} 
+            alt={comment.name} 
+            class="rounded-full w-16 h-16 object-cover"
+            loading="lazy"
+          >
+          <div class="flex-1">
+            <div class="flex items-center justify-between flex-wrap gap-2">
+              <h5 class="text-2xl font-bold font-sora text-secondary">{comment.name}</h5>
+              <span class="text-sm text-gary">{comment.date ? new Date(comment.date).toLocaleDateString() : ''}</span>
+            </div>
+            <p class="text-base xxl:leading-30 xl:leading-28 leading-26 text-gary font-normal mt-2">{comment.content}</p>
+            
+            <!-- Reply button -->
+            <a href="javascript:void(0);" class="inline-block mt-3 border border-[#e5e5e5] py-2 px-4 text-sm duration-500 text-secondary font-sora hover:bg-primary hover:text-white rounded">Reply</a>
+            
+            <!-- Show replies if any -->
+            {replyComments.filter(reply => reply.isReply === comment.id).length > 0 && (
+              <div class="mt-4 ml-8 pl-4 border-l-2 border-primary">
+                {replyComments.filter(reply => reply.isReply === comment.id).map((reply, idx) => (
+                  <div key={idx} class="flex items-start gap-4 mt-4">
+                    <img 
+                      src={reply.avatar || '/assets/img/avatar-placeholder.jpg'} 
+                      alt={reply.name} 
+                      class="rounded-full w-12 h-12 object-cover"
+                      loading="lazy"
+                    >
+                    <div>
+                      <div class="flex items-center gap-3">
+                        <h6 class="font-bold text-secondary">{reply.name}</h6>
+                        <span class="text-xs text-gary">{reply.date ? new Date(reply.date).toLocaleDateString() : ''}</span>
+                      </div>
+                      <p class="text-sm text-gary">{reply.content}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </li>
+      ))}
+    </ul>
+  ) : (
+    <div class="text-center py-10">
+      <p class="text-gary text-lg">No comments yet. Be the first to share your thoughts!</p>
+    </div>
+  )}
+</div>

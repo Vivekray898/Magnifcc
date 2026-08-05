@@ -1,0 +1,182 @@
+---
+// src/components/sections/services/ServicesHero.astro
+
+import { client } from '../../../lib/sanity';
+
+export interface Props {
+  fetchFromSanity?: boolean;
+  title?: string;
+  subtitle?: string;
+  image?: string;
+  shapeImages?: {
+    shape1?: string;
+    shape2?: string;
+    shape3?: string;
+    shape4?: string;
+    shape5?: string;
+  };
+}
+
+const { 
+  fetchFromSanity = true,
+  title = "Services",
+  subtitle = "Services",
+  image = "/assets/img/bannr-img-6.png",
+  shapeImages = {
+    shape1: "/assets/img/shaps-1.png",
+    shape2: "/assets/img/bannr-shap.png",
+    shape3: "/assets/img/shaps-4.png",
+    shape4: "/assets/img/shaps-5.png",
+    shape5: "/assets/img/shaps-6.png",
+  }
+} = Astro.props;
+
+let data = { title, subtitle, image, shapeImages };
+let imageUrl = image;
+
+// Fetch from Sanity
+if (fetchFromSanity) {
+  try {
+    const query = `*[_type == "servicesPage"][0]{
+      heroSection {
+        title,
+        subtitle,
+        image {
+          asset->{
+            _id,
+            url
+          }
+        },
+        shapeImages {
+          shape1 {
+            asset->{
+              url
+            }
+          },
+          shape2 {
+            asset->{
+              url
+            }
+          },
+          shape3 {
+            asset->{
+              url
+            }
+          },
+          shape4 {
+            asset->{
+              url
+            }
+          },
+          shape5 {
+            asset->{
+              url
+            }
+          }
+        }
+      }
+    }`;
+    
+    const result = await client.fetch(query);
+    
+    if (result?.heroSection) {
+      data = { ...data, ...result.heroSection };
+      
+      if (result.heroSection.image?.asset?.url) {
+        imageUrl = result.heroSection.image.asset.url;
+      }
+      
+      if (result.heroSection.shapeImages) {
+        const shapes = result.heroSection.shapeImages;
+        if (shapes.shape1?.asset?.url) shapeImages.shape1 = shapes.shape1.asset.url;
+        if (shapes.shape2?.asset?.url) shapeImages.shape2 = shapes.shape2.asset.url;
+        if (shapes.shape3?.asset?.url) shapeImages.shape3 = shapes.shape3.asset.url;
+        if (shapes.shape4?.asset?.url) shapeImages.shape4 = shapes.shape4.asset.url;
+        if (shapes.shape5?.asset?.url) shapeImages.shape5 = shapes.shape5.asset.url;
+      }
+    }
+  } catch (error) {
+    console.error('Error fetching services hero data:', error);
+  }
+}
+
+const { shape1, shape2, shape3, shape4, shape5 } = shapeImages;
+---
+
+<section class="pt-90 relative max-lg:bg-[right_center] bg-[#f4f4f4] bg-[url(../img/bannr-bg-img.png)] about-banner overflow-hidden">
+  <div class="container">
+    <div class="row items-center">
+      <div class="lg:w-1/2 w-full">
+        <div class="relative max-md:text-center">
+          <h2 class="xxl:text-7.7xl xl:text-6.3xl md:text-5.2xl sm:text-4.75xl text-4.6xl font-bold capitalize font-sora text-secondary leading-[1.2]">{data.title}</h2>
+          <img 
+            src="/assets/img/shap-three-1.png" 
+            alt="banner-shap" 
+            class="absolute w-46 w-35 -top-30 -left-32 max-md:hidden animate-topshap"
+            loading="lazy"
+          >
+        </div>
+        <ol class="mb-16 flex items-center max-md:justify-center max-md:mb-40 pt-10">
+          <li class="xxl:text-xxl md:text-xl text-sm text-secondary font-sora capitalize">
+            <a href="/"> Home </a>
+          </li>
+          <li class="xxl:text-xxl md:text-xl text-sm text-gary capitalize before:content-['-'] before:float-left before:text-gary before:px-10" aria-current="page">
+            {data.subtitle}
+          </li>
+        </ol>
+      </div>
+      <div class="lg:w-1/2 w-full">
+        <div class="relative">
+          <img 
+            src={imageUrl} 
+            alt="img" 
+            class="w-[120%] xxl:max-w-[unset]"
+            loading="lazy"
+          >
+          <ul class="shaps">
+            <li class="absolute">
+              <img 
+                src={shape1} 
+                alt="img" 
+                class="xxl:w-80 w-60 animate-topshap max-md:hidden"
+                loading="lazy"
+              >
+            </li>
+            <li class="absolute">
+              <img 
+                src={shape2} 
+                alt="img" 
+                class="animate-topshap max-md:hidden"
+                loading="lazy"
+              >
+            </li>
+            <li class="absolute">
+              <img 
+                src={shape3} 
+                alt="img" 
+                class="animate-fa-spin max-md:hidden"
+                loading="lazy"
+              >
+            </li>
+            <li class="absolute">
+              <img 
+                src={shape4} 
+                alt="img" 
+                class="animate-fa-spin max-md:hidden"
+                loading="lazy"
+              >
+            </li>
+            <li class="absolute">
+              <img 
+                src={shape5} 
+                alt="img" 
+                class="animate-fa-spin max-md:hidden"
+                loading="lazy"
+              >
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

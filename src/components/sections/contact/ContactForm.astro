@@ -1,0 +1,276 @@
+---
+// src/components/sections/contact/ContactForm.astro
+
+import { client } from '../../../lib/sanity';
+
+export interface Props {
+  fetchFromSanity?: boolean;
+  subtitle?: string;
+  title?: string;
+  formData?: {
+    namePlaceholder?: string;
+    emailPlaceholder?: string;
+    phonePlaceholder?: string;
+    doctorPlaceholder?: string;
+    messagePlaceholder?: string;
+    buttonText?: string;
+    recaptchaSiteKey?: string;
+  };
+  contactInfo?: {
+    emailLabel?: string;
+    email?: string;
+    phoneLabel?: string;
+    phone?: string;
+    addressLabel?: string;
+    address?: string;
+    subjectLabel?: string;
+    subject?: string;
+  };
+  socialLinks?: Array<{
+    platform: string;
+    url: string;
+    icon: string;
+  }>;
+  mapEmbedUrl?: string;
+}
+
+const {
+  fetchFromSanity = true,
+  subtitle = "# Get In Touch",
+  title = "Stay Connected for Better Health.",
+  formData = {
+    namePlaceholder: "Your Name",
+    emailPlaceholder: "Your Email",
+    phonePlaceholder: "Phone Number",
+    doctorPlaceholder: "Select Doctor",
+    messagePlaceholder: "Write A Message...",
+    buttonText: "Book An Appointment",
+    recaptchaSiteKey: "<!-- Put Your ReCapctha Site Key -->",
+  },
+  contactInfo = {
+    emailLabel: "Email Address",
+    email: "info123@gmail.com",
+    phoneLabel: "Contact Us",
+    phone: "013 354 213 - 92132",
+    addressLabel: "Address",
+    address: "1901 Thornridge Cir. Shiloh",
+    subjectLabel: "Subject",
+    subject: "Medical and Dentist",
+  },
+  socialLinks = [
+    { platform: "Facebook", url: "https://www.facebook.com/", icon: "fa-brands fa-facebook-f" },
+    { platform: "Twitter", url: "https://x.com/", icon: "fa-brands fa-x-twitter" },
+    { platform: "Instagram", url: "https://www.instagram.com/", icon: "fa-brands fa-instagram" },
+    { platform: "YouTube", url: "https://www.youtube.com/", icon: "fa-brands fa-youtube" },
+  ],
+  mapEmbedUrl = "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d227748.3825624477!2d75.65046970649679!3d26.88544791796718!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x396c4adf4c57e281%3A0xce1c63a0cf22e09!2sJaipur%2C+Rajasthan!5e0!3m2!1sen!2sin!4v1500819483219",
+} = Astro.props;
+
+let data = { subtitle, title, formData, contactInfo, socialLinks, mapEmbedUrl };
+
+// Fetch from Sanity
+if (fetchFromSanity) {
+  try {
+    const query = `*[_type == "contactPage"][0]{
+      contactSection {
+        subtitle,
+        title,
+        formData {
+          namePlaceholder,
+          emailPlaceholder,
+          phonePlaceholder,
+          doctorPlaceholder,
+          messagePlaceholder,
+          buttonText,
+          recaptchaSiteKey
+        },
+        contactInfo {
+          emailLabel,
+          email,
+          phoneLabel,
+          phone,
+          addressLabel,
+          address,
+          subjectLabel,
+          subject
+        },
+        socialLinks[] {
+          platform,
+          url,
+          icon
+        },
+        mapEmbedUrl
+      }
+    }`;
+    
+    const result = await client.fetch(query);
+    
+    if (result?.contactSection) {
+      data = { 
+        ...data, 
+        ...result.contactSection,
+        // Ensure socialLinks is always an array
+        socialLinks: result.contactSection.socialLinks || data.socialLinks,
+      };
+    }
+  } catch (error) {
+    console.error('Error fetching contact data:', error);
+  }
+}
+
+const form = data.formData || formData;
+const info = data.contactInfo || contactInfo;
+const socials = data.socialLinks || [];
+const mapUrl = data.mapEmbedUrl || mapEmbedUrl;
+const sectionSubtitle = data.subtitle || subtitle;
+const sectionTitle = data.title || title;
+---
+
+<section class="lg:py-120 md:py-80 py-60">
+  <div class="container">
+    <div class="grid grid-cols-12 lg:gap-30">
+      <!-- Map -->
+      <div class="col-span-12">
+        <div class="mb-60 w-full">
+          <iframe 
+            src={mapUrl} 
+            class="w-full h-700" 
+            height="450" 
+            style="border:0;" 
+            allowfullscreen
+            loading="lazy"
+          ></iframe>
+        </div>
+      </div>
+      
+      <!-- Form Column -->
+      <div class="lg:col-span-6 col-span-12">
+        <div class="w-[fit-content] pb-24">
+          <span class="capitalize font-semibold xxl:text-xxl xl:text-xl sm:text-lg text-base text-primary font-sora pb-5 block">{sectionSubtitle}</span>
+          <h2 class="xl:text-5xl md:text-4xl sm:text-3xl text-2.5xl font-semibold text-secondary font-sora leading-[1.2]">{sectionTitle}</h2>
+        </div>
+        <form class="bg-white">
+          <div class="grid grid-cols-12 sm:gap-x-30">
+            <div class="lg:col-span-6 col-span-12">
+              <input 
+                class="w-full h-50 pl-20 border border-[#D8D8D8] mb-24 rounded-[10px] outline-none" 
+                type="text" 
+                name="dzName" 
+                placeholder={form.namePlaceholder}
+              >
+            </div>
+            <div class="lg:col-span-6 col-span-12">
+              <input 
+                class="w-full h-50 pl-20 border border-[#D8D8D8] mb-24 rounded-[10px] outline-none" 
+                type="email" 
+                name="dzEmail" 
+                placeholder={form.emailPlaceholder}
+              >
+            </div>
+            <div class="lg:col-span-6 col-span-12">
+              <input 
+                class="w-full h-50 pl-20 border border-[#D8D8D8] mb-24 rounded-[10px] outline-none" 
+                type="number" 
+                name="dzPhoneNumber" 
+                placeholder={form.phonePlaceholder}
+              >
+            </div>
+            <div class="lg:col-span-6 col-span-12 select-box">
+              <select class="nice-select !w-full !h-50 !pl-20 !border !border-[#D8D8D8] !mb-24 !rounded-[10px] !outline-none">
+                <option selected>{form.doctorPlaceholder}</option>
+                <option value="1">Dr. Include John</option>
+                <option value="2">Dr.David</option>
+                <option value="3">Dr.Robert</option>
+              </select>
+            </div>
+            <div class="col-span-12">
+              <textarea 
+                name="dzMessage" 
+                required 
+                placeholder={form.messagePlaceholder} 
+                class="w-full h-180 p-20 border border-[#D8D8D8] mb-24 rounded-[10px] mb-18 outline-none"
+              ></textarea>		
+            </div>
+            <div class="col-span-12">
+              <div class="w-full mb-24">
+                <div class="flex flex-wrap align-stretch w-full">
+                  <div class="g-recaptcha" data-sitekey={form.recaptchaSiteKey} data-callback="verifyRecaptchaCallback" data-expired-callback="expiredRecaptchaCallback"></div>
+                  <input class="form-control" style="display:none;" data-recaptcha="true" required data-error="Please complete the Captcha">
+                </div>
+              </div>
+            </div>
+            <div class="col-span-12">
+              <button name="submit" type="submit" value="Submit" class="btn w-full">
+                <span>{form.buttonText} <i class="fa-solid fa-arrow-right"></i></span>
+              </button>
+            </div>	
+          </div>
+        </form>
+      </div>
+      
+      <!-- Contact Info Column -->
+      <div class="lg:col-span-6 col-span-12 max-lg:mt-40">
+        <div class="w-full ml-auto xxl:p-50 xl:p-42 sm:p-40 p-30 bg-secondary">
+          <h3 class="text-white xxl:text-2.3xl sm:text-2xxl text-xl font-semibold sm:pb-30 pb-25 font-sora">Contact Information :</h3>
+          <ul>
+            <li class="border-b border-[#304F74] pb-20 mb-20">
+              <span class="text-white pb-5 block">{info.emailLabel}</span>
+              <a class="text-white block font-bold font-sora hover:text-primary duration-500" href={`mailto:${info.email}`}>{info.email}</a>
+            </li>
+            <li class="border-b border-[#304F74] pb-20 mb-20">
+              <span class="text-white pb-5 block">{info.phoneLabel}</span>
+              <a class="text-white block font-bold font-sora hover:text-primary duration-500" href={`callto:${info.phone?.replace(/\s/g, '') || info.phone}`}>{info.phone}</a>
+            </li>
+            <li class="border-b border-[#304F74] pb-20 mb-20">
+              <span class="text-white pb-5 block">{info.addressLabel}</span>
+              <h6 class="text-white block font-bold font-sora hover:text-primary duration-500">{info.address}</h6>
+            </li>
+            <li>
+              <span class="text-white pb-5 block">{info.subjectLabel}</span>
+              <h6 class="text-white block font-bold font-sora hover:text-primary duration-500">{info.subject}</h6>
+            </li>
+          </ul>
+          <ul class="flex items-center gap-10 xxl:pt-48 pt-42">
+            {socials && socials.length > 0 ? (
+              socials.map((social, index) => (
+                <li key={index}>
+                  <a 
+                    href={social.url} 
+                    class="flex items-center justify-center xxl:size-50 size-40 max-xxl:text-sm rounded-full hover:bg-primary duration-500 hover:text-white bg-white text-black" 
+                    target="_blank"
+                  >
+                    <i class={social.icon}></i>
+                  </a>
+                </li>
+              ))
+            ) : (
+              // Default social links if none from Sanity
+              <>
+                <li>
+                  <a href="https://www.facebook.com/" class="flex items-center justify-center xxl:size-50 size-40 max-xxl:text-sm rounded-full hover:bg-primary duration-500 hover:text-white bg-white text-black" target="_blank">
+                    <i class="fa-brands fa-facebook-f"></i>
+                  </a>
+                </li>
+                <li>
+                  <a href="https://x.com/" class="flex items-center justify-center xxl:size-50 size-40 max-xxl:text-sm rounded-full hover:bg-primary duration-500 hover:text-white bg-white text-black" target="_blank">
+                    <i class="fa-brands fa-x-twitter"></i>
+                  </a>
+                </li>
+                <li>
+                  <a href="https://www.instagram.com/" class="flex items-center justify-center xxl:size-50 size-40 max-xxl:text-sm rounded-full hover:bg-primary duration-500 hover:text-white bg-white text-black" target="_blank">
+                    <i class="fa-brands fa-instagram"></i>
+                  </a>
+                </li>
+                <li>
+                  <a href="https://www.youtube.com/" class="flex items-center justify-center xxl:size-50 size-40 max-xxl:text-sm rounded-full hover:bg-primary duration-500 hover:text-white bg-white text-black" target="_blank">
+                    <i class="fa-brands fa-youtube"></i>
+                  </a>
+                </li>
+              </>
+            )}
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

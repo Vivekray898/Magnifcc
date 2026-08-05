@@ -1,0 +1,276 @@
+---
+// src/components/sections/Services.astro
+
+import { client } from '../../lib/sanity';
+
+export interface Props {
+  fetchFromSanity?: boolean;
+  data?: {
+    subtitle?: string;
+    title?: string;
+    services?: Array<{
+      title: string;
+      description: string;
+      number: number;
+      iconBgColor: string;
+      iconShadow?: string;
+      link: string;
+    }>;
+  };
+}
+
+const { fetchFromSanity = true, data: propData } = Astro.props;
+
+// Default fallback data - using numbers
+const defaultData = {
+  subtitle: '# Our Services',
+  title: 'Our Medical Services.',
+  services: [
+    {
+      title: 'Mental Health',
+      description: 'Our comprehensive preventive care services are designed to identify potential.',
+      number: 01,
+      iconBgColor: 'rgb(240,93,193)',
+      iconShadow: 'rgba(240,93,168,0.4)',
+      link: 'services-details.html',
+    },
+    {
+      title: 'Preventive Care',
+      description: 'Our comprehensive preventive care services are designed to identify potential.',
+      number: 02,
+      iconBgColor: '#69b741',
+      iconShadow: 'rgba(105,183,65,0.4)',
+      link: 'services-details.html',
+    },
+    {
+      title: 'Surgical Care',
+      description: 'Our comprehensive preventive care services are designed to identify potential.',
+      number: 03,
+      iconBgColor: '#58CBF2',
+      iconShadow: 'rgba(88,203,242,0.4)',
+      link: 'services-details.html',
+    },
+    {
+      title: 'Dental Checkup',
+      description: 'Our comprehensive preventive care services are designed to identify potential.',
+      number: 04,
+      iconBgColor: '#9B52E1',
+      iconShadow: 'rgba(155,82,225,0.4)',
+      link: 'services-details.html',
+    },
+  ],
+};
+
+let data = defaultData;
+
+// Fetch from Sanity
+if (fetchFromSanity && !propData) {
+  try {
+    const query = `*[_type == "homePage"][0]{
+      servicesSection {
+        subtitle,
+        title,
+        services[] {
+          title,
+          description,
+          number,
+          iconBgColor,
+          iconShadow,
+          link
+        }
+      }
+    }`;
+    
+    const result = await client.fetch(query);
+    
+    if (result?.servicesSection) {
+      data = {
+        ...defaultData,
+        ...result.servicesSection,
+        services: result.servicesSection.services?.length > 0 
+          ? result.servicesSection.services 
+          : defaultData.services,
+      };
+    }
+  } catch (error) {
+    console.error('Error fetching services data:', error);
+  }
+} else if (propData) {
+  data = {
+    ...defaultData,
+    ...propData,
+    services: propData.services?.length > 0 ? propData.services : defaultData.services,
+  };
+}
+
+const { subtitle, title, services } = data;
+
+// Format number with leading zero
+const formatNumber = (num: number): string => {
+  return num.toString().padStart(2, '0');
+};
+---
+
+<section class="lg:pt-120 md:pt-80 pt-60">
+  <div class="container">
+    <div class="xl:pb-50 lg:pb-40 pb-30 w-[fit-content]"> 
+      <span class="capitalize font-semibold xxl:text-xxl xl:text-xl sm:text-lg text-base text-primary font-sora pb-5 block">{subtitle}</span>
+      <h2 class="xl:text-5xl md:text-4xl sm:text-3xl text-2.5xl font-semibold text-secondary font-sora leading-[1.2]">{title}</h2> 
+    </div>
+    <div class="swiper services-slider">
+      <div class="swiper-wrapper">
+        {services?.map((service, index) => {
+          const numberDisplay = formatNumber(service.number || index + 1);
+          
+          return (
+            <div class="swiper-slide group" key={index}>
+              <div class="services-box shadow-[0px_0px_15px_0px_rgba(0,0,0,0.07)] relative xxl:p-40 p-30 xxl:m-15 m-10 before:w-full before:h-0 before:bg-primary before:absolute before:bottom-0 before:left-0 group-hover:before:h-full before:duration-500">
+                {/* Number */}
+                <div class="size-90 flex items-center justify-center mb-25 relative rounded-full group-hover:bg-white" 
+                   style={{
+                     backgroundColor: service.iconBgColor || '#F05DA8',
+                     boxShadow: `0px 0px 24px 0px ${service.iconShadow || 'rgba(240,93,168,0.4)'}`
+                   }}>
+                  <span class="text-white text-4xl font-bold font-sora group-hover:text-secondary transition-colors duration-500">
+                    {numberDisplay}
+                  </span>
+                </div>
+                
+                <h4 class="xl:text-xl font-sora text-secondary font-medium leading-[1.2]">
+                  <a href={service.link || 'services-details.html'} class="xxl:text-2xl text-xl font-bold font-sora relative text-secondary group-hover:text-white duration-500">
+                    {service.title}
+                  </a>
+                </h4>
+                <p class="pt-10 pb-20 relative text-base leading-32 text-[#6f6f6f] font-normal group-hover:text-white duration-500">
+                  {service.description}
+                </p>
+                <a href={service.link || 'services-details.html'} class="relative font-bold text-secondary font-sora group-hover:text-white duration-500">
+                  Read More<i class="fa-solid fa-arrow-right ml-12 relative"></i>
+                </a>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      <div class="swiper-button">
+        <div class="services-swiper-button-next"><i class="fa-solid fa-arrow-right"></i></div>
+        <div class="services-swiper-button-prev"><i class="fa-solid fa-arrow-left"></i></div>
+      </div>
+    </div> 
+  </div>
+</section>
+
+<style>
+  .services-box {
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.5s ease;
+    background: white;
+  }
+  
+  .services-box:hover {
+    transform: translateY(-5px);
+  }
+  
+  .services-box .size-90 {
+    transition: all 0.5s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .services-box .size-90 span {
+    transition: all 0.5s ease;
+    font-size: 32px;
+    font-weight: 700;
+  }
+  
+  .services-box:hover .size-90 span {
+    color: #021935 !important;
+  }
+  
+  .services-box:hover .size-90 {
+    background-color: white !important;
+  }
+  
+  .services-box h4 a {
+    transition: color 0.3s ease;
+  }
+  
+  .services-box h4 a:hover {
+    color: #F05DA8 !important;
+  }
+  
+  /* Swiper button styles */
+  .services-swiper-button-next,
+  .services-swiper-button-prev {
+    width: 50px;
+    height: 50px;
+    background: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: #021935;
+    font-size: 18px;
+  }
+  
+  .services-swiper-button-next:hover,
+  .services-swiper-button-prev:hover {
+    background: #F05DA8;
+    color: white;
+  }
+  
+  .swiper-button {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 30px;
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const swiperEl = document.querySelector('.services-slider');
+    if (!swiperEl) return;
+    
+    if (typeof Swiper === 'undefined') {
+      console.warn('Swiper library not loaded');
+      return;
+    }
+    
+    const slides = swiperEl.querySelectorAll('.swiper-slide');
+    const slidesPerView = slides.length < 3 ? slides.length : 3;
+    
+    new Swiper(swiperEl, {
+      slidesPerView: 1,
+      spaceBetween: 20,
+      loop: slides.length > 2,
+      navigation: {
+        nextEl: '.services-swiper-button-next',
+        prevEl: '.services-swiper-button-prev',
+      },
+      breakpoints: {
+        640: {
+          slidesPerView: Math.min(2, slides.length),
+          spaceBetween: 20,
+        },
+        768: {
+          slidesPerView: Math.min(2, slides.length),
+          spaceBetween: 30,
+        },
+        1024: {
+          slidesPerView: Math.min(3, slides.length),
+          spaceBetween: 30,
+        },
+        1280: {
+          slidesPerView: Math.min(3, slides.length),
+          spaceBetween: 40,
+        },
+      },
+    });
+  });
+</script>
