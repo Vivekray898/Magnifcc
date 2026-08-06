@@ -20,7 +20,7 @@ const defaultData = {
   longDescription: "We believe that prevention is the key to maintaining a healthy, beautiful smile. Our comprehensive preventive care services are designed to detect and address potential dental issues before they become serious, helping you avoid discomfort and costly treatments in the future. Our Preventive Care Services Routine Dental Exams Regular check-ups allow us to monitor your oral health and catch any issues early.",
   sectionTitle: "Fluoride Treatments",
   sectionContent: "Strengthen your enamel and protect your teeth from decay with safe and effective fluoride applications. Dental Sealants A protective coating applied to the chewing surfaces of molars to prevent cavities, especially in children and teenagers Oral Cancer Screenings Early detection of oral cancer can save lives. We conduct thorough screenings during routine exams to ensure your health and safety.",
-  image: "assets/img/services-details.jpg",
+  image: "/assets/img/services-details.jpg",
   bottomText: "We provide tailored advice on brushing, flossing, and dietary habits to help you maintain excellent oral hygiene at home. X-Rays and Imaging Advanced digital X-rays help us detect hidden dental issues, such as cavities, bone loss, or impacted teeth, before they cause problems.",
   faqs: [
     { question: "How often should I visit the dentist?", answer: "Yes, we provide prompt care for dental emergencies, including severe toothaches, broken teeth, and dental injuries. Contact us immediately if you need urgent care." },
@@ -28,13 +28,6 @@ const defaultData = {
     { question: "How can I improve my oral hygiene at home?", answer: "Yes, we provide prompt care for dental emergencies, including severe toothaches, broken teeth, and dental injuries. Contact us immediately if you need urgent care." },
     { question: "What insurance plans do you accept?", answer: "Yes, we provide prompt care for dental emergencies, including severe toothaches, broken teeth, and dental injuries. Contact us immediately if you need urgent care." },
     { question: "What should I do if I experience dental anxiety?", answer: "Yes, we provide prompt care for dental emergencies, including severe toothaches, broken teeth, and dental injuries. Contact us immediately if you need urgent care." },
-  ],
-  servicesList: [
-    { title: "Preventive Care", link: "/services/preventive-care" },
-    { title: "Restorative Dentistry", link: "/services/restorative-dentistry" },
-    { title: "Cosmetic Dentistry", link: "/services/cosmetic-dentistry" },
-    { title: "Orthodontic Treatments", link: "/services/orthodontic-treatments" },
-    { title: "Emergency Dental Care", link: "/services/emergency-dental" },
   ],
   socialLinks: [
     { icon: "fa-brands fa-facebook-f", url: "https://www.facebook.com/" },
@@ -46,11 +39,14 @@ const defaultData = {
   nextService: { title: "Next Services", link: "javascript:void(0);" },
 };
 
+// State for services list (auto-fetched)
+let allServicesList: Array<{ title: string; link: string }> = [];
 let data = defaultData;
 
 // Fetch from Sanity by slug
 if (fetchFromSanity && slug) {
   try {
+    // Fetch the specific service details
     const query = `*[_type == "servicesDetails" && slug.current == "${slug}"][0]{
       icon,
       title,
@@ -68,10 +64,6 @@ if (fetchFromSanity && slug) {
       faqs[] {
         question,
         answer
-      },
-      servicesList[] {
-        title,
-        link
       },
       socialLinks[] {
         icon,
@@ -95,36 +87,39 @@ if (fetchFromSanity && slug) {
         data.image = result.image.asset.url;
       }
       
-      // Fetch all services for navigation
-      try {
-        const allServicesQuery = `*[_type == "servicesDetails"]{
-          title,
-          slug
-        } | order(_createdAt asc)`;
+      // Fetch all services for sidebar navigation
+      const allServicesQuery = `*[_type == "servicesDetails"]{
+        title,
+        slug
+      } | order(title asc)`;
+      
+      const allServices = await client.fetch(allServicesQuery);
+      
+      if (allServices && allServices.length > 0) {
+        // Build the services list for sidebar
+        allServicesList = allServices.map((service: any) => ({
+          title: service.title || 'Untitled Service',
+          link: `/services/${service.slug?.current || 'service'}`,
+        }));
         
-        const allServices = await client.fetch(allServicesQuery);
+        // Find current index for prev/next navigation
+        const currentIndex = allServices.findIndex((s: any) => s.slug?.current === slug);
         
-        if (allServices && allServices.length > 0) {
-          const currentIndex = allServices.findIndex((s: any) => s.slug?.current === slug);
-          
-          if (currentIndex > 0) {
-            const prevService = allServices[currentIndex - 1];
-            data.prevService = {
-              title: prevService.title || 'Previous Service',
-              link: `/services/${prevService.slug?.current}`,
-            };
-          }
-          
-          if (currentIndex < allServices.length - 1 && currentIndex !== -1) {
-            const nextService = allServices[currentIndex + 1];
-            data.nextService = {
-              title: nextService.title || 'Next Service',
-              link: `/services/${nextService.slug?.current}`,
-            };
-          }
+        if (currentIndex > 0) {
+          const prevService = allServices[currentIndex - 1];
+          data.prevService = {
+            title: prevService.title || 'Previous Service',
+            link: `/services/${prevService.slug?.current}`,
+          };
         }
-      } catch (navError) {
-        console.error('Error fetching navigation:', navError);
+        
+        if (currentIndex < allServices.length - 1 && currentIndex !== -1) {
+          const nextService = allServices[currentIndex + 1];
+          data.nextService = {
+            title: nextService.title || 'Next Service',
+            link: `/services/${nextService.slug?.current}`,
+          };
+        }
       }
     } else {
       console.warn(`No service found for slug: ${slug}, using default data`);
@@ -144,11 +139,13 @@ const {
   image,
   bottomText,
   faqs,
-  servicesList,
   socialLinks,
   prevService,
   nextService,
 } = data;
+
+// Use auto-fetched services list, fallback to default if empty
+const servicesList = allServicesList.length > 0 ? allServicesList : defaultData.servicesList;
 ---
 
 <!-- Rest of the component remains the same -->
@@ -167,16 +164,23 @@ const {
             </form>
           </div>
           
-          <!-- Services List -->
+          <!-- Services List - Auto-fetched from servicesDetails -->
           <div class="xl:p-30 p-20 border border-[#D8D8D8] mb-24">
             <h3 class="xl:text-2xl text-xl font-semibold pb-20 text-secondary capitalize font-sora">Services List</h3>
             <ul class="services-list">
               {servicesList && servicesList.length > 0 ? (
-                servicesList.map((service, index) => (
-                  <li key={index} class="xxl:mb-24 mb-16 w-full relative">
-                    <a href={service.link}>{service.title}<i class="fa-solid fa-arrow-right"></i></a>
-                  </li>
-                ))
+                servicesList.map((service, index) => {
+                  // Check if this is the current service
+                  const isActive = service.link === `/services/${slug}`;
+                  return (
+                    <li key={index} class={`xxl:mb-24 mb-16 w-full relative ${isActive ? 'active' : ''}`}>
+                      <a href={service.link} class={isActive ? 'text-primary font-bold' : ''}>
+                        {service.title}
+                        <i class="fa-solid fa-arrow-right"></i>
+                      </a>
+                    </li>
+                  );
+                })
               ) : (
                 <li class="xxl:mb-24 mb-16 w-full relative">
                   <a href="javascript:void(0);">No services available</a>
@@ -297,3 +301,14 @@ const {
     </div>
   </div>
 </section>
+
+<style>
+  .services-list li.active a {
+    color: #F05DA8;
+    font-weight: 700;
+  }
+  
+  .services-list li.active i {
+    color: #F05DA8;
+  }
+</style>
