@@ -14,8 +14,8 @@ const { fetchFromSanity = true } = Astro.props;
 const defaultData = {
   logo: null,
   navItems: [
-    { label: 'Home', link: 'index.html', hasDropdown: true, dropdownItems: [
-      { label: 'Home 1', link: 'index.html' },
+    { label: 'Home', link: '/', hasDropdown: true, dropdownItems: [
+      { label: 'Home 1', link: '/' },
       { label: 'Home 2', link: 'index-2.html' },
       { label: 'Home 3', link: 'index-3.html' },
     ]},
@@ -70,7 +70,7 @@ const { navItems, ctaButton, searchEnabled } = data;
         <div class="two-bar">
           <div class="flex items-center justify-between">
             <div class="logo">
-              <a href="index.html">
+              <a href="/">
                 <img alt="logo" src={logoSrc}>
               </a>
             </div>
@@ -124,7 +124,7 @@ const { navItems, ctaButton, searchEnabled } = data;
     <!-- Mobile Nav -->
     <div class="mobile-nav" id="mobile-nav">
       <div class="res-log mb-30">
-        <a href="index.html">
+        <a href="/">
           <img alt="logo" src={logoSrc} class="w-auto">
         </a>
       </div>
