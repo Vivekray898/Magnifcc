@@ -29,5 +29,8 @@
     "styled-components": "^6.4.4",
     "swiper": "^14.0.7",
     "tailwindcss": "^4.3.3"
+  },
+  "devDependencies": {
+    "@types/node": "^26.1.2"
   }
 }

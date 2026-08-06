@@ -1,4 +1,3 @@
----
 // src/pages/api/revalidate.ts
 
 import type { APIRoute } from 'astro';
@@ -28,7 +27,7 @@ export const POST: APIRoute = async ({ request }) => {
     console.log('🔍 Revalidation triggered for:', { slug, docType });
     
     // Determine which paths to revalidate
-    const pathsToRevalidate = [];
+    const pathsToRevalidate: string[] = [];
     
     // Services paths
     if (docType === 'servicesDetails') {
@@ -80,8 +79,6 @@ export const POST: APIRoute = async ({ request }) => {
         }
       }
     }
-    
-    // For Netlify, you might want to use their webhook system instead
     
     return new Response(JSON.stringify({
       success: true,
