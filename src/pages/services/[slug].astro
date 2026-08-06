@@ -25,13 +25,15 @@ export async function getStaticPaths() {
     console.error('Error fetching service slugs:', error);
   }
   
-  // Fallback paths
-  return [
-    { params: { slug: 'medical-services' } },
-    { params: { slug: 'preventive-care' } },
-    { params: { slug: 'surgical-care' } },
-  ];
+  return [];
 }
+
+// Enable ISR - revalidate these pages
+export const getStaticProps = async () => {
+  return {
+    revalidate: 60, // Revalidate every 60 seconds
+  };
+};
 
 const { slug } = Astro.params;
 ---

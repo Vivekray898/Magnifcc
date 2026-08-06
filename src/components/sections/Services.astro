@@ -11,7 +11,6 @@ export interface Props {
     services?: Array<{
       title: string;
       description: string;
-      number: number;
       iconBgColor: string;
       iconShadow?: string;
       link: string;
@@ -22,7 +21,7 @@ export interface Props {
 
 const { fetchFromSanity = true, data: propData } = Astro.props;
 
-// Default fallback data - using numbers
+// Default fallback data
 const defaultData = {
   subtitle: '# Our Services',
   title: 'Our Medical Services.',
@@ -30,7 +29,6 @@ const defaultData = {
     {
       title: 'Mental Health',
       description: 'Our comprehensive preventive care services are designed to identify potential.',
-      number: 1,
       iconBgColor: 'rgb(240,93,193)',
       iconShadow: 'rgba(240,93,168,0.4)',
       link: '/services/mental-health',
@@ -39,7 +37,6 @@ const defaultData = {
     {
       title: 'Preventive Care',
       description: 'Our comprehensive preventive care services are designed to identify potential.',
-      number: 2,
       iconBgColor: '#69b741',
       iconShadow: 'rgba(105,183,65,0.4)',
       link: '/services/preventive-care',
@@ -48,7 +45,6 @@ const defaultData = {
     {
       title: 'Surgical Care',
       description: 'Our comprehensive preventive care services are designed to identify potential.',
-      number: 3,
       iconBgColor: '#58CBF2',
       iconShadow: 'rgba(88,203,242,0.4)',
       link: '/services/surgical-care',
@@ -57,7 +53,6 @@ const defaultData = {
     {
       title: 'Dental Checkup',
       description: 'Our comprehensive preventive care services are designed to identify potential.',
-      number: 4,
       iconBgColor: '#9B52E1',
       iconShadow: 'rgba(155,82,225,0.4)',
       link: '/services/dental-checkup',
@@ -68,6 +63,13 @@ const defaultData = {
 
 let sectionData = { subtitle: defaultData.subtitle, title: defaultData.title };
 let services = defaultData.services;
+
+// Helper function to truncate description
+const truncateDescription = (text: string, maxLength: number = 60): string => {
+  if (!text) return 'Service description';
+  if (text.length <= maxLength) return text;
+  return text.substring(0, maxLength) + '...';
+};
 
 // Fetch from Sanity
 if (fetchFromSanity && !propData) {
@@ -96,15 +98,14 @@ if (fetchFromSanity && !propData) {
       slug,
       iconBgColor,
       iconShadow
-    } | order(_createdAt asc)`;
+    } | order(title asc)`;
     
     const servicesResult = await client.fetch(servicesQuery);
     
     if (servicesResult && servicesResult.length > 0) {
-      services = servicesResult.map((service: any, index: number) => ({
+      services = servicesResult.map((service: any) => ({
         title: service.title || 'Untitled Service',
-        description: service.description || 'Service description',
-        number: index + 1,
+        description: truncateDescription(service.description, 60),
         iconBgColor: service.iconBgColor || '#F05DA8',
         iconShadow: service.iconShadow || 'rgba(240,93,168,0.4)',
         link: `/services/${service.slug?.current || 'service'}`,
@@ -123,11 +124,6 @@ if (fetchFromSanity && !propData) {
 }
 
 const { subtitle, title } = sectionData;
-
-// Format number with leading zero
-const formatNumber = (num: number): string => {
-  return num.toString().padStart(2, '0');
-};
 ---
 
 <section class="lg:pt-120 md:pt-80 pt-60">
@@ -138,38 +134,34 @@ const formatNumber = (num: number): string => {
     </div>
     <div class="swiper services-slider">
       <div class="swiper-wrapper">
-        {services?.map((service, index) => {
-          const numberDisplay = formatNumber(service.number || index + 1);
-          
-          return (
-            <div class="swiper-slide group" key={index}>
-              <div class="services-box shadow-[0px_0px_15px_0px_rgba(0,0,0,0.07)] relative xxl:p-40 p-30 xxl:m-15 m-10 before:w-full before:h-0 before:bg-primary before:absolute before:bottom-0 before:left-0 group-hover:before:h-full before:duration-500">
-                {/* Number */}
-                <div class="size-90 flex items-center justify-center mb-25 relative rounded-full group-hover:bg-white" 
+        {services?.map((service, index) => (
+          <div class="swiper-slide group" key={index}>
+            <div class="services-box shadow-[0px_0px_15px_0px_rgba(0,0,0,0.07)] relative xxl:p-40 p-30 xxl:m-15 m-10 before:w-full before:h-0 before:bg-primary before:absolute before:bottom-0 before:left-0 group-hover:before:h-full before:duration-500">
+              {/* Icon with gradient background - no numbers */}
+              <div class="size-90 flex items-center justify-center mb-25 relative rounded-full group-hover:bg-white" 
                    style={{
-                     backgroundColor: service.iconBgColor || '#F05DA8',
+                     background: `linear-gradient(135deg, ${service.iconBgColor || '#F05DA8'}, ${service.iconBgColor || '#F05DA8'}dd)`,
                      boxShadow: `0px 0px 24px 0px ${service.iconShadow || 'rgba(240,93,168,0.4)'}`
                    }}>
-                  <span class="text-white text-4xl font-bold font-sora group-hover:text-secondary transition-colors duration-500">
-                    {numberDisplay}
-                  </span>
-                </div>
-                
-                <h4 class="xl:text-xl font-sora text-secondary font-medium leading-[1.2]">
-                  <a href={service.link || 'services-details.html'} class="xxl:text-2xl text-xl font-bold font-sora relative text-secondary group-hover:text-white duration-500">
-                    {service.title}
-                  </a>
-                </h4>
-                <p class="pt-10 pb-20 relative text-base leading-32 text-[#6f6f6f] font-normal group-hover:text-white duration-500">
-                  {service.description}
-                </p>
-                <a href={service.link || 'services-details.html'} class="relative font-bold text-secondary font-sora group-hover:text-white duration-500">
-                  Read More<i class="fa-solid fa-arrow-right ml-12 relative"></i>
-                </a>
+                <svg class="w-10 h-10 text-white group-hover:text-secondary transition-colors duration-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                </svg>
               </div>
+              
+              <h4 class="xl:text-xl font-sora text-secondary font-medium leading-[1.2]">
+                <a href={service.link || 'services-details.html'} class="xxl:text-2xl text-xl font-bold font-sora relative text-secondary group-hover:text-white duration-500">
+                  {service.title}
+                </a>
+              </h4>
+              <p class="pt-10 pb-20 relative text-base leading-32 text-[#6f6f6f] font-normal group-hover:text-white duration-500">
+                {service.description}
+              </p>
+              <a href={service.link || 'services-details.html'} class="relative font-bold text-secondary font-sora group-hover:text-white duration-500 inline-flex items-center gap-2">
+                Read More <i class="fa-solid fa-arrow-right relative"></i>
+              </a>
             </div>
-          );
-        })}
+          </div>
+        ))}
       </div>
       <div class="swiper-button">
         <div class="services-swiper-button-next"><i class="fa-solid fa-arrow-right"></i></div>
@@ -198,18 +190,19 @@ const formatNumber = (num: number): string => {
     justify-content: center;
   }
   
-  .services-box .size-90 span {
+  .services-box .size-90 svg {
     transition: all 0.5s ease;
-    font-size: 32px;
-    font-weight: 700;
-  }
-  
-  .services-box:hover .size-90 span {
-    color: #021935 !important;
+    width: 40px;
+    height: 40px;
   }
   
   .services-box:hover .size-90 {
     background-color: white !important;
+  }
+  
+  .services-box:hover .size-90 svg {
+    color: #021935 !important;
+    stroke: #021935;
   }
   
   .services-box h4 a {

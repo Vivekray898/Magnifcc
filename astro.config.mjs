@@ -8,6 +8,7 @@ const projectId = process.env.PUBLIC_SANITY_PROJECT_ID || 'your-project-id';
 const dataset = process.env.PUBLIC_SANITY_DATASET || 'production';
 
 export default defineConfig({
+  output: 'hybrid', // Enable hybrid rendering for ISR
   vite: {
     plugins: [tailwindcss()]
   },

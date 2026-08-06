@@ -6,6 +6,23 @@ import Header from "../../components/common/Header.astro";
 import Footer from "../../components/common/Footer.astro";
 import ServicesHero from "../../components/sections/services/ServicesHero.astro";
 import ServicesList from "../../components/sections/services/ServicesList.astro";
+
+// Enable ISR - revalidate every 60 seconds
+export const prerender = true;
+
+// Add this to enable Vercel ISR
+export const getStaticPaths = async () => {
+  return [
+    { params: { page: '1' } }
+  ];
+};
+
+// For Vercel ISR
+export const getStaticProps = async () => {
+  return {
+    revalidate: 60, // Revalidate every 60 seconds in production
+  };
+};
 ---
 
 <Layout title="Services" description="Our medical services">
