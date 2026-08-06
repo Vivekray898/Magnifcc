@@ -8,7 +8,9 @@ const projectId = process.env.PUBLIC_SANITY_PROJECT_ID || 'your-project-id';
 const dataset = process.env.PUBLIC_SANITY_DATASET || 'production';
 
 export default defineConfig({
-  output: 'hybrid', // Enable hybrid rendering for ISR
+  // Remove 'hybrid' - use default 'static' or set to 'server'
+  // For ISR with Vercel, you can use 'static' (default) or 'server'
+  output: 'server', // Use 'server' for SSR/ISR, or remove for static
   vite: {
     plugins: [tailwindcss()]
   },
@@ -21,4 +23,6 @@ export default defineConfig({
     }),
     react(),
   ],
+  // Add adapter for Vercel if using server output
+  adapter: process.env.VERCEL ? (await import('@astrojs/vercel')).default() : undefined,
 });
