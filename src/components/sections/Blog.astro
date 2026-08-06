@@ -1,6 +1,8 @@
 ---
 // src/components/sections/Blog.astro
 
+import { client } from '../../lib/sanity';
+
 export interface BlogPost {
     id: number;
     title: string;
@@ -14,9 +16,11 @@ export interface BlogPost {
     link: string;
     featured?: boolean;
     tags?: string[];
+    slug?: string;
 }
 
 export interface Props {
+    fetchFromSanity?: boolean;
     subtitle?: string;
     title?: string;
     buttonText?: string;
@@ -31,59 +35,154 @@ export interface Props {
 }
 
 const {
+    fetchFromSanity = true,
     subtitle = "# blog",
     title = "Our Medical Blog.",
     buttonText = "View All Blog",
-    buttonLink = "our-blog.html",
+    buttonLink = "/blog",
     showViewAll = true,
     postsPerPage = 3,
     showCategories = false,
     showSearch = false,
     defaultCategory = "All",
     backgroundClass = "relative lg:pb-120 md:pb-80 pb-60 section-blog",
-    posts = [
-        {
-            id: 1,
-            title: "How to maintain a balanced diet and exercise.",
-            excerpt: "Maintaining a balanced diet and regular exercise is essential for overall health and wellbeing.",
-            image: "assets/img/blog-one-1.jpg",
-            date: "15",
-            month: "April",
-            author: "Admin",
-            comments: 2,
-            category: "Health & Wellness",
-            link: "blog-details.html",
-            featured: true,
-            tags: ["Diet", "Exercise", "Wellness"]
-        },
-        {
-            id: 2,
-            title: "Coping strategies for stress, anxiety, and depression.",
-            excerpt: "Learn effective coping strategies to manage stress, anxiety, and depression in your daily life.",
-            image: "assets/img/blog-one-2.jpg",
-            date: "15",
-            month: "April",
-            author: "Admin",
-            comments: 2,
-            category: "Mental Health",
-            link: "blog-details.html",
-            tags: ["Mental Health", "Stress", "Anxiety"]
-        },
-        {
-            id: 3,
-            title: "Latest medical technologies and treatments available.",
-            excerpt: "Discover the latest advancements in medical technology and innovative treatments available today.",
-            image: "assets/img/blog-one-3.jpg",
-            date: "15",
-            month: "April",
-            author: "Admin",
-            comments: 2,
-            category: "Medical Technology",
-            link: "blog-details.html",
-            tags: ["Technology", "Innovation", "Treatment"]
-        }
-    ]
+    posts: propPosts,
 } = Astro.props;
+
+// Default fallback posts
+const defaultPosts: BlogPost[] = [
+    {
+        id: 1,
+        title: "How to maintain a balanced diet and exercise.",
+        excerpt: "Maintaining a balanced diet and regular exercise is essential for overall health and wellbeing.",
+        image: "/assets/img/blog-one-1.jpg",
+        date: "15",
+        month: "April",
+        author: "Admin",
+        comments: 2,
+        category: "Health & Wellness",
+        link: "/blog/how-to-maintain-a-balanced-diet-and-exercise",
+        featured: true,
+        tags: ["Diet", "Exercise", "Wellness"],
+        slug: "how-to-maintain-a-balanced-diet-and-exercise",
+    },
+    {
+        id: 2,
+        title: "Coping strategies for stress, anxiety, and depression.",
+        excerpt: "Learn effective coping strategies to manage stress, anxiety, and depression in your daily life.",
+        image: "/assets/img/blog-one-2.jpg",
+        date: "15",
+        month: "April",
+        author: "Admin",
+        comments: 2,
+        category: "Mental Health",
+        link: "/blog/coping-strategies-for-stress-anxiety-and-depression",
+        tags: ["Mental Health", "Stress", "Anxiety"],
+        slug: "coping-strategies-for-stress-anxiety-and-depression",
+    },
+    {
+        id: 3,
+        title: "Latest medical technologies and treatments available.",
+        excerpt: "Discover the latest advancements in medical technology and innovative treatments available today.",
+        image: "/assets/img/blog-one-3.jpg",
+        date: "15",
+        month: "April",
+        author: "Admin",
+        comments: 2,
+        category: "Medical Technology",
+        link: "/blog/latest-medical-technologies-and-treatments-available",
+        tags: ["Technology", "Innovation", "Treatment"],
+        slug: "latest-medical-technologies-and-treatments-available",
+    },
+];
+
+let posts = defaultPosts;
+let sectionData = { 
+    subtitle, 
+    title, 
+    buttonText, 
+    buttonLink 
+};
+
+// Fetch from Sanity - from homePage's blogSection
+if (fetchFromSanity && !propPosts) {
+    try {
+        const query = `*[_type == "homePage"][0]{
+            blogSection {
+                subtitle,
+                title,
+                viewAllText,
+                viewAllLink
+            }
+        }`;
+        
+        const result = await client.fetch(query);
+        
+        if (result?.blogSection) {
+            const blogData = result.blogSection;
+            
+            // Update section data from Sanity
+            sectionData = {
+                subtitle: blogData.subtitle || subtitle,
+                title: blogData.title || title,
+                buttonText: blogData.viewAllText || buttonText,
+                buttonLink: blogData.viewAllLink || buttonLink,
+            };
+        }
+        
+        // Then, fetch all blog posts from blogPost (latest 3)
+        const postsQuery = `*[_type == "blogPost"] | order(publishDate desc)[0...${postsPerPage}]{
+            title,
+            excerpt,
+            slug,
+            publishDate,
+            author,
+            comments,
+            featuredImage {
+                asset->{
+                    _id,
+                    url
+                }
+            },
+            tags,
+            featured,
+            category
+        }`;
+        
+        const postsResult = await client.fetch(postsQuery);
+        
+        if (postsResult && postsResult.length > 0) {
+            const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+            
+            posts = postsResult.map((post: any, index: number) => {
+                const publishDate = post.publishDate ? new Date(post.publishDate) : new Date();
+                const monthName = months[publishDate.getMonth()];
+                const day = publishDate.getDate().toString().padStart(2, '0');
+                const slug = post.slug?.current || `post-${index + 1}`;
+                
+                return {
+                    id: index + 1,
+                    title: post.title || 'Untitled Post',
+                    excerpt: post.excerpt || 'Read more about this topic...',
+                    image: post.featuredImage?.asset?.url || '/assets/img/blog-one-1.jpg',
+                    date: day,
+                    month: monthName,
+                    author: post.author || 'Admin',
+                    comments: post.comments || 0,
+                    category: post.category || 'Health & Wellness',
+                    link: `/blog/${slug}`,
+                    featured: post.featured || false,
+                    tags: post.tags || [],
+                    slug: slug,
+                };
+            });
+        }
+    } catch (error) {
+        console.error('Error fetching blog data:', error);
+    }
+} else if (propPosts) {
+    posts = propPosts;
+}
 
 // Get unique categories
 const categories = ["All", ...new Set(posts.map(post => post.category))];
@@ -97,9 +196,7 @@ if (defaultCategory !== "All") {
 // Get only the number of posts specified
 const displayedPosts = filteredPosts.slice(0, postsPerPage);
 
-// Helper function to get featured post
-const featuredPost = posts.find(post => post.featured);
-const regularPosts = posts.filter(post => !post.featured);
+const { subtitle: finalSubtitle, title: finalTitle, buttonText: finalButtonText, buttonLink: finalButtonLink } = sectionData;
 ---
 
 <section class={backgroundClass}>
@@ -107,14 +204,14 @@ const regularPosts = posts.filter(post => !post.featured);
         <div class="row items-center max-sm:ml-0">
             <div class="sm:w-2/3 w-full max-md:px-0">
                 <div class="sm:pb-50 pb-20 w-[fit-content]">
-                    <span class="pb-10 block font-sora font-semibold capitalize xxl:text-xxl xl:text-xl sm:text-lg text-base text-primary">{subtitle}</span>
-                    <h2 class="xl:text-5xl md:text-4xl sm:text-3xl text-2.5xl font-semibold text-secondary font-sora leading-[1.2]">{title}</h2>
+                    <span class="pb-10 block font-sora font-semibold capitalize xxl:text-xxl xl:text-xl sm:text-lg text-base text-primary">{finalSubtitle}</span>
+                    <h2 class="xl:text-5xl md:text-4xl sm:text-3xl text-2.5xl font-semibold text-secondary font-sora leading-[1.2]">{finalTitle}</h2>
                 </div>
             </div>
             {showViewAll && (
                 <div class="sm:w-1/3 w-full max-md:px-0">
                     <div class="sm:float-right max-sm:mb-30">
-                        <a href={buttonLink} class="btn"><span>{buttonText}<i class="fa-solid fa-arrow-right"></i></span></a>
+                        <a href={finalButtonLink} class="btn"><span>{finalButtonText}<i class="fa-solid fa-arrow-right"></i></span></a>
                     </div>
                 </div>
             )}
@@ -138,11 +235,11 @@ const regularPosts = posts.filter(post => !post.featured);
 
         <div class="grid grid-cols-12 gap-25">
             {displayedPosts.map((post) => (
-                <div class="lg:col-span-4 col-span-12">
+                <div class="lg:col-span-4 col-span-12" key={post.id}>
                     <div class="relative group">
                         <div class="relative">
                             <figure class="overflow-hidden mb-20">
-                                <img src={post.image} alt={post.title} class="group-hover:scale-[1.1] group-hover:rotate-[3deg] duration-500 max-lg:w-full">
+                                <img src={post.image} alt={post.title} class="group-hover:scale-[1.1] group-hover:rotate-[3deg] duration-500 max-lg:w-full" loading="lazy">
                             </figure>
                             <h6 class="text-secondary font-sora font-bold">
                                 <a href={post.link} class="absolute xxl:text-[33px] text-lg leading-25 max-xxl:size-90 size-110 rounded-full text-center xl:p-32 p-20 text-bold right-10 top-10 shadow-[0px_7px_31px_-6px_rgba(0,0,0,0.15)] font-sora group-hover:bg-primary group-hover:text-white duration-500 text-secondary bg-white">
@@ -184,7 +281,7 @@ const regularPosts = posts.filter(post => !post.featured);
         </div>
     </div>
     <ul class="shaps">
-        <li class="absolute"><img src="assets/img/shaps-7.png" alt="img" class="animate-fa-spin"></li>
-        <li class="absolute"><img src="assets/img/shaps-8.png" alt="img" class="animate-fa-spin"></li> 
+        <li class="absolute"><img src="/assets/img/shaps-7.png" alt="img" class="animate-fa-spin"></li>
+        <li class="absolute"><img src="/assets/img/shaps-8.png" alt="img" class="animate-fa-spin"></li> 
     </ul>
 </section>

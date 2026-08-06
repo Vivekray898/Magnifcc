@@ -1,4 +1,5 @@
 // sanity/schemaTypes/documents/homePage.ts
+
 import { defineType, defineField } from 'sanity';
 import { titleField } from '../shared/fields/title';
 import { heroBannerSection } from '../shared/sections/heroBanner';

@@ -15,6 +15,7 @@ export interface Props {
       iconBgColor: string;
       iconShadow?: string;
       link: string;
+      slug?: string;
     }>;
   };
 }
@@ -29,81 +30,99 @@ const defaultData = {
     {
       title: 'Mental Health',
       description: 'Our comprehensive preventive care services are designed to identify potential.',
-      number: 01,
+      number: 1,
       iconBgColor: 'rgb(240,93,193)',
       iconShadow: 'rgba(240,93,168,0.4)',
-      link: 'services-details.html',
+      link: '/services/mental-health',
+      slug: 'mental-health',
     },
     {
       title: 'Preventive Care',
       description: 'Our comprehensive preventive care services are designed to identify potential.',
-      number: 02,
+      number: 2,
       iconBgColor: '#69b741',
       iconShadow: 'rgba(105,183,65,0.4)',
-      link: 'services-details.html',
+      link: '/services/preventive-care',
+      slug: 'preventive-care',
     },
     {
       title: 'Surgical Care',
       description: 'Our comprehensive preventive care services are designed to identify potential.',
-      number: 03,
+      number: 3,
       iconBgColor: '#58CBF2',
       iconShadow: 'rgba(88,203,242,0.4)',
-      link: 'services-details.html',
+      link: '/services/surgical-care',
+      slug: 'surgical-care',
     },
     {
       title: 'Dental Checkup',
       description: 'Our comprehensive preventive care services are designed to identify potential.',
-      number: 04,
+      number: 4,
       iconBgColor: '#9B52E1',
       iconShadow: 'rgba(155,82,225,0.4)',
-      link: 'services-details.html',
+      link: '/services/dental-checkup',
+      slug: 'dental-checkup',
     },
   ],
 };
 
-let data = defaultData;
+let sectionData = { subtitle: defaultData.subtitle, title: defaultData.title };
+let services = defaultData.services;
 
 // Fetch from Sanity
 if (fetchFromSanity && !propData) {
   try {
-    const query = `*[_type == "homePage"][0]{
+    // First, fetch the section settings from homePage
+    const settingsQuery = `*[_type == "homePage"][0]{
       servicesSection {
         subtitle,
-        title,
-        services[] {
-          title,
-          description,
-          number,
-          iconBgColor,
-          iconShadow,
-          link
-        }
+        title
       }
     }`;
     
-    const result = await client.fetch(query);
+    const settingsResult = await client.fetch(settingsQuery);
     
-    if (result?.servicesSection) {
-      data = {
-        ...defaultData,
-        ...result.servicesSection,
-        services: result.servicesSection.services?.length > 0 
-          ? result.servicesSection.services 
-          : defaultData.services,
+    if (settingsResult?.servicesSection) {
+      sectionData = {
+        subtitle: settingsResult.servicesSection.subtitle || defaultData.subtitle,
+        title: settingsResult.servicesSection.title || defaultData.title,
       };
+    }
+    
+    // Then, fetch all services from servicesDetails
+    const servicesQuery = `*[_type == "servicesDetails"]{
+      title,
+      description,
+      slug,
+      iconBgColor,
+      iconShadow
+    } | order(_createdAt asc)`;
+    
+    const servicesResult = await client.fetch(servicesQuery);
+    
+    if (servicesResult && servicesResult.length > 0) {
+      services = servicesResult.map((service: any, index: number) => ({
+        title: service.title || 'Untitled Service',
+        description: service.description || 'Service description',
+        number: index + 1,
+        iconBgColor: service.iconBgColor || '#F05DA8',
+        iconShadow: service.iconShadow || 'rgba(240,93,168,0.4)',
+        link: `/services/${service.slug?.current || 'service'}`,
+        slug: service.slug?.current || `service-${index + 1}`,
+      }));
     }
   } catch (error) {
     console.error('Error fetching services data:', error);
   }
 } else if (propData) {
-  data = {
-    ...defaultData,
-    ...propData,
-    services: propData.services?.length > 0 ? propData.services : defaultData.services,
+  sectionData = {
+    subtitle: propData.subtitle || defaultData.subtitle,
+    title: propData.title || defaultData.title,
   };
+  services = propData.services?.length > 0 ? propData.services : defaultData.services;
 }
 
-const { subtitle, title, services } = data;
+const { subtitle, title } = sectionData;
 
 // Format number with leading zero
 const formatNumber = (num: number): string => {
