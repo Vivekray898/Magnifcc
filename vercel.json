@@ -1,7 +1,0 @@
-{
-  "functions": {
-    "src/pages/api/revalidate.ts": {
-      "runtime": "edge"
-    }
-  }
-}
