@@ -8,44 +8,69 @@ import ServicesDetailsHero from "../../components/sections/services-details/Serv
 import ServicesDetailsContent from "../../components/sections/services-details/ServicesDetailsContent.astro";
 import { client } from "../../lib/sanity";
 
-export async function getStaticPaths() {
-  try {
-    const query = `*[_type == "servicesDetails"]{
-      slug
-    }`;
-    
-    const services = await client.fetch(query);
-    
-    if (services && services.length > 0) {
-      return services.map((service: any) => ({
-        params: { slug: service.slug?.current || 'service' },
-      }));
-    }
-  } catch (error) {
-    console.error('Error fetching service slugs:', error);
-  }
-  
-  return [];
-}
-
-// Enable ISR - revalidate these pages
-export const getStaticProps = async () => {
-  return {
-    revalidate: 60, // Revalidate every 60 seconds
-  };
-};
+// Disable static generation - use SSR
+export const prerender = false;
 
 const { slug } = Astro.params;
+
+// Fetch service data on every request
+let serviceData = null;
+let serviceExists = false;
+
+if (slug) {
+  try {
+    const query = `*[_type == "servicesDetails" && slug.current == "${slug}"][0]{
+      title,
+      description,
+      slug,
+      icon,
+      longDescription,
+      sectionTitle,
+      sectionContent,
+      image {
+        asset->{
+          url
+        }
+      },
+      bottomText,
+      faqs,
+      servicesList,
+      socialLinks,
+      prevService {
+        title,
+        link
+      },
+      nextService {
+        title,
+        link
+      }
+    }`;
+    
+    serviceData = await client.fetch(query);
+    serviceExists = !!serviceData;
+  } catch (error) {
+    console.error('Error fetching service:', error);
+  }
+}
 ---
 
-<Layout title="Services Details" description="Detailed information about our services">
+<Layout title={serviceData?.title || "Service Not Found"} description={serviceData?.description || "Service details"}>
   <Header fetchFromSanity={true} slot="header" />
   
-  <!-- Services Details Hero -->
-  <ServicesDetailsHero fetchFromSanity={true} />
-  
-  <!-- Services Details Content -->
-  <ServicesDetailsContent slug={slug} fetchFromSanity={true} />
+  {serviceExists ? (
+    <>
+      <ServicesDetailsHero fetchFromSanity={true} />
+      <ServicesDetailsContent slug={slug} fetchFromSanity={true} />
+    </>
+  ) : (
+    <section class="py-20 text-center">
+      <div class="container">
+        <h2 class="text-3xl font-bold text-secondary">Service Not Found</h2>
+        <p class="text-gary mt-4">The service you're looking for doesn't exist.</p>
+        <a href="/services" class="btn mt-6 inline-block"><span>View All Services</span></a>
+      </div>
+    </section>
+  )}
   
   <Footer fetchFromSanity={true} slot="footer" />
 </Layout>

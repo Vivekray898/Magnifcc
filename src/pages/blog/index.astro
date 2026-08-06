@@ -7,31 +7,13 @@ import Footer from '../../components/common/Footer.astro';
 import BlogHero from '../../components/sections/blog/BlogHero.astro';
 import BlogList from '../../components/sections/blog/BlogList.astro';
 
-// Enable ISR - revalidate every 60 seconds
-export const prerender = true;
-
-// For Vercel ISR
-export const getStaticPaths = async () => {
-  return [
-    { params: { page: '1' } }
-  ];
-};
-
-export const getStaticProps = async () => {
-  return {
-    revalidate: 60, // Revalidate every 60 seconds in production
-  };
-};
+// Disable static generation - use SSR
+export const prerender = false;
 ---
 
 <Layout title="Our Blog" description="Health and wellness insights">
   <Header fetchFromSanity={true} slot="header" />
-  
-  <!-- Blog Hero -->
   <BlogHero fetchFromSanity={true} />
-  
-  <!-- Blog List -->
   <BlogList fetchFromSanity={true} />
-  
   <Footer fetchFromSanity={true} slot="footer" />
 </Layout>

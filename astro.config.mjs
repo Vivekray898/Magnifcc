@@ -9,15 +9,11 @@ const projectId = process.env.PUBLIC_SANITY_PROJECT_ID || 'your-project-id';
 const dataset = process.env.PUBLIC_SANITY_DATASET || 'production';
 
 export default defineConfig({
-  // Use 'static' output for ISR
-  output: 'static',
+  output: 'server', // Server-side rendering
   adapter: vercel({
     isr: {
-      // Enable ISR for these routes
-      expiration: 60, // Cache for 60 seconds
+      expiration: 60, // Optional: 60 second cache
     },
-    // Enable image optimization
-    imageService: true,
   }),
   vite: {
     plugins: [tailwindcss()]
@@ -26,7 +22,7 @@ export default defineConfig({
     sanity({
       projectId: projectId,
       dataset: dataset,
-      useCdn: import.meta.env.PROD,
+      useCdn: false, // Disable CDN for fresh data
       studioBasePath: '/admin',
     }),
     react(),
