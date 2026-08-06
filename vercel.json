@@ -3,9 +3,5 @@
     "src/pages/api/revalidate.ts": {
       "runtime": "edge"
     }
-  },
-  "isr": {
-    "expiration": 60,
-    "bypassToken": "bf8af8b8d5e647300c35436f258b5013dcdcc9bc26b96ee85dcc81de0d2b21e8"
   }
 }
