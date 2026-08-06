@@ -3,7 +3,7 @@ import { defineConfig } from 'astro/config';
 import tailwindcss from '@tailwindcss/vite';
 import sanity from '@sanity/astro';
 import react from '@astrojs/react';
-import vercel from '@astrojs/vercel/serverless';
+import vercel from '@astrojs/vercel'; // Use default import, not /serverless
 
 const projectId = process.env.PUBLIC_SANITY_PROJECT_ID || 'your-project-id';
 const dataset = process.env.PUBLIC_SANITY_DATASET || 'production';
@@ -14,8 +14,6 @@ export default defineConfig({
     isr: {
       expiration: 60,
     },
-    imageService: true,
-    devImageService: true,
   }),
   vite: {
     plugins: [tailwindcss()]
