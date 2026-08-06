@@ -30,15 +30,15 @@ export const POST: APIRoute = async ({ request }) => {
     // Determine which paths to revalidate
     const pathsToRevalidate = [];
     
-    // Always revalidate the services list page
-    pathsToRevalidate.push('/services');
-    
-    // If we have a slug, revalidate that specific service page
-    if (slug) {
-      pathsToRevalidate.push(`/services/${slug}`);
+    // Services paths
+    if (docType === 'servicesDetails') {
+      pathsToRevalidate.push('/services');
+      if (slug) {
+        pathsToRevalidate.push(`/services/${slug}`);
+      }
     }
     
-    // If it's a blog post, revalidate blog pages
+    // Blog paths
     if (docType === 'blogPost') {
       pathsToRevalidate.push('/blog');
       if (slug) {
@@ -46,14 +46,14 @@ export const POST: APIRoute = async ({ request }) => {
       }
     }
     
-    // If it's a home page update, revalidate home
-    if (docType === 'homePage') {
+    // Home page (for blog section updates)
+    if (docType === 'blogPost' || docType === 'homePage') {
       pathsToRevalidate.push('/');
     }
     
     console.log('📋 Paths to revalidate:', pathsToRevalidate);
     
-    // For Vercel deployment, use the Vercel API
+    // For Vercel deployment
     if (process.env.VERCEL_URL) {
       const vercelToken = process.env.VERCEL_REVALIDATE_TOKEN;
       
@@ -81,7 +81,8 @@ export const POST: APIRoute = async ({ request }) => {
       }
     }
     
-    // Return success response
+    // For Netlify, you might want to use their webhook system instead
+    
     return new Response(JSON.stringify({
       success: true,
       revalidated: true,
