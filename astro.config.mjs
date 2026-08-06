@@ -3,17 +3,21 @@ import { defineConfig } from 'astro/config';
 import tailwindcss from '@tailwindcss/vite';
 import sanity from '@sanity/astro';
 import react from '@astrojs/react';
-import vercel from '@astrojs/vercel'; // Use default import, not /serverless
+import vercel from '@astrojs/vercel';
 
 const projectId = process.env.PUBLIC_SANITY_PROJECT_ID || 'your-project-id';
 const dataset = process.env.PUBLIC_SANITY_DATASET || 'production';
 
 export default defineConfig({
-  output: 'server',
+  // Use 'static' output for ISR
+  output: 'static',
   adapter: vercel({
     isr: {
-      expiration: 60,
+      // Enable ISR for these routes
+      expiration: 60, // Cache for 60 seconds
     },
+    // Enable image optimization
+    imageService: true,
   }),
   vite: {
     plugins: [tailwindcss()]
