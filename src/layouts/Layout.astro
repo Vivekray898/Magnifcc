@@ -6,35 +6,44 @@ import { client } from '../lib/sanity';
 export interface Props {
   title?: string;
   description?: string;
+  image?: string;
+  keywords?: string;
   fetchFromSanity?: boolean;
 }
 
 const { 
-  title = "Madula - Health & Medical", 
-  description = "Health & Medical website",
+  title = "Magnific Healthcare Solutions", 
+  description = "Your Trustful Solutions Partner in Healthcare Infrastructure",
+  image = "/assets/img/logo.png",
+  keywords = "Magnific Healthcare Solutions, healthcare infrastructure consultancy, hospital planning, medical equipment planning, NABH accreditation, public health consultancy, healthcare IT solutions, hospital management consultancy",
   fetchFromSanity = true 
 } = Astro.props;
 
-// Default SEO data
+// Default SEO data based on Magnific Healthcare Solutions
 let seoData = {
-  title: title,
-  description: description,
-  keywords: "Madula, health website template, medical Tailwind CSS template, responsive medical design, doctor clinic website, healthcare template, hospital HTML site, medical UI, Tailwind HTML template, medical dashboard, modern health UI, clinic website template",
-  ogTitle: "Madula – Health & Medical Tailwind CSS Template | Dexignlab",
-  ogDescription: "Madula is a clean and responsive medical website template built with Tailwind CSS. Perfect for clinics, hospitals, and healthcare professionals.",
-  ogImage: "https://madula.dexignlab.com/tailwind/social-image.png",
-  ogUrl: "https://madula.dexignlab.com/tailwind/",
+  title: "Magnific Healthcare Solutions – Your Trustful Solutions Partner in Healthcare Infrastructure",
+  description: "Magnific Healthcare Solutions is a leading healthcare infrastructure consultancy helping medical practitioners, hospital owners, and healthcare administrators plan, design, and deliver successful healthcare projects from ideation to final commissioning.",
+  keywords: "Magnific Healthcare Solutions, healthcare infrastructure consultancy, hospital planning, design, commissioning, market feasibility studies, DPR, healthcare architecture, medical equipment planning, NABH accreditation, NABL accreditation, public health project management, healthcare event management, HIS, LMIS",
+  ogTitle: "Magnific Healthcare Solutions – Healthcare Infrastructure Consultancy",
+  ogDescription: "Magnific Healthcare Solutions is a leading healthcare infrastructure consultancy helping medical practitioners, hospital owners, and healthcare administrators plan, design, and deliver successful healthcare projects from ideation to final commissioning.",
+  ogImage: "https://magnific-healthcare.com/assets/img/og-image.png",
+  ogUrl: "https://magnific-healthcare.com/",
   twitterCard: "summary_large_image",
-  twitterTitle: "Madula – Health & Medical Tailwind CSS Template | Dexignlab",
-  twitterDescription: "Madula is a responsive medical and health website template built with Tailwind CSS, ideal for clinics, hospitals, and healthcare services.",
-  twitterImage: "https://madula.dexignlab.com/tailwind/social-image.png",
+  twitterTitle: "Magnific Healthcare Solutions – Healthcare Infrastructure Consultancy",
+  twitterDescription: "Magnific Healthcare Solutions is a leading healthcare infrastructure consultancy helping medical practitioners, hospital owners, and healthcare administrators plan, design, and deliver successful healthcare projects from ideation to final commissioning.",
+  twitterImage: "https://magnific-healthcare.com/assets/img/og-image.png",
   favicon: "/assets/img/favicon.png",
+  siteName: "Magnific Healthcare Solutions",
+  address: "Sarada Apartment, Opp. College Para Sishu Uddyan, Ashutosh Mukherjee Road, College Para, Siliguri – 734001",
+  contactNumber: "013 354 213 - 92132",
+  email: "info@magnific-healthcare.com",
 };
 
-// Fetch SEO settings from Sanity
+// Fetch settings from Sanity
 if (fetchFromSanity) {
   try {
     const query = `*[_type == "siteSettings"][0]{
+      title,
       seo {
         title,
         description,
@@ -60,22 +69,42 @@ if (fetchFromSanity) {
             url
           }
         }
+      },
+      contactInfo {
+        address,
+        phone,
+        email
       }
     }`;
     
     const result = await client.fetch(query);
     
-    if (result?.seo) {
-      seoData = {
-        ...seoData,
-        ...result.seo,
-        ogImage: result.seo.ogImage?.asset?.url || seoData.ogImage,
-        twitterImage: result.seo.twitterImage?.asset?.url || seoData.twitterImage,
-        favicon: result.seo.favicon?.asset?.url || seoData.favicon,
-      };
+    if (result) {
+      // Update site title if available
+      if (result.title) {
+        seoData.siteName = result.title;
+      }
+      
+      // Update SEO data
+      if (result.seo) {
+        seoData = {
+          ...seoData,
+          ...result.seo,
+          ogImage: result.seo.ogImage?.asset?.url || seoData.ogImage,
+          twitterImage: result.seo.twitterImage?.asset?.url || seoData.twitterImage,
+          favicon: result.seo.favicon?.asset?.url || seoData.favicon,
+        };
+      }
+      
+      // Update contact info
+      if (result.contactInfo) {
+        if (result.contactInfo.address) seoData.address = result.contactInfo.address;
+        if (result.contactInfo.phone) seoData.contactNumber = result.contactInfo.phone;
+        if (result.contactInfo.email) seoData.email = result.contactInfo.email;
+      }
     }
   } catch (error) {
-    console.error('Error fetching SEO data:', error);
+    console.error('Error fetching site settings:', error);
   }
 }
 
@@ -85,29 +114,30 @@ const pageDescription = description || seoData.description;
 ---
 
 <!DOCTYPE html>
-<html lang="zxx">
+<html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <!-- Meta Tags -->
-  <meta name="keywords" content={seoData.keywords} />
+  <!-- Primary Meta Tags -->
+  <title>{pageTitle}</title>
   <meta name="description" content={pageDescription} />
+  <meta name="keywords" content={seoData.keywords} />
   
-  <!-- Open Graph -->
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content={seoData.ogUrl || Astro.url?.href || 'https://magnific-healthcare.com/'} />
   <meta property="og:title" content={seoData.ogTitle || pageTitle} />
   <meta property="og:description" content={seoData.ogDescription || pageDescription} />
   <meta property="og:image" content={seoData.ogImage} />
-  <meta property="og:url" content={seoData.ogUrl} />
-  <meta property="og:type" content="website" />
   
-  <!-- Twitter Card -->
+  <!-- Twitter -->
   <meta name="twitter:card" content={seoData.twitterCard} />
   <meta name="twitter:title" content={seoData.twitterTitle || seoData.ogTitle || pageTitle} />
   <meta name="twitter:description" content={seoData.twitterDescription || seoData.ogDescription || pageDescription} />
   <meta name="twitter:image" content={seoData.twitterImage || seoData.ogImage} />
   
-  <title>{pageTitle}</title>
+  <!-- Favicon -->
   <link rel="icon" href={seoData.favicon} />
   
   <!-- Icons -->
@@ -121,6 +151,8 @@ const pageDescription = description || seoData.description;
   <!-- Styles -->
   <link rel="stylesheet" href="/assets/css/style.css" />
   <link href="https://fonts.googleapis.com/css2?family=Sora:wght@100..800&family=Urbanist:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet" />
+  
+  <slot name="head" />
 </head>
 <body class="selection:bg-primary selection:text-white">
   <!-- Preloader -->
@@ -128,11 +160,13 @@ const pageDescription = description || seoData.description;
     <div id="loader"></div>
   </div>
   
-  <!-- Header Slot - will be filled by child components -->
+  <!-- Header Slot -->
   <slot name="header" />
   
-  <!-- Main Content Slot -->
-  <slot />
+  <!-- Main Content -->
+  <main>
+    <slot />
+  </main>
   
   <!-- Footer Slot -->
   <slot name="footer" />
@@ -161,7 +195,6 @@ const pageDescription = description || seoData.description;
   <script is:inline src="/assets/js/preloader.js"></script>
   <script is:inline src="/assets/js/dz.ajax.js"></script>
   
-  <!-- Scripts Slot for page-specific scripts -->
   <slot name="scripts" />
 </body>
 </html>

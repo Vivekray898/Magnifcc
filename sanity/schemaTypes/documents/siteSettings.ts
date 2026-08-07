@@ -11,7 +11,53 @@ export default defineType({
       name: 'title',
       title: 'Site Title',
       type: 'string',
-      initialValue: 'Madula - Health & Medical',
+      initialValue: 'Magnific Healthcare Solutions',
+    }),
+    defineField({
+      name: 'contactInfo',
+      title: 'Contact Information',
+      type: 'object',
+      options: {
+        collapsible: true,
+        collapsed: false,
+      },
+      fields: [
+        { 
+          name: 'address', 
+          title: 'Address', 
+          type: 'text',
+          initialValue: "Sarada Apartment, Opp. College Para Sishu Uddyan, Ashutosh Mukherjee Road, College Para, Siliguri – 734001"
+        },
+        { 
+          name: 'phone', 
+          title: 'Phone Number', 
+          type: 'string',
+          initialValue: "013 354 213 - 92132"
+        },
+        { 
+          name: 'email', 
+          title: 'Email Address', 
+          type: 'string',
+          initialValue: "info@magnific-healthcare.com"
+        },
+        { 
+          name: 'whatsapp', 
+          title: 'WhatsApp Number', 
+          type: 'string'
+        },
+        { 
+          name: 'socialLinks', 
+          title: 'Social Media Links', 
+          type: 'object',
+          fields: [
+            { name: 'facebook', title: 'Facebook', type: 'url' },
+            { name: 'twitter', title: 'Twitter/X', type: 'url' },
+            { name: 'instagram', title: 'Instagram', type: 'url' },
+            { name: 'youtube', title: 'YouTube', type: 'url' },
+            { name: 'linkedin', title: 'LinkedIn', type: 'url' },
+          ]
+        },
+      ],
     }),
     defineField({
       name: 'seo',
@@ -33,28 +79,28 @@ export default defineType({
           title: 'Meta Description', 
           type: 'text',
           description: 'Description for search results',
-          initialValue: 'Madula is a modern Health & Medical Tailwind CSS Template built for clinics, hospitals, and healthcare professionals.'
+          initialValue: 'Magnific Healthcare Solutions is a leading healthcare infrastructure consultancy helping medical practitioners, hospital owners, and healthcare administrators plan, design, and deliver successful healthcare projects from ideation to final commissioning.'
         },
         { 
           name: 'keywords', 
           title: 'Meta Keywords', 
           type: 'text',
           description: 'Comma separated keywords for SEO',
-          initialValue: 'Madula, health website template, medical Tailwind CSS template, responsive medical design, doctor clinic website, healthcare template, hospital HTML site, medical UI, Tailwind HTML template, medical dashboard, modern health UI, clinic website template'
+          initialValue: 'Magnific Healthcare Solutions, healthcare infrastructure consultancy, hospital planning, design, commissioning, market feasibility studies, DPR, healthcare architecture, medical equipment planning, NABH accreditation, NABL accreditation, public health project management, healthcare event management, HIS, LMIS'
         },
         { 
           name: 'ogTitle', 
           title: 'Open Graph Title', 
           type: 'string',
           description: 'Title for social media sharing',
-          initialValue: 'Madula – Health & Medical Tailwind CSS Template | Dexignlab'
+          initialValue: 'Magnific Healthcare Solutions – Healthcare Infrastructure Consultancy'
         },
         { 
           name: 'ogDescription', 
           title: 'Open Graph Description', 
           type: 'text',
           description: 'Description for social media sharing',
-          initialValue: 'Madula is a clean and responsive medical website template built with Tailwind CSS. Perfect for clinics, hospitals, and healthcare professionals.'
+          initialValue: 'Magnific Healthcare Solutions is a leading healthcare infrastructure consultancy helping medical practitioners, hospital owners, and healthcare administrators plan, design, and deliver successful healthcare projects from ideation to final commissioning.'
         },
         { 
           name: 'ogImage', 
@@ -68,7 +114,7 @@ export default defineType({
           title: 'Open Graph URL', 
           type: 'url',
           description: 'Canonical URL for social media sharing',
-          initialValue: 'https://madula.dexignlab.com/tailwind/'
+          initialValue: 'https://magnific-healthcare.com/'
         },
         { 
           name: 'twitterCard', 
