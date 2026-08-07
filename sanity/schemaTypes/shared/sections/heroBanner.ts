@@ -26,7 +26,7 @@ export const heroBannerSection = defineField({
     }),
     descriptionField({ title: 'Description', initialValue: 'We are dedicated to putting your health at the forefront of everything we do. Our compassionate team of healthcare.' }),
     imageField({ name: 'heroImage', title: 'Hero Image' }),
-    ctaField({ text: 'Read More', link: 'about.html' }),
+    ctaField({ text: 'Read More', link: '/about' }),
     statsField({ title: 'Statistics Cards' }),
     defineField({
       name: 'teamImages',

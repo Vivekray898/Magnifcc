@@ -12,12 +12,14 @@ export interface Props {
 
 const { variant = 'primary', className = '', fetchFromSanity = true } = Astro.props;
 
-// Default items
+// Default items - updated to match the image
 const defaultItems = [
-  { icon: 'health-img-3.png', text: 'Medical group' },
-  { icon: 'health-img-2.png', text: 'Core Services' },
-  { icon: 'health-img-1.png', text: 'Technology' },
-  { icon: 'health-img-2.png', text: 'Health blogs' },
+  { icon: 'health-img-3.png', text: 'Hospital Planning' },
+  { icon: 'health-img-3.png', text: 'NABH & NABL' },
+  { icon: 'health-img-3.png', text: 'Public Health' },
+  { icon: 'health-img-3.png', text: 'RelyHMIS' },
+  { icon: 'health-img-3.png', text: 'Equipment Support' },
+  { icon: 'health-img-3.png', text: 'Management Consulting' },
 ];
 
 let items = defaultItems;
@@ -43,15 +45,13 @@ if (fetchFromSanity) {
     const result = await client.fetch(query);
     
     if (result?.marqueeItems?.items?.length > 0) {
-      // Map Sanity data to match the expected format
       items = result.marqueeItems.items.map((item: any) => ({
         text: item.text || '',
-        icon: item.icon?.asset?.url || 'health-img-3.png', // Fallback to default icon if no image
+        icon: item.icon?.asset?.url || 'health-img-3.png',
       }));
     }
   } catch (error) {
     console.error('Error fetching marquee data:', error);
-    // Keep using default items
   }
 }
 
@@ -60,36 +60,38 @@ const isPrimary = variant === 'primary';
 const isSecondary = variant === 'secondary';
 ---
 
-<!-- Primary Marquee - as seen in the HTML -->
+<!-- Primary Marquee -->
 {
   isPrimary && (
     <div class={`flex overflow-hidden relative z-[11] ${className}`}>
-      <div class="py-20 bg-primary flex">
-        <div class="animate-scroll-one flex">
+      <div class="py-20 bg-primary flex w-full">
+        <div class="animate-scroll-one flex items-center" style="gap: 30px;">
           {items.map((item, index) => (
-            <div key={`primary-1-${index}`} class="lg:ml-60 ml-33 w-[max-content] lg:gap-30 gap-20 flex items-center">
+            <div key={`primary-1-${index}`} class="flex-shrink-0 flex items-center" style={{ gap: '20px' }}>
               <img 
                 src={item.icon.startsWith('http') ? item.icon : `${imageBase}${item.icon}`}
                 alt={item.text} 
                 class="max-xxl:w-60 max-lg:w-36"
                 loading="lazy"
               />
-              <h3 class="xxl:text-5.2xl lg:text-4.65xl text-3xl uppercase font-bold text-white font-sora whitespace-nowrap">
+              <h3 class="xxl:text-5.2xl lg:text-4.65xl text-3xl uppercase font-bold text-white font-sora whitespace-nowrap" 
+                  style={{ whiteSpace: 'nowrap', display: 'inline-block' }}>
                 {item.text}
               </h3>
             </div>
           ))}
         </div>
-        <div class="animate-scroll-one ml-60 gap-30 flex items-center">
+        <div class="animate-scroll-one flex items-center" style={{ gap: '30px', marginLeft: '30px' }}>
           {items.map((item, index) => (
-            <div key={`primary-2-${index}`} class="lg:ml-60 ml-33 w-[max-content] lg:gap-30 gap-20 flex items-center">
+            <div key={`primary-2-${index}`} class="flex-shrink-0 flex items-center" style={{ gap: '20px' }}>
               <img 
                 src={item.icon.startsWith('http') ? item.icon : `${imageBase}${item.icon}`}
                 alt={item.text} 
                 class="max-xxl:w-60 max-lg:w-36"
                 loading="lazy"
               />
-              <h3 class="xxl:text-5.2xl lg:text-4.65xl text-3xl uppercase font-bold text-white font-sora whitespace-nowrap">
+              <h3 class="xxl:text-5.2xl lg:text-4.65xl text-3xl uppercase font-bold text-white font-sora whitespace-nowrap"
+                  style={{ whiteSpace: 'nowrap', display: 'inline-block' }}>
                 {item.text}
               </h3>
             </div>
@@ -100,36 +102,38 @@ const isSecondary = variant === 'secondary';
   )
 }
 
-<!-- Secondary Marquee - with rotation and negative margin -->
+<!-- Secondary Marquee - with adjusted spacing -->
 {
   isSecondary && (
-    <div class={`gap-30 flex items-center -mt-70 z-[1] md:pb-120 pb-70 -ml-10 overflow-hidden relative ${className}`}>
-      <div class="flex bg-secondary py-20 rotate-[357deg]">
-        <div class="animate-scroll-two flex">
+    <div class={`gap-30 flex items-center z-[1] md:pb-120 pb-70 overflow-hidden relative ${className}`}>
+      <div class="flex bg-secondary py-20 rotate-[357deg] w-full">
+        <div class="animate-scroll-two flex items-center" style={{ gap: '30px' }}>
           {items.map((item, index) => (
-            <div key={`secondary-1-${index}`} class="lg:ml-60 ml-33 w-[max-content] lg:gap-30 gap-20 flex items-center">
+            <div key={`secondary-1-${index}`} class="flex-shrink-0 flex items-center" style={{ gap: '20px' }}>
               <img 
                 src={item.icon.startsWith('http') ? item.icon : `${imageBase}${item.icon}`}
                 alt={item.text} 
                 class="max-xxl:w-60 max-lg:w-36"
                 loading="lazy"
               />
-              <h3 class="xxl:text-5.2xl lg:text-4.65xl text-3xl uppercase font-bold text-white font-sora whitespace-nowrap">
+              <h3 class="xxl:text-5.2xl lg:text-4.65xl text-3xl uppercase font-bold text-white font-sora whitespace-nowrap"
+                  style={{ whiteSpace: 'nowrap', display: 'inline-block' }}>
                 {item.text}
               </h3>
             </div>
           ))}
         </div>
-        <div class="animate-scroll-two ml-[-100%] gap-30 flex items-center">
+        <div class="animate-scroll-two flex items-center" style={{ gap: '30px', marginLeft: '30px' }}>
           {items.map((item, index) => (
-            <div key={`secondary-2-${index}`} class="lg:ml-60 ml-33 w-[max-content] lg:gap-30 gap-20 flex items-center">
+            <div key={`secondary-2-${index}`} class="flex-shrink-0 flex items-center" style={{ gap: '20px' }}>
               <img 
                 src={item.icon.startsWith('http') ? item.icon : `${imageBase}${item.icon}`}
                 alt={item.text} 
                 class="max-xxl:w-60 max-lg:w-36"
                 loading="lazy"
               />
-              <h3 class="xxl:text-5.2xl lg:text-4.65xl text-3xl uppercase font-bold text-white font-sora whitespace-nowrap">
+              <h3 class="xxl:text-5.2xl lg:text-4.65xl text-3xl uppercase font-bold text-white font-sora whitespace-nowrap"
+                  style={{ whiteSpace: 'nowrap', display: 'inline-block' }}>
                 {item.text}
               </h3>
             </div>
@@ -172,5 +176,15 @@ const isSecondary = variant === 'secondary';
   .animate-scroll-one:hover,
   .animate-scroll-two:hover {
     animation-play-state: paused;
+  }
+
+  /* Prevent overflow and ensure proper spacing */
+  .flex-shrink-0 {
+    flex-shrink: 0;
+  }
+
+  /* Fix for secondary marquee rotation */
+  .rotate-\[357deg\] {
+    transform: rotate(357deg);
   }
 </style>

@@ -5,14 +5,14 @@ import sanity from '@sanity/astro';
 import react from '@astrojs/react';
 import vercel from '@astrojs/vercel';
 
-const projectId = process.env.PUBLIC_SANITY_PROJECT_ID || 'your-project-id';
-const dataset = process.env.PUBLIC_SANITY_DATASET || 'production';
+const siteUrl = process.env.PUBLIC_SITE_URL || 'https://your-domain.com';
 
 export default defineConfig({
-  output: 'server', // Server-side rendering
+  site: siteUrl,
+  output: 'server',
   adapter: vercel({
     isr: {
-      expiration: 60, // Optional: 60 second cache
+      expiration: 60,
     },
   }),
   vite: {
@@ -20,11 +20,13 @@ export default defineConfig({
   },
   integrations: [
     sanity({
-      projectId: projectId,
-      dataset: dataset,
-      useCdn: false, // Disable CDN for fresh data
+      projectId: process.env.PUBLIC_SANITY_PROJECT_ID || 'your-project-id',
+      dataset: process.env.PUBLIC_SANITY_DATASET || 'production',
+      useCdn: false,
       studioBasePath: '/admin',
     }),
     react(),
+    // We're NOT using @astrojs/sitemap integration
+    // We'll generate everything manually
   ],
 });

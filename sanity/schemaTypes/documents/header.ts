@@ -47,7 +47,7 @@ export default defineType({
           { label: 'Home 2', link: 'index-2.html' },
           { label: 'Home 3', link: 'index-3.html' },
         ]},
-        { label: 'About', link: 'about.html', hasDropdown: false },
+        { label: 'About', link: '/about', hasDropdown: false },
         { label: 'Research', link: 'javascript:void(0);', hasDropdown: true, dropdownItems: [
           { label: 'Portfolio', link: 'portfolio.html' },
           { label: 'Portfolio Details', link: 'portfolio-details.html' },

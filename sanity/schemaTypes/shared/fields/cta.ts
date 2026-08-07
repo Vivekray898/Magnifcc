@@ -21,7 +21,7 @@ export const ctaField = (options?: {
       name: 'link',
       title: options?.linkLabel || 'Button Link',
       type: 'string',
-      initialValue: options?.link || 'about.html',
+      initialValue: options?.link || '/about',
     }),
   ],
 });
