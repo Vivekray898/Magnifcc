@@ -1,0 +1,52 @@
+---
+// src/pages/portfolio/index.astro
+import Layout from "../../layouts/Layout.astro";
+import Header from '../../components/common/Header.astro';
+import Footer from '../../components/common/Footer.astro';
+import Hero from '../../components/sections/portfolio/Hero.astro';
+import PortfolioGrid from '../../components/sections/portfolio/PortfolioGrid.astro';
+import { getPortfolioPageData, getTotalPortfolioItems } from '../../lib/portfolio';
+
+export async function getStaticPaths() {
+  const total = await getTotalPortfolioItems();
+  const itemsPerPage = 12;
+  const totalPages = Math.ceil(total / itemsPerPage);
+  
+  const paths = [];
+  for (let i = 1; i <= totalPages; i++) {
+    paths.push({ params: { page: String(i) } });
+  }
+  
+  if (paths.length === 0) {
+    paths.push({ params: { page: '1' } });
+  }
+  
+  return paths;
+}
+
+interface Props {
+  page: string;
+}
+
+const { page = '1' } = Astro.params; // ✅ Use params, not props
+const currentPage = parseInt(page) || 1;
+
+const { items, total, totalPages } = await getPortfolioPageData(currentPage, 12);
+---
+
+<Layout title="Portfolio | Our Work & Case Studies">
+  <Header />
+  <main>
+    <Hero 
+      title="Portfolio" 
+      subtitle="Our Work & Case Studies"
+    />
+    
+    <PortfolioGrid 
+      items={items} 
+      currentPage={currentPage}
+      totalPages={totalPages}
+    />
+  </main>
+  <Footer />
+</Layout>

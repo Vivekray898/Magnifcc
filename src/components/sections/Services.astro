@@ -103,7 +103,7 @@ if (fetchFromSanity && !propData) {
     const servicesResult = await client.fetch(servicesQuery);
     
     if (servicesResult && servicesResult.length > 0) {
-      services = servicesResult.map((service: any) => ({
+      services = servicesResult.map((service: any, index: number) => ({
         title: service.title || 'Untitled Service',
         description: truncateDescription(service.description, 60),
         iconBgColor: service.iconBgColor || '#F05DA8',
@@ -132,12 +132,14 @@ const { subtitle, title } = sectionData;
       <span class="capitalize font-semibold xxl:text-xxl xl:text-xl sm:text-lg text-base text-primary font-sora pb-5 block">{subtitle}</span>
       <h2 class="xl:text-5xl md:text-4xl sm:text-3xl text-2.5xl font-semibold text-secondary font-sora leading-[1.2]">{title}</h2> 
     </div>
-    <div class="swiper services-slider">
+    
+    <!-- Swiper Container -->
+    <div class="swiper services-slider" id="servicesSlider">
       <div class="swiper-wrapper">
         {services?.map((service, index) => (
           <div class="swiper-slide group" key={index}>
             <div class="services-box shadow-[0px_0px_15px_0px_rgba(0,0,0,0.07)] relative xxl:p-40 p-30 xxl:m-15 m-10 before:w-full before:h-0 before:bg-primary before:absolute before:bottom-0 before:left-0 group-hover:before:h-full before:duration-500">
-              {/* Icon with gradient background - no numbers */}
+              {/* Icon with gradient background */}
               <div class="size-90 flex items-center justify-center mb-25 relative rounded-full group-hover:bg-white" 
                    style={{
                      background: `linear-gradient(135deg, ${service.iconBgColor || '#F05DA8'}, ${service.iconBgColor || '#F05DA8'}dd)`,
@@ -163,11 +165,13 @@ const { subtitle, title } = sectionData;
           </div>
         ))}
       </div>
+      
+      <!-- Navigation Buttons -->
       <div class="swiper-button">
-        <div class="services-swiper-button-next"><i class="fa-solid fa-arrow-right"></i></div>
         <div class="services-swiper-button-prev"><i class="fa-solid fa-arrow-left"></i></div>
+        <div class="services-swiper-button-next"><i class="fa-solid fa-arrow-right"></i></div>
       </div>
-    </div> 
+    </div>
   </div>
 </section>
 
@@ -220,7 +224,7 @@ const { subtitle, title } = sectionData;
     height: 50px;
     background: white;
     border-radius: 50%;
-    display: flex;
+    display: flex !important;
     align-items: center;
     justify-content: center;
     box-shadow: 0 4px 15px rgba(0,0,0,0.1);
@@ -228,6 +232,8 @@ const { subtitle, title } = sectionData;
     transition: all 0.3s ease;
     color: #021935;
     font-size: 18px;
+    position: relative;
+    z-index: 10;
   }
   
   .services-swiper-button-next:hover,
@@ -242,25 +248,83 @@ const { subtitle, title } = sectionData;
     gap: 20px;
     margin-top: 30px;
   }
+  
+  /* Ensure swiper works */
+  .swiper-slide {
+    height: auto;
+  }
+  
+  .swiper-wrapper {
+    align-items: stretch;
+  }
 </style>
 
+<!-- Load Swiper CSS and JS -->
+<script is:inline>
+  // Load Swiper CSS
+  const link = document.createElement('link');
+  link.rel = 'stylesheet';
+  link.href = 'https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css';
+  document.head.appendChild(link);
+</script>
+
 <script>
-  document.addEventListener('DOMContentLoaded', function() {
-    const swiperEl = document.querySelector('.services-slider');
-    if (!swiperEl) return;
-    
+  // Initialize Swiper
+  function initSwiper() {
+    // Check if Swiper is available
     if (typeof Swiper === 'undefined') {
-      console.warn('Swiper library not loaded');
+      // Load Swiper JS dynamically
+      const script = document.createElement('script');
+      script.src = 'https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js';
+      script.onload = function() {
+        createSwiperInstance();
+      };
+      script.onerror = function() {
+        console.error('Failed to load Swiper library');
+      };
+      document.head.appendChild(script);
+    } else {
+      createSwiperInstance();
+    }
+  }
+  
+  function createSwiperInstance() {
+    const swiperEl = document.querySelector('#servicesSlider');
+    if (!swiperEl) {
+      console.error('Swiper container not found');
       return;
     }
     
     const slides = swiperEl.querySelectorAll('.swiper-slide');
-    const slidesPerView = slides.length < 3 ? slides.length : 3;
+    if (slides.length === 0) {
+      console.error('No slides found');
+      return;
+    }
     
-    new Swiper(swiperEl, {
-      slidesPerView: 1,
+    // Destroy existing instance if any
+    if (swiperEl.swiper) {
+      swiperEl.swiper.destroy(true, true);
+    }
+    
+    // Determine number of slides per view
+    let slidesPerView = 1;
+    if (window.innerWidth >= 1280) slidesPerView = Math.min(3, slides.length);
+    else if (window.innerWidth >= 1024) slidesPerView = Math.min(3, slides.length);
+    else if (window.innerWidth >= 768) slidesPerView = Math.min(2, slides.length);
+    else if (window.innerWidth >= 640) slidesPerView = Math.min(2, slides.length);
+    else slidesPerView = 1;
+    
+    // Initialize Swiper
+    const swiper = new Swiper(swiperEl, {
+      slidesPerView: slidesPerView,
       spaceBetween: 20,
-      loop: slides.length > 2,
+      loop: slides.length > slidesPerView,
+      autoplay: {
+        delay: 3000,
+        disableOnInteraction: false,
+        pauseOnMouseEnter: true,
+        stopOnLastSlide: false,
+      },
       navigation: {
         nextEl: '.services-swiper-button-next',
         prevEl: '.services-swiper-button-prev',
@@ -284,5 +348,27 @@ const { subtitle, title } = sectionData;
         },
       },
     });
+    
+    console.log('Swiper initialized successfully!');
+  }
+  
+  // Initialize when DOM is ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initSwiper);
+  } else {
+    initSwiper();
+  }
+  
+  // Re-initialize on resize
+  let resizeTimer;
+  window.addEventListener('resize', function() {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(function() {
+      const swiperEl = document.querySelector('#servicesSlider');
+      if (swiperEl && swiperEl.swiper) {
+        swiperEl.swiper.destroy(true, true);
+        createSwiperInstance();
+      }
+    }, 250);
   });
 </script>

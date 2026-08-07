@@ -1,0 +1,71 @@
+---
+// src/components/portfolio/DetailHero.astro
+import type { PortfolioDetail } from '../../../lib/sanity';
+import { urlFor } from '../../../lib/sanity';
+
+export interface Props {
+  item: PortfolioDetail;
+  title?: string;
+}
+
+const { item, title = 'Portfolio Details' } = Astro.props;
+
+// Helper to get banner image URL with fallback
+const getBannerImageUrl = (image: any) => {
+  if (!image) return '/assets/img/bannr-img-3.png';
+  
+  try {
+    if (image?.asset?._ref || image?.asset?._id) {
+      return urlFor(image).url();
+    }
+    if (image?.asset?.url) {
+      return image.asset.url;
+    }
+  } catch (error) {
+    console.error('Error generating banner image URL:', error);
+  }
+  
+  return '/assets/img/bannr-img-3.png';
+};
+
+const bannerImageUrl = getBannerImageUrl(item.bannerImage);
+---
+
+<section class="pt-90 relative max-lg:bg-[right_center] bg-[#f4f4f4] bg-[url('/assets/img/bannr-bg-img.png')] about-banner overflow-hidden">
+  <div class="container">
+    <div class="row items-center">
+      <div class="lg:w-1/2 w-full">
+        <div class="relative max-md:text-center">
+          <h2 class="xxl:text-5xl xl:text-4xl lg:text-3.5xl md:text-3xl sm:text-2.5xl text-2xl font-bold capitalize font-sora text-secondary leading-[1.2]">
+            {item.title ? `${item.title}` : title}
+          </h2>
+          <img src="/assets/img/shap-three-1.png" alt="banner-shap" class="absolute w-46 w-35 -top-30 -left-32 max-md:hidden animate-topshap" />
+        </div>
+        <ol class="mb-16 flex items-center max-md:justify-center max-md:mb-40 pt-10">
+          <li class="xxl:text-xl lg:text-lg md:text-base text-sm text-secondary font-sora capitalize">
+            <a href="/"> Home </a>
+          </li>
+          <li class="xxl:text-xl lg:text-lg md:text-base text-sm text-gary capitalize before:content-['-'] before:float-left before:text-gary before:px-10" aria-current="page">
+            {item.title || 'Portfolio Details'}
+          </li>
+        </ol>
+      </div>
+      <div class="lg:w-1/2 w-full">
+        <div>
+          <img 
+            src={bannerImageUrl} 
+            alt={item.title || 'Banner image'} 
+            class="w-[120%] xxl:max-w-[unset]" 
+          />
+          <ul class="shaps">
+            <li class="absolute"><img src="/assets/img/shaps-1.png" alt="img" class="xxl:w-80 w-60 animate-topshap max-md:hidden" /></li>
+            <li class="absolute"><img src="/assets/img/bannr-shap.png" alt="img" class="animate-topshap max-md:hidden" /></li>
+            <li class="absolute"><img src="/assets/img/shaps-4.png" alt="img" class="animate-fa-spin max-md:hidden" /></li>
+            <li class="absolute"><img src="/assets/img/shaps-5.png" alt="img" class="animate-fa-spin max-md:hidden" /></li>
+            <li class="absolute"><img src="/assets/img/shaps-6.png" alt="img" class="animate-fa-spin max-md:hidden" /></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

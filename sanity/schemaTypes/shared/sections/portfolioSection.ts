@@ -15,20 +15,26 @@ export const portfolioSection = defineField({
     subtitleField({ title: 'Subtitle', initialValue: '# Medical Portfolio' }),
     titleField({ title: 'Section Title', initialValue: 'One Portfolio at a Time.' }),
     defineField({
-      name: 'items',
-      title: 'Portfolio Items',
-      type: 'array',
-      of: [
-        {
-          type: 'object',
-          fields: [
-            { name: 'title', title: 'Title', type: 'string' },
-            { name: 'category', title: 'Category', type: 'string', initialValue: 'Sustainability Goals' },
-            { name: 'image', title: 'Image', type: 'image', options: { hotspot: true } },
-            { name: 'link', title: 'Link', type: 'string', initialValue: 'portfolio-details.html' },
-          ],
-        },
-      ],
+      name: 'displayCount',
+      title: 'Number of Items to Display',
+      type: 'number',
+      description: 'Leave empty or set to 0 to display all portfolio items',
+      initialValue: 0,
+      validation: Rule => Rule.min(0),
+    }),
+    defineField({
+      name: 'sortOrder',
+      title: 'Sort Order',
+      type: 'string',
+      options: {
+        list: [
+          { title: 'Newest First', value: 'newest' },
+          { title: 'Oldest First', value: 'oldest' },
+          { title: 'Alphabetical (A-Z)', value: 'az' },
+          { title: 'Alphabetical (Z-A)', value: 'za' },
+        ],
+      },
+      initialValue: 'newest',
     }),
   ],
 });

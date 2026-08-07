@@ -11,6 +11,7 @@ import blogPost from './documents/blogPost';
 import header from './documents/header';
 import footer from './documents/footer';
 import siteSettings from './documents/siteSettings';
+import portfolio from './documents/portfolio'; // Add this import
 
 export const schemaTypes = [
   homePage,
@@ -24,4 +25,5 @@ export const schemaTypes = [
   header,
   footer,
   siteSettings,
+  portfolio, // Add portfolio to the schema array
 ];

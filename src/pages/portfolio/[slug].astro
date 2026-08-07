@@ -1,0 +1,65 @@
+---
+// src/pages/portfolio/[slug].astro
+import Layout from "../../layouts/Layout.astro";
+import Header from '../../components/common/Header.astro';
+import Footer from '../../components/common/Footer.astro';
+import DetailHero from '../../components/sections/portfolio/DetailHero.astro';
+import DetailContent from '../../components/sections/portfolio/DetailContent.astro';
+import { getPortfolioBySlug, getPortfolioSlugs } from '../../lib/portfolio'; 
+
+export async function getStaticPaths() {
+  const items = await getPortfolioSlugs();
+  return items.map((item: any) => ({
+    params: { slug: item.slug.current }
+  }));
+}
+
+const { slug } = Astro.params;
+const item = await getPortfolioBySlug(slug);
+
+const socialLinks = {
+  facebook: import.meta.env.PUBLIC_FACEBOOK_URL || 'https://www.facebook.com/',
+  twitter: import.meta.env.PUBLIC_TWITTER_URL || 'https://x.com/',
+  instagram: import.meta.env.PUBLIC_INSTAGRAM_URL || 'https://www.instagram.com/',
+  youtube: import.meta.env.PUBLIC_YOUTUBE_URL || 'https://www.youtube.com/',
+};
+
+const pageTitle = item?.title ? `${item.title} | Portfolio` : 'Portfolio Not Found';
+const pageDescription = item?.description 
+  ? item.description.substring(0, 160) 
+  : 'Portfolio details';
+const imageUrl = item?.image?.asset?.url || '/assets/img/logo.png';
+const keywords = item?.category 
+  ? `${item.category}, portfolio, ${item.title || ''}, healthcare, medical`
+  : 'Portfolio, healthcare, medical';
+---
+
+{
+  !item ? (
+    <Layout title="Portfolio Not Found">
+      <Header />
+      <div class="container py-40 text-center">
+        <h1 class="text-4xl font-bold text-secondary">Portfolio item not found</h1>
+        <p class="text-gary mt-4">The item you're looking for doesn't exist or has been removed.</p>
+        <a href="/portfolio" class="btn mt-8 inline-block">
+          <span>Back to Portfolio <i class="fa-solid fa-arrow-right"></i></span>
+        </a>
+      </div>
+      <Footer />
+    </Layout>
+  ) : (
+    <Layout 
+      title={pageTitle}
+      description={pageDescription}
+      image={imageUrl}
+      keywords={keywords}
+    >
+      <Header />
+      <main>
+        <DetailHero item={item} />
+        <DetailContent item={item} socialLinks={socialLinks} />
+      </main>
+      <Footer />
+    </Layout>
+  )
+}

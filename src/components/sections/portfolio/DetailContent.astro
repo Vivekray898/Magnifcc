@@ -1,0 +1,267 @@
+---
+// src/components/portfolio/DetailContent.astro
+import type { PortfolioDetail } from '../../../lib/sanity';
+import { urlFor } from '../../../lib/sanity';
+
+export interface Props {
+  item: PortfolioDetail;
+  socialLinks?: {
+    facebook?: string;
+    twitter?: string;
+    instagram?: string;
+    youtube?: string;
+  };
+}
+
+const { item, socialLinks = {} } = Astro.props;
+
+// Helper to get image URL
+const getImageUrl = (image: any, fallback: string, width?: number, height?: number) => {
+  if (!image) return fallback;
+
+  try {
+    if (image?.asset?._ref || image?.asset?._id) {
+      let builder = urlFor(image);
+      if (width) builder = builder.width(width);
+      if (height) builder = builder.height(height);
+      return builder.url();
+    }
+    if (image?.asset?.url) {
+      return image.asset.url;
+    }
+    if (typeof image === 'string') {
+      return image;
+    }
+  } catch (error) {
+    console.error('Error generating image URL:', error);
+  }
+
+  return fallback;
+};
+
+// Main image
+const imageUrl = getImageUrl(item.image, '/assets/img/portfolio-details-1.jpg', 1600, 900);
+
+// Get gallery images
+const galleryImages = item.gallery || [];
+const galleryImage1 = getImageUrl(galleryImages[0], '/assets/img/portfolio-details-2.jpg', 700, 700);
+const galleryImage2 = getImageUrl(galleryImages[1], '/assets/img/portfolio-details-3.jpg', 700, 700);
+const galleryImage3 = getImageUrl(galleryImages[2], '/assets/img/portfolio-details-4.jpg', 700, 700);
+
+// Get content with fallbacks
+const clientName = item.client || 'Not specified';
+const timeframe = item.timeframe || 'Not specified';
+const category = item.category || 'General';
+const websiteLink = item.websiteLink || '#';
+const title = item.title || 'Portfolio Item';
+const description = item.description || 'No description available.';
+
+// Parse content array manually
+let contentHtml = '';
+if (item.content && item.content.length > 0) {
+  const blocks = item.content.filter((block: any) => block._type === 'block');
+
+  contentHtml = blocks.map((block: any) => {
+    // Handle headings
+    if (block.style === 'h1') {
+      const text = block.children?.map((child: any) => child.text).join('') || '';
+      return `<h1 class="xxl:text-[32px] xl:text-2.5xl text-2xxl font-bold font-sora mb-10 text-secondary leading-[1.2]">${text}</h1>`;
+    }
+    if (block.style === 'h2') {
+      const text = block.children?.map((child: any) => child.text).join('') || '';
+      return `<h2 class="xxl:text-[28px] xl:text-2xl text-xl font-bold font-sora mb-8 text-secondary leading-[1.2]">${text}</h2>`;
+    }
+    if (block.style === 'h3') {
+      const text = block.children?.map((child: any) => child.text).join('') || '';
+      return `<h3 class="xxl:text-[24px] xl:text-xl text-lg font-bold font-sora mb-6 text-secondary leading-[1.2]">${text}</h3>`;
+    }
+    if (block.style === 'h4') {
+      const text = block.children?.map((child: any) => child.text).join('') || '';
+      return `<h4 class="text-lg font-bold font-sora mb-4 text-secondary leading-[1.2]">${text}</h4>`;
+    }
+
+    // Handle normal paragraphs
+    const text = block.children?.map((child: any) => child.text).join('') || '';
+    return `<p class="text-base xxl:leading-30 xl:leading-28 leading-26 text-gary font-normal mb-4">${text}</p>`;
+  }).join('');
+
+  // Also handle images in content
+  const imageBlocks = item.content.filter((block: any) => block._type === 'image');
+  imageBlocks.forEach((imageBlock: any) => {
+    if (imageBlock.asset) {
+      const imgUrl = urlFor(imageBlock).width(1000).url();
+      contentHtml += `<figure class="my-10"><img src="${imgUrl}" alt="Content image" class="w-full h-auto rounded-2xl" loading="lazy" /></figure>`;
+    }
+  });
+}
+
+// Default social links
+const defaultSocial = {
+  facebook: 'https://www.facebook.com/',
+  twitter: 'https://x.com/',
+  instagram: 'https://www.instagram.com/',
+  youtube: 'https://www.youtube.com/',
+};
+
+const social = { ...defaultSocial, ...socialLinks };
+
+// Info items rendered in the sticky sidebar
+const infoItems = [
+  { label: 'Client', value: clientName },
+  { label: 'Timeframe', value: timeframe },
+  { label: 'Category', value: category },
+];
+
+const galleryImagesList = [galleryImage1, galleryImage2, galleryImage3];
+---
+
+<section class="lg:py-120 md:py-100 sm:py-80 py-60">
+  <div class="container">
+
+    <!-- Eyebrow / breadcrumb -->
+    <div class="flex flex-wrap items-center gap-10 pb-20">
+      <a href="/portfolio" class="inline-flex items-center gap-8 text-sm font-medium text-gary hover:text-primary duration-300 group">
+        <span class="flex items-center justify-center size-28 rounded-full bg-[#F4F4FF] group-hover:bg-primary group-hover:text-white duration-300">
+          <i class="fa-solid fa-arrow-left text-xs"></i>
+        </span>
+        Back to portfolio
+      </a>
+      <span class="text-gary/40">/</span>
+      <span class="inline-flex items-center px-14 py-4 rounded-full bg-primary/10 text-primary text-xs font-semibold uppercase tracking-wider">
+        {category}
+      </span>
+    </div>
+
+    <!-- Hero: full-bleed image with title overlay -->
+    <div class="relative overflow-hidden rounded-3xl group">
+      <figure class="overflow-hidden">
+        <img
+          src={imageUrl}
+          alt={title}
+          class="w-full h-[280px] sm:h-[380px] md:h-[460px] lg:h-[560px] object-cover group-hover:scale-105 duration-700 ease-out"
+          loading="lazy"
+        />
+      </figure>
+      <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent"></div>
+      <div class="absolute inset-x-0 bottom-0 p-30 sm:p-40 lg:p-50">
+        <h1 class="xxl:text-5.2xl xl:text-4.65xl lg:text-3.8xl md:text-3xl text-2xl font-bold text-white font-sora leading-[1.15] max-w-[85%]">
+          {title}
+        </h1>
+      </div>
+    </div>
+
+    <!-- Main layout: content + sticky info card -->
+    <div class="grid grid-cols-12 gap-x-25 pt-50">
+
+      <!-- Description + long-form content -->
+      <div class="lg:col-span-7 col-span-12">
+        <p class="text-lg xxl:leading-32 xl:leading-30 leading-28 text-secondary font-medium pb-40 border-b border-black/10">
+          {description}
+        </p>
+
+        <div class="pt-40">
+          {contentHtml ? (
+            <div class="prose-content max-w-none" set:html={contentHtml} />
+          ) : (
+            <div class="rounded-2xl bg-[#F4F4FF] p-30 text-center">
+              <h3 class="xxl:text-[28px] xl:text-2xl text-xl font-bold font-sora mb-10 text-secondary leading-[1.2]">
+                Project details coming soon
+              </h3>
+              <p class="text-base xxl:leading-30 xl:leading-28 leading-26 text-gary font-normal">
+                We're still putting the write-up together for this one — check back shortly for the full story.
+              </p>
+            </div>
+          )}
+        </div>
+
+        <!-- Gallery -->
+        {galleryImagesList.some(Boolean) && (
+          <div class="pt-50">
+            <h4 class="text-xl font-bold font-sora text-secondary pb-20">Project gallery</h4>
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-16">
+              {galleryImagesList.map((src, i) => (
+                <figure class="overflow-hidden rounded-xl group aspect-square">
+                  <img
+                    src={src}
+                    alt={`Gallery image ${i + 1}`}
+                    class="w-full h-full object-cover group-hover:scale-110 duration-500 ease-out"
+                    loading="lazy"
+                  />
+                </figure>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+
+      <!-- Sticky info sidebar -->
+      <div class="lg:col-span-5 col-span-12">
+        <div class="lg:sticky lg:top-30 mt-40 lg:mt-0">
+          <div class="bg-[#F4F4FF] rounded-3xl p-30 sm:p-40">
+            <h4 class="text-2xl font-semibold pb-30 font-sora text-secondary">Project information</h4>
+
+            <ul class="flex flex-col gap-24">
+              {infoItems.map((info) => (
+                <li class="flex items-center justify-between gap-16 pb-24 border-b border-black/10 last:border-0 last:pb-0">
+                  <span class="text-sm text-gary">{info.label}</span>
+                  <h6 class="text-base font-bold font-sora text-secondary text-right break-words">{info.value}</h6>
+                </li>
+              ))}
+            </ul>
+
+            <a
+              href={websiteLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="mt-30 flex items-center justify-between gap-10 w-full rounded-full bg-secondary hover:bg-primary text-white text-sm font-semibold px-24 py-16 duration-300"
+            >
+              <span class="truncate">Visit live project</span>
+              <i class="fa-solid fa-arrow-up-right-from-square text-xs shrink-0"></i>
+            </a>
+
+            <div class="mt-30 pt-30 border-t border-black/10">
+              <span class="text-sm text-gary block pb-14">Share this project</span>
+              <ul class="flex items-center gap-10">
+                <li>
+                  <a href={social.facebook} class="flex items-center justify-center xxl:size-46 size-40 max-xxl:text-sm rounded-full hover:bg-primary duration-300 hover:text-white bg-white text-black shadow-sm" target="_blank" rel="noopener noreferrer" aria-label="Share on Facebook">
+                    <i class="fa-brands fa-facebook-f"></i>
+                  </a>
+                </li>
+                <li>
+                  <a href={social.twitter} class="flex items-center justify-center xxl:size-46 size-40 max-xxl:text-sm rounded-full hover:bg-primary duration-300 hover:text-white bg-white text-black shadow-sm" target="_blank" rel="noopener noreferrer" aria-label="Share on X">
+                    <i class="fa-brands fa-x-twitter"></i>
+                  </a>
+                </li>
+                <li>
+                  <a href={social.instagram} class="flex items-center justify-center xxl:size-46 size-40 max-xxl:text-sm rounded-full hover:bg-primary duration-300 hover:text-white bg-white text-black shadow-sm" target="_blank" rel="noopener noreferrer" aria-label="Share on Instagram">
+                    <i class="fa-brands fa-instagram"></i>
+                  </a>
+                </li>
+                <li>
+                  <a href={social.youtube} class="flex items-center justify-center xxl:size-46 size-40 max-xxl:text-sm rounded-full hover:bg-primary duration-300 hover:text-white bg-white text-black shadow-sm" target="_blank" rel="noopener noreferrer" aria-label="Share on YouTube">
+                    <i class="fa-brands fa-youtube"></i>
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .prose-content :global(h1),
+  .prose-content :global(h2),
+  .prose-content :global(h3),
+  .prose-content :global(h4) {
+    scroll-margin-top: 100px;
+  }
+  .prose-content :global(p) {
+    color: inherit;
+  }
+  .prose-content :global(figure img) {
+    box-shadow: 0 20px 40px -20px rgba(0, 0, 0, 0.25);
+  }
+</style>

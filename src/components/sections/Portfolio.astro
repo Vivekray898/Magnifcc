@@ -9,42 +9,42 @@ export interface Props {
 
 const { fetchFromSanity = true } = Astro.props;
 
-// Default portfolio items
+// Default portfolio items (fallback)
 const defaultPortfolioItems = [
     {
         id: 1,
-        image: "assets/img/portfolio-1.jpg",
+        image: "/assets/img/portfolio-1.jpg",
         category: "Sustainability Goals",
         title: "Reducing waste",
-        link: "portfolio-details.html"
+        link: "/portfolio-details"
     },
     {
         id: 2,
-        image: "assets/img/portfolio-2.jpg",
+        image: "/assets/img/portfolio-2.jpg",
         category: "Sustainability Goals",
         title: "Health education",
-        link: "portfolio-details.html"
+        link: "/portfolio-details"
     },
     {
         id: 3,
-        image: "assets/img/portfolio-3.jpg",
+        image: "/assets/img/portfolio-3.jpg",
         category: "Sustainability Goals",
         title: "Healthcare through",
-        link: "portfolio-details.html"
+        link: "/portfolio-details"
     },
     {
         id: 4,
-        image: "assets/img/portfolio-4.jpg",
+        image: "/assets/img/portfolio-4.jpg",
         category: "Sustainability Goals",
         title: "Medical innovation",
-        link: "portfolio-details.html"
+        link: "/portfolio-details"
     },
     {
         id: 5,
-        image: "assets/img/portfolio-5.jpg",
+        image: "/assets/img/portfolio-5.jpg",
         category: "Sustainability Goals",
         title: "Reniyl waste through",
-        link: "portfolio-details.html"
+        link: "/portfolio-details"
     }
 ];
 
@@ -52,48 +52,54 @@ let portfolioItems = defaultPortfolioItems;
 let subtitle = '# Medical Portfolio';
 let title = 'One Portfolio at a Time.';
 
-// Fetch from Sanity
+// Fetch from Sanity - directly from portfolio documents
 if (fetchFromSanity) {
   try {
-    const query = `*[_type == "homePage"][0]{
-      portfolioSection {
-        subtitle,
-        title,
-        items[] {
-          title,
-          category,
-          link,
-          image {
-            asset->{
-              _id,
-              url
-            }
-          }
+    // Fetch portfolio documents directly
+    const query = `*[_type == "portfolio"] | order(_createdAt desc) {
+      _id,
+      title,
+      category,
+      slug,
+      image {
+        asset-> {
+          _id,
+          url
         }
       }
     }`;
     
     const result = await client.fetch(query);
     
-    if (result?.portfolioSection) {
-      // Update subtitle and title
-      if (result.portfolioSection.subtitle) {
-        subtitle = result.portfolioSection.subtitle;
+    // Also fetch section settings from homePage
+    const sectionQuery = `*[_type == "homePage"][0]{
+      portfolioSection {
+        subtitle,
+        title
       }
-      if (result.portfolioSection.title) {
-        title = result.portfolioSection.title;
+    }`;
+    
+    const sectionResult = await client.fetch(sectionQuery);
+    
+    // Update subtitle and title from homePage
+    if (sectionResult?.portfolioSection) {
+      if (sectionResult.portfolioSection.subtitle) {
+        subtitle = sectionResult.portfolioSection.subtitle;
       }
-      
-      // Map portfolio items
-      if (result.portfolioSection.items?.length > 0) {
-        portfolioItems = result.portfolioSection.items.map((item: any, index: number) => ({
-          id: index + 1,
-          image: item.image?.asset?.url || defaultPortfolioItems[index % defaultPortfolioItems.length].image,
-          category: item.category || 'Sustainability Goals',
-          title: item.title || 'Portfolio Item',
-          link: item.link || 'portfolio-details.html',
-        }));
+      if (sectionResult.portfolioSection.title) {
+        title = sectionResult.portfolioSection.title;
       }
+    }
+    
+    // Map portfolio items from documents
+    if (result && result.length > 0) {
+      portfolioItems = result.map((item: any) => ({
+        id: item._id,
+        image: item.image?.asset?.url || '/assets/img/portfolio-placeholder.jpg',
+        category: item.category || 'Portfolio',
+        title: item.title || 'Untitled',
+        link: `/portfolio/${item.slug?.current || 'details'}`,
+      }));
     }
   } catch (error) {
     console.error('Error fetching portfolio data:', error);
@@ -114,7 +120,7 @@ if (fetchFromSanity) {
                     <div class="swiper-slide group" key={item.id}>
                         <div class="relative mx-10 mb-20 portfolio-style"> 
                             <figure class="overflow-hidden">
-                                <img src={item.image} alt={item.title} class="group-hover:scale-[1.1] group-hover:rotate-[3deg] duration-500 w-full" loading="lazy">
+                                <img src={item.image} alt={item.title} class="group-hover:scale-[1.1] group-hover:rotate-[3deg] duration-500 w-full" loading="lazy" />
                             </figure>
                             <div class="absolute bottom-30 xxl:left-30 left-20 z-[2]">
                                 <span class="text-white leading-24 bg-[#ffffff26] py-10 px-15 inline-block rounded-tr-[10px] rounded-tl-[10px] pb-2 group-hover:text-secondary group-hover:bg-white duration-500">{item.category}</span>
