@@ -1,6 +1,6 @@
 // astro.config.mjs
 import { defineConfig } from 'astro/config';
-import tailwind from '@astrojs/tailwind'; // ✅ Use official Astro Tailwind
+import tailwindcss from '@tailwindcss/vite'; // ✅ Use Vite plugin
 import sanity from '@sanity/astro';
 import react from '@astrojs/react';
 import vercel from '@astrojs/vercel';
@@ -16,12 +16,9 @@ export default defineConfig({
     },
   }),
   vite: {
-    // ✅ Remove tailwindcss from vite plugins
+    plugins: [tailwindcss()] // ✅ This works with Astro 7
   },
   integrations: [
-    tailwind({
-      applyBaseStyles: true, // ✅ This applies base styles
-    }),
     sanity({
       projectId: process.env.PUBLIC_SANITY_PROJECT_ID || 'your-project-id',
       dataset: process.env.PUBLIC_SANITY_DATASET || 'production',
