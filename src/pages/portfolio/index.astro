@@ -1,5 +1,6 @@
 ---
-// src/pages/portfolio/index.astro
+export const prerender = true; // ✅ Add this at the top
+
 import Layout from "../../layouts/Layout.astro";
 import Header from '../../components/common/Header.astro';
 import Footer from '../../components/common/Footer.astro';
@@ -24,12 +25,8 @@ export async function getStaticPaths() {
   return paths;
 }
 
-interface Props {
-  page: string;
-}
-
-const { page = '1' } = Astro.params; // ✅ Use params, not props
-const currentPage = parseInt(page) || 1;
+const { page } = Astro.params;
+const currentPage = parseInt(page || '1', 10);
 
 const { items, total, totalPages } = await getPortfolioPageData(currentPage, 12);
 ---
