@@ -110,7 +110,7 @@ export default defineType({
       type: 'object',
       options: { collapsible: true, collapsed: false },
       fields: [
-        { name: 'text', title: 'Copyright Text', type: 'string', initialValue: 'Copyright © 2024 Dexignlab. All Rights Reserved.' },
+        { name: 'text', title: 'Copyright Text', type: 'string', initialValue: 'Copyright © 2024 Creativoxa. All Rights Reserved.' },
         { name: 'links', title: 'Footer Links', type: 'array', of: [
           { type: 'object', fields: [
             { name: 'label', title: 'Label', type: 'string' },
