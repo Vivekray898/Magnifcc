@@ -38,7 +38,7 @@ export default defineType({
           name: 'email', 
           title: 'Email Address', 
           type: 'string',
-          initialValue: "info@magnific-healthcare.com"
+          initialValue: "info@magnifichcs.com"
         },
         { 
           name: 'whatsapp', 
@@ -114,7 +114,7 @@ export default defineType({
           title: 'Open Graph URL', 
           type: 'url',
           description: 'Canonical URL for social media sharing',
-          initialValue: 'https://magnific-healthcare.com/'
+          initialValue: 'https://magnifichcs.com/'
         },
         { 
           name: 'twitterCard', 

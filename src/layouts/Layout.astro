@@ -26,17 +26,17 @@ let seoData = {
   keywords: "Magnific Healthcare Solutions, healthcare infrastructure consultancy, hospital planning, design, commissioning, market feasibility studies, DPR, healthcare architecture, medical equipment planning, NABH accreditation, NABL accreditation, public health project management, healthcare event management, HIS, LMIS",
   ogTitle: "Magnific Healthcare Solutions – Healthcare Infrastructure Consultancy",
   ogDescription: "Magnific Healthcare Solutions is a leading healthcare infrastructure consultancy helping medical practitioners, hospital owners, and healthcare administrators plan, design, and deliver successful healthcare projects from ideation to final commissioning.",
-  ogImage: "https://magnific-healthcare.com/assets/img/og-image.png",
-  ogUrl: "https://magnific-healthcare.com/",
+  ogImage: "/assets/img/og-image.png", // Use relative path instead of absolute URL
+  ogUrl: "https://magnifichcs.com/",
   twitterCard: "summary_large_image",
   twitterTitle: "Magnific Healthcare Solutions – Healthcare Infrastructure Consultancy",
   twitterDescription: "Magnific Healthcare Solutions is a leading healthcare infrastructure consultancy helping medical practitioners, hospital owners, and healthcare administrators plan, design, and deliver successful healthcare projects from ideation to final commissioning.",
-  twitterImage: "https://magnific-healthcare.com/assets/img/og-image.png",
+  twitterImage: "/assets/img/og-image.png",
   favicon: "/assets/img/favicon.png",
   siteName: "Magnific Healthcare Solutions",
   address: "Sarada Apartment, Opp. College Para Sishu Uddyan, Ashutosh Mukherjee Road, College Para, Siliguri – 734001",
   contactNumber: "013 354 213 - 92132",
-  email: "info@magnific-healthcare.com",
+  email: "info@magnifichcs.com",
 };
 
 // Fetch settings from Sanity
@@ -80,12 +80,10 @@ if (fetchFromSanity) {
     const result = await client.fetch(query);
     
     if (result) {
-      // Update site title if available
       if (result.title) {
         seoData.siteName = result.title;
       }
       
-      // Update SEO data
       if (result.seo) {
         seoData = {
           ...seoData,
@@ -96,7 +94,6 @@ if (fetchFromSanity) {
         };
       }
       
-      // Update contact info
       if (result.contactInfo) {
         if (result.contactInfo.address) seoData.address = result.contactInfo.address;
         if (result.contactInfo.phone) seoData.contactNumber = result.contactInfo.phone;
@@ -111,6 +108,16 @@ if (fetchFromSanity) {
 // Use page title if provided, otherwise use SEO title
 const pageTitle = title || seoData.title;
 const pageDescription = description || seoData.description;
+
+// Get the full URL for OG image (important for social platforms)
+const siteUrl = import.meta.env.PUBLIC_SITE_URL || 'https://magnifichcs.com';
+const ogImageUrl = seoData.ogImage?.startsWith('http') 
+  ? seoData.ogImage 
+  : `${siteUrl}${seoData.ogImage}`;
+const twitterImageUrl = seoData.twitterImage?.startsWith('http')
+  ? seoData.twitterImage
+  : `${siteUrl}${seoData.twitterImage}`;
+const currentUrl = seoData.ogUrl || siteUrl;
 ---
 
 <!DOCTYPE html>
@@ -126,19 +133,29 @@ const pageDescription = description || seoData.description;
   
   <!-- Open Graph / Facebook -->
   <meta property="og:type" content="website" />
-  <meta property="og:url" content={seoData.ogUrl || Astro.url?.href || 'https://magnific-healthcare.com/'} />
+  <meta property="og:url" content={currentUrl} />
   <meta property="og:title" content={seoData.ogTitle || pageTitle} />
   <meta property="og:description" content={seoData.ogDescription || pageDescription} />
-  <meta property="og:image" content={seoData.ogImage} />
+  <meta property="og:image" content={ogImageUrl} />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:site_name" content={seoData.siteName} />
+  <meta property="og:locale" content="en_US" />
   
   <!-- Twitter -->
-  <meta name="twitter:card" content={seoData.twitterCard} />
+  <meta name="twitter:card" content={seoData.twitterCard || "summary_large_image"} />
   <meta name="twitter:title" content={seoData.twitterTitle || seoData.ogTitle || pageTitle} />
   <meta name="twitter:description" content={seoData.twitterDescription || seoData.ogDescription || pageDescription} />
-  <meta name="twitter:image" content={seoData.twitterImage || seoData.ogImage} />
+  <meta name="twitter:image" content={twitterImageUrl} />
+  <meta name="twitter:site" content="@MagnificHealth" />
+  
+  <!-- Additional Meta Tags -->
+  <meta property="og:image:alt" content="Magnific Healthcare Solutions - Healthcare Infrastructure Consultancy" />
+  <meta name="theme-color" content="#0EA5E9" />
   
   <!-- Favicon -->
   <link rel="icon" href={seoData.favicon} />
+  <link rel="apple-touch-icon" href={seoData.favicon} />
   
   <!-- Icons -->
   <link rel="stylesheet" type="text/css" href="/assets/icons/flaticon/flaticon.css" />

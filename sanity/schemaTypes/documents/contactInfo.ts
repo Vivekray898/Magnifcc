@@ -23,7 +23,7 @@ export default defineType({
       name: 'email',
       title: 'Email Address',
       type: 'string',
-      initialValue: "info@magnific-healthcare.com",
+      initialValue: "info@magnifichcs.com",
     }),
     defineField({
       name: 'whatsapp',
