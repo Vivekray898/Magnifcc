@@ -1,5 +1,5 @@
 // /workspaces/codespaces-blank/magnific/sanity.config.ts
-import { defineConfig } from 'sanity';
+import sanity from 'sanity';
 import { structureTool } from 'sanity/structure';
 import { visionTool } from '@sanity/vision';
 import { schemaTypes } from './sanity/schemaTypes';
@@ -8,7 +8,7 @@ import { schemaTypes } from './sanity/schemaTypes';
 const projectId = import.meta.env.PUBLIC_SANITY_PROJECT_ID || 'your-project-id';
 const dataset = import.meta.env.PUBLIC_SANITY_DATASET || 'production';
 
-export default defineConfig({
+export default sanity.defineConfig({
   name: 'default',
   title: 'Magnific Health CMS',
 
