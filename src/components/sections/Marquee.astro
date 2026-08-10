@@ -63,37 +63,37 @@ const isSecondary = variant === 'secondary';
 <!-- Primary Marquee -->
 {
   isPrimary && (
-    <div class={`flex overflow-hidden relative z-[11] ${className}`}>
-      <div class="py-20 bg-primary flex w-full">
-        <div class="animate-scroll-one flex items-center" style="gap: 30px;">
+    <div class={`marquee-mask flex overflow-hidden relative z-[11] ${className}`}>
+      <div class="py-16 bg-primary flex w-full">
+        <div class="animate-scroll-one flex items-center" style="gap: 26px;">
           {items.map((item, index) => (
-            <div key={`primary-1-${index}`} class="flex-shrink-0 flex items-center" style={{ gap: '20px' }}>
+            <div key={`primary-1-${index}`} class="flex-shrink-0 flex items-center" style={{ gap: '16px' }}>
               <img 
                 src={item.icon.startsWith('http') ? item.icon : `${imageBase}${item.icon}`}
                 alt={item.text} 
-                class="max-xxl:w-60 max-lg:w-36"
+                class="w-32 md:w-40 opacity-90"
                 loading="lazy"
               />
-              <h3 class="xxl:text-5.2xl lg:text-4.65xl text-3xl uppercase font-bold text-white font-sora whitespace-nowrap" 
-                  style={{ whiteSpace: 'nowrap', display: 'inline-block' }}>
+              <h3 class="text-xl md:text-2.3xl xl:text-2.5xl uppercase font-semibold tracking-[0.02em] text-white font-sora whitespace-nowrap">
                 {item.text}
               </h3>
+              <span class="text-white/30 text-lg">&bull;</span>
             </div>
           ))}
         </div>
-        <div class="animate-scroll-one flex items-center" style={{ gap: '30px', marginLeft: '30px' }}>
+        <div class="animate-scroll-one flex items-center" style={{ gap: '26px', marginLeft: '26px' }} aria-hidden="true">
           {items.map((item, index) => (
-            <div key={`primary-2-${index}`} class="flex-shrink-0 flex items-center" style={{ gap: '20px' }}>
+            <div key={`primary-2-${index}`} class="flex-shrink-0 flex items-center" style={{ gap: '16px' }}>
               <img 
                 src={item.icon.startsWith('http') ? item.icon : `${imageBase}${item.icon}`}
-                alt={item.text} 
-                class="max-xxl:w-60 max-lg:w-36"
+                alt="" 
+                class="w-32 md:w-40 opacity-90"
                 loading="lazy"
               />
-              <h3 class="xxl:text-5.2xl lg:text-4.65xl text-3xl uppercase font-bold text-white font-sora whitespace-nowrap"
-                  style={{ whiteSpace: 'nowrap', display: 'inline-block' }}>
+              <h3 class="text-xl md:text-2.3xl xl:text-2.5xl uppercase font-semibold tracking-[0.02em] text-white font-sora whitespace-nowrap">
                 {item.text}
               </h3>
+              <span class="text-white/30 text-lg">&bull;</span>
             </div>
           ))}
         </div>
@@ -102,40 +102,40 @@ const isSecondary = variant === 'secondary';
   )
 }
 
-<!-- Secondary Marquee - with adjusted spacing -->
+<!-- Secondary Marquee - rotated strip, width overshoots the container so the tilt never reveals the background behind it -->
 {
   isSecondary && (
     <div class={`gap-30 flex items-center z-[1] md:pb-120 pb-70 overflow-hidden relative ${className}`}>
-      <div class="flex bg-secondary py-20 rotate-[357deg] w-full">
-        <div class="animate-scroll-two flex items-center" style={{ gap: '30px' }}>
+      <div class="marquee-mask flex bg-secondary py-16 rotate-[-3deg] w-[112%] -ml-[6%]">
+        <div class="animate-scroll-two flex items-center" style={{ gap: '26px' }}>
           {items.map((item, index) => (
-            <div key={`secondary-1-${index}`} class="flex-shrink-0 flex items-center" style={{ gap: '20px' }}>
+            <div key={`secondary-1-${index}`} class="flex-shrink-0 flex items-center" style={{ gap: '16px' }}>
               <img 
                 src={item.icon.startsWith('http') ? item.icon : `${imageBase}${item.icon}`}
                 alt={item.text} 
-                class="max-xxl:w-60 max-lg:w-36"
+                class="w-32 md:w-40 opacity-90"
                 loading="lazy"
               />
-              <h3 class="xxl:text-5.2xl lg:text-4.65xl text-3xl uppercase font-bold text-white font-sora whitespace-nowrap"
-                  style={{ whiteSpace: 'nowrap', display: 'inline-block' }}>
+              <h3 class="text-xl md:text-2.3xl xl:text-2.5xl uppercase font-semibold tracking-[0.02em] text-white font-sora whitespace-nowrap">
                 {item.text}
               </h3>
+              <span class="text-white/30 text-lg">&bull;</span>
             </div>
           ))}
         </div>
-        <div class="animate-scroll-two flex items-center" style={{ gap: '30px', marginLeft: '30px' }}>
+        <div class="animate-scroll-two flex items-center" style={{ gap: '26px', marginLeft: '26px' }} aria-hidden="true">
           {items.map((item, index) => (
-            <div key={`secondary-2-${index}`} class="flex-shrink-0 flex items-center" style={{ gap: '20px' }}>
+            <div key={`secondary-2-${index}`} class="flex-shrink-0 flex items-center" style={{ gap: '16px' }}>
               <img 
                 src={item.icon.startsWith('http') ? item.icon : `${imageBase}${item.icon}`}
-                alt={item.text} 
-                class="max-xxl:w-60 max-lg:w-36"
+                alt="" 
+                class="w-32 md:w-40 opacity-90"
                 loading="lazy"
               />
-              <h3 class="xxl:text-5.2xl lg:text-4.65xl text-3xl uppercase font-bold text-white font-sora whitespace-nowrap"
-                  style={{ whiteSpace: 'nowrap', display: 'inline-block' }}>
+              <h3 class="text-xl md:text-2.3xl xl:text-2.5xl uppercase font-semibold tracking-[0.02em] text-white font-sora whitespace-nowrap">
                 {item.text}
               </h3>
+              <span class="text-white/30 text-lg">&bull;</span>
             </div>
           ))}
         </div>
@@ -145,46 +145,21 @@ const isSecondary = variant === 'secondary';
 }
 
 <style>
-  /* Animation keyframes - exact match to HTML */
-  .animate-scroll-one {
-    animation: scroll-left 40s linear infinite;
-  }
+  /*
+    No local animation/keyframe overrides here on purpose — animate-scroll-one and
+    animate-scroll-two are already defined once, correctly, in the global theme
+    (scroll-one moves left, scroll-two moves right). Redefining them locally was
+    what broke the alternating-direction effect; removed rather than duplicated.
+  */
 
-  .animate-scroll-two {
-    animation: scroll-right 40s linear infinite;
-  }
-
-  @keyframes scroll-left {
-    0% {
-      transform: translateX(0);
-    }
-    100% {
-      transform: translateX(-100%);
-    }
-  }
-
-  @keyframes scroll-right {
-    0% {
-      transform: translateX(0);
-    }
-    100% {
-      transform: translateX(-100%);
-    }
-  }
-
-  /* Hover pause effect - matches the HTML style */
   .animate-scroll-one:hover,
   .animate-scroll-two:hover {
     animation-play-state: paused;
   }
 
-  /* Prevent overflow and ensure proper spacing */
-  .flex-shrink-0 {
-    flex-shrink: 0;
-  }
-
-  /* Fix for secondary marquee rotation */
-  .rotate-\[357deg\] {
-    transform: rotate(357deg);
+  /* Fade the marquee out at both edges instead of a hard visual cut */
+  .marquee-mask {
+    -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 5%, #000 95%, transparent 100%);
+    mask-image: linear-gradient(90deg, transparent 0, #000 5%, #000 95%, transparent 100%);
   }
 </style>

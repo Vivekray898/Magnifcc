@@ -95,3 +95,117 @@ export async function getFooter() {
     }
   }`);
 }
+
+// ============================================
+// FIXED QUERIES - Fetch from homePage document
+// ============================================
+
+/**
+ * Get testimonials section data from homePage
+ */
+export async function getTestimonials() {
+  return await client.fetch(`*[_type == "homePage"][0]{
+    testimonialsSection {
+      subtitle,
+      title,
+      testimonials[] {
+        content,
+        authorName,
+        authorRole,
+        authorImage {
+          asset->{
+            _id,
+            url
+          },
+          alt
+        },
+        rating
+      }
+    }
+  }`);
+}
+
+/**
+ * Get brand logos section data from homePage
+ */
+export async function getBrandLogos() {
+  return await client.fetch(`*[_type == "homePage"][0]{
+    brandLogosSection {
+      title,
+      brands[] {
+        name,
+        logo {
+          asset->{
+            _id,
+            url
+          },
+          alt
+        },
+        url
+      }
+    }
+  }`);
+}
+
+/**
+ * Get all home page sections data in one query
+ */
+export async function getHomePageSections() {
+  return await client.fetch(`*[_type == "homePage"][0]{
+    testimonialsSection {
+      subtitle,
+      title,
+      testimonials[] {
+        content,
+        authorName,
+        authorRole,
+        authorImage {
+          asset->{
+            _id,
+            url
+          },
+          alt
+        },
+        rating
+      }
+    },
+    brandLogosSection {
+      title,
+      brands[] {
+        name,
+        logo {
+          asset->{
+            _id,
+            url
+          },
+          alt
+        },
+        url
+      }
+    },
+    heroBanner {
+      // Your hero fields here
+    },
+    servicesSection {
+      // Your services fields here
+    },
+    aboutSection {
+      // Your about fields here
+    },
+    marqueeSection {
+      // Your marquee fields here
+    },
+    portfolioSection {
+      // Your portfolio fields here
+    },
+    whyChooseUsSection {
+      // Your why choose us fields here
+    },
+    pricingSection {
+      // Your pricing fields here
+    },
+    blogSection {
+      // Your blog fields here
+    }
+  }`);
+}

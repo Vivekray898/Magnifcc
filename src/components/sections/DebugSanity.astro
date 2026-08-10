@@ -1,0 +1,30 @@
+---
+// src/components/sections/DebugSanity.astro
+import { client } from '../../lib/sanity';
+
+// Query the homePage document directly
+const homePage = await client.fetch(`*[_type == "homePage"][0]{
+  _id,
+  title,
+  testimonialsSection {
+    subtitle,
+    title,
+    testimonials
+  },
+  brandLogosSection {
+    title,
+    brands
+  }
+}`);
+---
+
+<div class="container mx-auto p-8 bg-gray-100 my-10 rounded-lg">
+  <h2 class="text-2xl font-bold mb-4 text-red-600">Debug: Home Page Data</h2>
+  
+  <div>
+    <h3 class="font-bold text-lg text-blue-600">Home Page Document:</h3>
+    <pre class="bg-white p-4 rounded overflow-auto max-h-96 text-sm">
+      {JSON.stringify(homePage, null, 2)}
+    </pre>
+  </div>
+</div>

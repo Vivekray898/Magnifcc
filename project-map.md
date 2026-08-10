@@ -1,19 +1,19 @@
 # Astro Project Map
 
-Generated: 8/4/2026, 2:11:40 PM
+Generated: 8/10/2026, 2:48:07 PM
 
 ## Statistics
 
 - **Folders:** 0
 - **Files:** 0
-- **Size:** 22.16 MB
+- **Size:** 22.66 MB
 
 ---
 
 ## Folder Structure
 
 ```
-magnific
+Magnifcc
 ├── public
 │   ├── assets
 │   │   ├── css
@@ -378,7 +378,6 @@ magnific
 │   │   │   │   ├── flaticon.css
 │   │   │   │   ├── Flaticon.eot
 │   │   │   │   ├── flaticon.html
-│   │   │   │   ├── Flaticon.svg
 │   │   │   │   ├── Flaticon.ttf
 │   │   │   │   └── Flaticon.woff
 │   │   │   ├── fontawesome
@@ -467,7 +466,7 @@ magnific
 │   │   │   ├── bannr-img-5.png
 │   │   │   ├── bannr-img-6.png
 │   │   │   ├── bannr-img-9.png
-│   │   │   ├── bannr-img.png
+│   │   │   ├── bannr-img.jpeg
 │   │   │   ├── bannr-shap.png
 │   │   │   ├── bg-hero.png
 │   │   │   ├── bg-line-2.png
@@ -527,6 +526,7 @@ magnific
 │   │   │   ├── Johari-lslam.jpg
 │   │   │   ├── logo-2.png
 │   │   │   ├── logo.png
+│   │   │   ├── og-image.png
 │   │   │   ├── plus.png
 │   │   │   ├── portfolio-1.jpg
 │   │   │   ├── portfolio-10.jpg
@@ -754,16 +754,38 @@ magnific
 │   │       ├── contact_smtp.php
 │   │       ├── contact.php
 │   │       └── mailchamp.php
+│   ├── apple-touch-icon.png
+│   ├── favicon-96x96.png
 │   ├── favicon.ico
-│   └── favicon.svg
+│   ├── favicon.svg
+│   ├── site.webmanifest
+│   ├── web-app-manifest-192x192.png
+│   └── web-app-manifest-512x512.png
 ├── sanity
+│   ├── components
+│   │   └── IconPicker.tsx
+│   ├── data
+│   │   └── icons.json
 │   ├── schemaTypes
 │   │   ├── documents
-│   │   │   └── homePage.ts
+│   │   │   ├── aboutPage.ts
+│   │   │   ├── blogPage.ts
+│   │   │   ├── blogPost.ts
+│   │   │   ├── contactInfo.ts
+│   │   │   ├── contactPage.ts
+│   │   │   ├── footer.ts
+│   │   │   ├── header.ts
+│   │   │   ├── homePage.ts
+│   │   │   ├── portfolio.ts
+│   │   │   ├── servicesDetails.ts
+│   │   │   ├── servicesDetailsPage.ts
+│   │   │   ├── servicesPage.ts
+│   │   │   └── siteSettings.ts
 │   │   ├── shared
 │   │   │   ├── fields
 │   │   │   │   ├── cta.ts
 │   │   │   │   ├── description.ts
+│   │   │   │   ├── icon.ts
 │   │   │   │   ├── image.ts
 │   │   │   │   ├── stats.ts
 │   │   │   │   ├── subtitle.ts
@@ -788,6 +810,8 @@ magnific
 │   ├── package.json
 │   ├── README.md
 │   └── tsconfig.json
+├── scripts
+│   └── generate-sitemap.js
 ├── src
 │   ├── assets
 │   │   ├── astro.svg
@@ -797,7 +821,31 @@ magnific
 │   │   │   ├── Footer.astro
 │   │   │   └── Header.astro
 │   │   └── sections
+│   │       ├── blog
+│   │       │   ├── BlogCommentForm.astro
+│   │       │   ├── BlogComments.astro
+│   │       │   ├── BlogContent.tsx
+│   │       │   ├── BlogDetails.astro
+│   │       │   ├── BlogHero.astro
+│   │       │   ├── BlogList.astro
+│   │       │   └── BlogSidebar.astro
+│   │       ├── contact
+│   │       │   ├── ContactForm.astro
+│   │       │   └── ContactHero.astro
+│   │       ├── portfolio
+│   │       │   ├── DetailContent.astro
+│   │       │   ├── DetailHero.astro
+│   │       │   ├── Hero.astro
+│   │       │   ├── PortfolioCard.astro
+│   │       │   └── PortfolioGrid.astro
+│   │       ├── services
+│   │       │   ├── ServicesHero.astro
+│   │       │   └── ServicesList.astro
+│   │       ├── services-details
+│   │       │   ├── ServicesDetailsContent.astro
+│   │       │   └── ServicesDetailsHero.astro
 │   │       ├── About.astro
+│   │       ├── AboutHero.astro
 │   │       ├── Blog.astro
 │   │       ├── BrandLogos.astro
 │   │       ├── BrandLogosAdvanced.astro
@@ -812,10 +860,29 @@ magnific
 │   ├── layouts
 │   │   └── Layout.astro
 │   ├── lib
+│   │   ├── icons.ts
+│   │   ├── portfolio.ts
+│   │   ├── queries.ts
 │   │   ├── sanity-image.ts
 │   │   └── sanity.ts
 │   ├── pages
-│   │   └── index.astro
+│   │   ├── blog
+│   │   │   ├── [slug].astro
+│   │   │   └── index.astro
+│   │   ├── portfolio
+│   │   │   ├── [slug].astro
+│   │   │   └── index.astro
+│   │   ├── services
+│   │   │   ├── [slug].astro
+│   │   │   └── index.astro
+│   │   ├── sitemap
+│   │   │   ├── index.xml.ts
+│   │   │   ├── sanity.xml.ts
+│   │   │   └── static.xml.ts
+│   │   ├── about.astro
+│   │   ├── contact.astro
+│   │   ├── index.astro
+│   │   └── robots.txt.ts
 │   └── styles
 │       └── global.css
 ├── .env
@@ -830,6 +897,7 @@ magnific
 ├── README.md
 ├── sanity.cli.ts
 ├── sanity.config.ts
+├── tailwind.config.js
 └── tsconfig.json
 
 ```

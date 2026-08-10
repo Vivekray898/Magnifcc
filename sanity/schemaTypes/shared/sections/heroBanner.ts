@@ -3,7 +3,6 @@ import { defineField } from 'sanity';
 import { titleField } from '../fields/title';
 import { subtitleField } from '../fields/subtitle';
 import { descriptionField } from '../fields/description';
-import { imageField } from '../fields/image';
 import { ctaField } from '../fields/cta';
 import { statsField } from '../fields/stats';
 
@@ -25,7 +24,16 @@ export const heroBannerSection = defineField({
       initialValue: 'Health',
     }),
     descriptionField({ title: 'Description', initialValue: 'We are dedicated to putting your health at the forefront of everything we do. Our compassionate team of healthcare.' }),
-    imageField({ name: 'heroImage', title: 'Hero Image' }),
+    
+    // --- REPLACED IMAGE WITH YOUTUBE VIDEO ---
+    defineField({
+      name: 'heroVideoUrl',
+      title: 'YouTube Video URL',
+      type: 'string',
+      description: 'Paste the full YouTube video link here (e.g., https://www.youtube.com/watch?v=VIDEO_ID)',
+    }),
+    // -----------------------------------------
+
     ctaField({ text: 'Read More', link: '/about' }),
     statsField({ title: 'Statistics Cards' }),
     defineField({
@@ -34,7 +42,6 @@ export const heroBannerSection = defineField({
       type: 'array',
       of: [{ type: 'image', options: { hotspot: true } }],
     }),
-    // NEW: Add team stats
     defineField({
       name: 'teamStats',
       title: '👥 Team Statistics',

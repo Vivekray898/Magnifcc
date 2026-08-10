@@ -1,109 +1,130 @@
 ---
 // src/components/sections/BrandLogos.astro
-
-import { client } from '../../lib/sanity';
+import { getBrandLogos } from '../../lib/queries';
+import { urlFor } from '../../lib/sanity-image';
 
 export interface Props {
-  class?: string;
   fetchFromSanity?: boolean;
+  brands?: any[];
+  class?: string;
+  title?: string;
 }
 
-const { class: className = '', fetchFromSanity = true } = Astro.props;
+const { 
+  fetchFromSanity = false, 
+  brands: propBrands = [],
+  class: className = '',
+  title: propTitle = ''
+} = Astro.props;
 
-// Default brand logos (local files)
-const defaultBrands = [
-  'brand-logo-1.png',
-  'brand-logo-3.png',
-  'brand-logo-2.png',
-  'brand-logo-4.png',
-  'brand-logo-6.png',
-  'brand-logo-5.png',
-  'brand-logo-3.png',
-];
+let brands = propBrands;
+let title = propTitle;
 
-let brands = defaultBrands;
-
-// Fetch from Sanity
 if (fetchFromSanity) {
   try {
-    const query = `*[_type == "homePage"][0]{
-      brands {
-        logos[] {
-          name,
-          url,
-          logo {
-            asset->{
-              _id,
-              url
-            }
-          }
-        }
-      }
-    }`;
+    const data = await getBrandLogos();
+    console.log('Brand logos data from homePage:', data);
     
-    const result = await client.fetch(query);
-    
-    if (result?.brands?.logos?.length > 0) {
-      // Map Sanity data to just the image URLs
-      brands = result.brands.logos.map((item: any) => {
-        return item.logo?.asset?.url || defaultBrands[0];
-      });
+    if (data && data.brandLogosSection) {
+      brands = data.brandLogosSection.brands || [];
+      title = data.brandLogosSection.title || propTitle;
     }
   } catch (error) {
-    console.error('Error fetching brand logos data:', error);
-    // Keep using default brands
+    console.error('Error in BrandLogos component:', error);
+  }
+}
+
+console.log('Rendering brand logos:', { count: brands.length, title });
+
+// Helper function to safely get image URL
+function getImageUrl(image: any) {
+  if (!image) return null;
+  try {
+    // Check if we have a direct URL
+    if (image.asset?.url) return image.asset.url;
+    // Use Sanity image builder
+    return urlFor(image).url();
+  } catch (error) {
+    console.error('Error getting image URL:', error);
+    return null;
   }
 }
 ---
 
-<div class={`container xl:pb-120 lg:pb-100 md:pb-80 pb-60 ${className}`}>
-  <div class="swiper brand-slide">
-    <div class="swiper-wrapper">
-      {brands.map((logo, index) => (
-        <div class="swiper-slide" key={index}>
-          {logo.startsWith('http') ? (
-            <img src={logo} alt={`Brand ${index + 1}`} loading="lazy" />
-          ) : (
-            <img src={`/assets/img/${logo}`} alt={`Brand ${index + 1}`} loading="lazy" />
-          )}
-        </div>
-      ))}
+<div class={`container mx-auto px-4 xl:pb-120 lg:pb-100 md:pb-80 pb-60 ${className}`}>
+  {title && (
+    <div class="text-center mb-10">
+      <h3 class="text-2xl font-semibold text-secondary font-sora">{title}</h3>
     </div>
-  </div>
+  )}
+  
+  {brands && brands.length > 0 ? (
+    <div class="swiper brand-slide">
+      <div class="swiper-wrapper">
+        {brands.map((brand, index) => {
+          const imageUrl = brand.logo ? getImageUrl(brand.logo) : null;
+          return (
+            <div class="swiper-slide" key={brand._key || index}>
+              {brand.url ? (
+                <a href={brand.url} target="_blank" rel="noopener noreferrer" class="block">
+                  {imageUrl ? (
+                    <img 
+                      src={imageUrl} 
+                      alt={brand.name || 'Brand logo'}
+                      class="max-h-20 object-contain mx-auto"
+                      loading="lazy"
+                    />
+                  ) : (
+                    <span class="text-gray-400">{brand.name || 'No image'}</span>
+                  )}
+                </a>
+              ) : (
+                imageUrl ? (
+                  <img 
+                    src={imageUrl} 
+                    alt={brand.name || 'Brand logo'}
+                    class="max-h-20 object-contain mx-auto"
+                    loading="lazy"
+                  />
+                ) : (
+                  <span class="text-gray-400">{brand.name || 'No image'}</span>
+                )
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  ) : (
+    <div class="text-center py-10">
+      <p class="text-gray-500">No brand logos available. Please add brand logos in the Home Page document in Sanity.</p>
+    </div>
+  )}
 </div>
 
-<script>
-  // Initialize Swiper
-  document.addEventListener('DOMContentLoaded', () => {
-    const swiperEl = document.querySelector('.brand-slide');
-    if (!swiperEl) return;
-
-    new Swiper(swiperEl, {
-      slidesPerView: 2,
-      spaceBetween: 20,
-      loop: true,
-      autoplay: {
-        delay: 3000,
-        disableOnInteraction: false,
-      },
-      breakpoints: {
-        640: {
-          slidesPerView: 3,
-          spaceBetween: 30,
-        },
-        768: {
-          slidesPerView: 4,
-          spaceBetween: 40,
-        },
-        1024: {
-          slidesPerView: 5,
-          spaceBetween: 50,
-        },
-        1280: {
-          slidesPerView: 6,
-          spaceBetween: 60,
-        },
-      },
-    });
-  });
-</script>
+<style is:global>
+  .brand-slide .swiper-slide {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 10px 20px !important;
+    height: auto !important;
+  }
+  
+  .brand-slide .swiper-slide img {
+    filter: grayscale(1);
+    opacity: 0.6;
+    transition: all 0.3s ease;
+    max-height: 80px;
+    width: auto;
+  }
+  
+  .brand-slide .swiper-slide:hover img {
+    filter: grayscale(0);
+    opacity: 1;
+  }
+  
+  .brand-slide .swiper-wrapper {
+    align-items: center !important;
+  }
+</style>

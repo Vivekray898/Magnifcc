@@ -9,11 +9,13 @@ import Services from '../components/sections/Services.astro';
 import About from '../components/sections/About.astro';
 import Portfolio from '../components/sections/Portfolio.astro';
 import WhyChooseUs from '../components/sections/WhyChooseUs.astro';
-import Pricing from '../components/sections/Pricing.astro';
+// import Pricing from '../components/sections/Pricing.astro';
 import Testimonials from '../components/sections/Testimonials.astro';
 import Blog from '../components/sections/Blog.astro';
 import Marquee from '../components/sections/Marquee.astro';
 import BrandLogos from '../components/sections/BrandLogos.astro';
+
+
 
 // All sections will fetch their own data from Sanity
 // by setting fetchFromSanity to true (default)
@@ -42,7 +44,9 @@ import BrandLogos from '../components/sections/BrandLogos.astro';
     <WhyChooseUs fetchFromSanity={true} />
     
     <!-- Pricing Section -->
-    <Pricing fetchFromSanity={true} />
+    <!--  <Pricing fetchFromSanity={true} /> -->
+
+
     
     <!-- Testimonials Section -->
     <Testimonials fetchFromSanity={true} />
@@ -51,7 +55,7 @@ import BrandLogos from '../components/sections/BrandLogos.astro';
     <BrandLogos fetchFromSanity={true} class="my-10" />
     
     <!-- Blog Section -->
-    <Blog />
+    <Blog fetchFromSanity={true} />
     
     <Footer fetchFromSanity={true} slot="footer" />
 </Layout>

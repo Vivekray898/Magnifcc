@@ -24,7 +24,7 @@ const { fetchFromSanity = true, data: propData } = Astro.props;
 
 // Default fallback data
 const defaultData = {
-  subtitle: '# About Us',
+  subtitle: 'About Us',
   heading: 'Excellence in Healthcare Rooted in Trust.',
   description: 'For years, we\'ve dedicated ourselves to delivering exceptional medical care with integrity, compassion, and respect. Our commitment to excellence goes beyond treatments—we aim to build lasting relationships with every patient, ensuring they feel supported and empowered throughout their health journey.',
   image1: null,
@@ -115,17 +115,17 @@ const {
 } = data;
 ---
 
-<section class="lg:py-120 md:py-80 py-60">
+<section class="bg-[#f8f6f5] lg:py-120 md:py-80 py-60">
   <div class="container">
     <!-- Top Section: Image 1 + Content -->
-    <div class="grid grid-cols-12 gap-25">
+    <div class="grid grid-cols-12 gap-25 items-center">
       <div class="lg:col-span-6 col-span-12">
-        <div class="w-full group">
+        <div class="w-full group rounded-2xl overflow-hidden shadow-[0_30px_70px_-25px_rgba(2,25,53,0.3)]">
           <figure class="overflow-hidden">
             <img 
               src={image1Url} 
               alt="About us" 
-              class="w-full group-hover:scale-[1.1] group-hover:rotate-[3deg] duration-500"
+              class="w-full group-hover:scale-[1.08] duration-500"
               loading="lazy"
             />
           </figure>
@@ -133,9 +133,12 @@ const {
       </div>
       <div class="lg:col-span-6 col-span-12">
         <div class="lg:ml-16">
-          <span class="capitalize font-semibold xxl:text-xxl xl:text-xl sm:text-lg text-base text-primary font-sora pb-6 block">{subtitle}</span>
-          <h2 class="xxl:text-4.8xl xl:text-4xl sm:text-3xl text-2xl font-semibold text-secondary xl:leading-[1.2] font-sora">{heading}</h2>
-          <p class="text-base leading-28 text-gary font-normal xl:mt-25 mt-20 leading-30">{description}</p>
+          <div class="flex items-center gap-10 mb-10">
+            <span class="w-24 h-[2px] bg-primary"></span>
+            <span class="font-montserrat text-[11px] font-bold uppercase tracking-[0.18em] text-primary">{subtitle}</span>
+          </div>
+          <h2 class="xxl:text-4.6xl xl:text-4xl sm:text-3xl text-2.5xl font-semibold text-secondary xl:leading-[1.2] font-sora">{heading}</h2>
+          <p class="text-base leading-28 text-gary font-normal xl:mt-24 mt-18">{description}</p>
         </div>
       </div>
     </div>
@@ -146,7 +149,7 @@ const {
         <div class="max-lg:pb-15">
           <ul class="pt-40 pb-34">
             {features.map((feature, index) => (
-              <li key={index} class="pb-21 font-semibold font-sora pl-20 relative text-secondary before:absolute before:size-10 before:bg-primary before:rounded-full before:left-0 before:top-8 max-xl:text-sm">
+              <li key={index} class="pb-21 font-semibold font-sora pl-20 relative text-secondary before:absolute before:size-8 before:bg-primary before:rounded-full before:left-0 before:top-9 max-xl:text-sm">
                 {feature}
               </li>
             ))}
@@ -158,19 +161,19 @@ const {
             <img 
               src={signatureUrl} 
               alt="Signature" 
-              class="sm:ml-30 ml-20 sm:border-l sm:border-[#D8D8D8] sm:pl-30 py-20 sm:py-10"
+              class="sm:ml-30 ml-20 sm:border-l sm:border-secondary/15 sm:pl-30 py-20 sm:py-10"
               loading="lazy"
             />
           </div>
         </div>
       </div>
       <div class="lg:col-span-4 col-span-12">
-        <div class="w-full group">
+        <div class="w-full group rounded-2xl overflow-hidden shadow-[0_30px_70px_-25px_rgba(2,25,53,0.3)]">
           <figure class="overflow-hidden">
             <img 
               src={image2Url} 
               alt="About us" 
-              class="w-full group-hover:scale-[1.1] group-hover:rotate-[3deg] duration-500"
+              class="w-full group-hover:scale-[1.08] duration-500"
               loading="lazy"
             />
           </figure>
@@ -183,7 +186,7 @@ const {
               <div class="circle-wrapper">
                 <svg class="circle-svg" viewBox="0 0 120 120">
                   <!-- Background ring -->
-                  <circle cx="60" cy="60" r="54" fill="none" stroke="#e5e7eb" stroke-width="8" />
+                  <circle cx="60" cy="60" r="54" fill="none" stroke="#f1f5f9" stroke-width="8" />
                   <!-- Progress ring -->
                   <circle 
                     class="progress-ring" 
@@ -191,7 +194,7 @@ const {
                     cy="60" 
                     r="54" 
                     fill="none" 
-                    stroke="#F05DA8" 
+                    stroke="#e11d48" 
                     stroke-width="8" 
                     stroke-linecap="round"
                     stroke-dasharray="339.292"
@@ -216,6 +219,7 @@ const {
     width: 120px;
     height: 120px;
     margin: 0 auto;
+    filter: drop-shadow(0 10px 20px rgba(225, 29, 72, 0.15));
   }
   
   .circle-svg {
@@ -233,7 +237,7 @@ const {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    font-size: 28px;
+    font-size: 26px;
     font-weight: 700;
     color: #021935;
     font-family: 'Sora', sans-serif;
