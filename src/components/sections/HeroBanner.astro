@@ -116,14 +116,20 @@ const bandStats = [
 
 <section class="hero-texture relative bg-[#f8f6f5] pt-100 pb-56 overflow-hidden z-10">
     <div class="container relative z-10">
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-40 items-center">
-            
-            <!-- RIGHT: VIDEO CARD (Mobile: Top) -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-40 items-start">
+
+            <!-- RIGHT: VIDEO CARD + STATS (Mobile: Top) -->
             <div class="relative order-first lg:order-last">
                 <!-- faint oversized pulse-line motif behind the card -->
                 <svg class="absolute -top-30 -right-20 w-[110%] max-w-none opacity-[0.07] pointer-events-none hidden lg:block" height="140" viewBox="0 0 500 140" fill="none">
                     <path d="M0 70 L120 70 L145 20 L175 120 L200 70 L500 70" stroke="#021935" stroke-width="3" fill="none"/>
                 </svg>
+
+                <!-- floating "watch our story" tag, sits on the card's top edge -->
+                <div class="absolute -top-14 left-24 z-20 bg-secondary text-white text-xs font-semibold px-18 py-10 rounded-lg shadow-[0_12px_30px_-8px_rgba(2,25,53,0.5)] flex items-center gap-8">
+                    <span class="w-6 h-6 rounded-full bg-primary"></span>
+                    Watch our story
+                </div>
 
                 <div class="relative z-10 rounded-2xl border border-secondary/10 bg-white p-10 shadow-[0_30px_70px_-20px_rgba(2,25,53,0.25)]">
                     {videoId ? (
@@ -149,15 +155,41 @@ const bandStats = [
                     )}
                 </div>
 
-                <!-- corner tag -->
-                <div class="absolute -bottom-14 left-24 z-20 bg-secondary text-white text-xs font-semibold px-18 py-10 rounded-lg shadow-[0_12px_30px_-8px_rgba(2,25,53,0.5)] flex items-center gap-8">
-                    <span class="w-6 h-6 rounded-full bg-primary"></span>
-                    Watch our story
+                <!-- STATS CARD: same card language as the video frame above it
+                     (white, rounded-2xl, border-secondary/10, soft navy shadow),
+                     pulled up over the card on lg+ so it reads as one composition
+                     instead of a disconnected dark band further down the page. -->
+                <div class="stats-card relative z-10 mx-14 sm:mx-24 lg:-mt-28 -mt-20 rounded-2xl border border-secondary/10 bg-white shadow-[0_25px_60px_-20px_rgba(2,25,53,0.2)]">
+                    <div class="grid grid-cols-2 sm:grid-cols-4 divide-x divide-y sm:divide-y-0 divide-secondary/10">
+                        {bandStats.map((stat, index) => {
+                            const numericValue = getNumericValue(stat.number);
+                            const suffix = stat.suffix || '';
+                            const fullValue = stat.number + suffix;
+                            const hasSuffixChar = hasSuffix(stat.number);
+
+                            return (
+                                <div class="flex flex-col items-center justify-center text-center px-10 py-20 sm:py-24">
+                                    <h2 class="font-sora font-bold text-secondary text-2xl sm:text-3xl md:text-3.5xl leading-none mb-8">
+                                        <span
+                                            class="stat-number"
+                                            data-target={numericValue}
+                                            data-suffix={suffix}
+                                            data-full={fullValue}
+                                            data-has-suffix={hasSuffixChar ? 'true' : 'false'}
+                                        >
+                                            {fullValue}
+                                        </span>
+                                    </h2>
+                                    <span class="text-gary text-[11px] sm:text-xs font-medium uppercase tracking-[0.05em]">{stat.label}</span>
+                                </div>
+                            );
+                        })}
+                    </div>
                 </div>
             </div>
 
             <!-- LEFT: COPY (Mobile: Bottom) -->
-            <div class="grid grid-cols-1 gap-16 order-last lg:order-first">
+            <div class="grid grid-cols-1 gap-16 order-last lg:order-first lg:pt-30">
 
                 <!-- Editorial eyebrow -->
                 <div class="flex items-center gap-10">
@@ -213,38 +245,6 @@ const bandStats = [
     </div>
 </section>
 
-<!-- STATS BAND - New Dynamic Design -->
-<div class="stats-band bg-secondary py-32 relative overflow-hidden z-10">
-    <div class="container">
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-24">
-            {bandStats.map((stat, index) => {
-                const numericValue = getNumericValue(stat.number);
-                const suffix = stat.suffix || '';
-                const fullValue = stat.number + suffix;
-                const hasSuffixChar = hasSuffix(stat.number);
-                const isLast = index === bandStats.length - 1;
-
-                return (
-                    <div class={`text-center px-16 ${!isLast ? 'sm:border-r sm:border-white/10' : ''}`}>
-                        <h2 class="text-3xl sm:text-4xl font-bold font-sora leading-none mb-8">
-                            <span
-                                class="stat-number"
-                                data-target={numericValue}
-                                data-suffix={suffix}
-                                data-full={fullValue}
-                                data-has-suffix={hasSuffixChar ? 'true' : 'false'}
-                            >
-                                {fullValue}
-                            </span>
-                        </h2>
-                        <span class="text-white/75 text-xs font-medium uppercase tracking-[0.05em]">{stat.label}</span>
-                    </div>
-                );
-            })}
-        </div>
-    </div>
-</div>
-
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const statNumbers = document.querySelectorAll('.stat-number');
@@ -259,17 +259,14 @@ document.addEventListener('DOMContentLoaded', function() {
     }, { threshold: 0.3 });
 
     statNumbers.forEach(el => {
-        const hasSuffix = el.getAttribute('data-has-suffix') === 'true';
-        if (!hasSuffix) {
-            observer.observe(el);
-        }
+        observer.observe(el);
     });
 
     function animateCounter(element) {
         const target = parseInt(element.getAttribute('data-target')) || 0;
         const suffix = element.getAttribute('data-suffix') || '';
-        const duration = 2000;
-        const steps = 60;
+        const duration = 1400;
+        const steps = 50;
         const increment = target / steps;
         let current = 0;
         let step = 0;
@@ -291,19 +288,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }, duration / steps);
     }
-});
-
-// Enhanced counter animation with dynamic styling
-document.addEventListener('DOMContentLoaded', function() {
-    const statNumbers = document.querySelectorAll('.stat-number');
-    
-    // Add dynamic class based on suffix
-    statNumbers.forEach(el => {
-        const suffix = el.getAttribute('data-suffix');
-        if (suffix) {
-            el.classList.add('has-suffix');
-        }
-    });
 });
 </script>
 
@@ -339,54 +323,20 @@ document.addEventListener('DOMContentLoaded', function() {
         opacity: 0.7;
     }
 
-    /* Dynamic counter styles */
+    /* Stat numbers: single consistent brand treatment instead of a
+       different neon color per stat, so the card reads as one unit
+       that belongs to the same design system as the rest of the hero. */
     .stat-number {
         display: inline-block;
-        transition: all 0.3s ease;
         position: relative;
         font-weight: 800;
         letter-spacing: -0.02em;
     }
-    
-    .stat-number.has-suffix {
-        font-size: 1.75rem;
-    }
-    
-    .stat-number.has-suffix::after {
-        content: attr(data-suffix);
-        font-size: 0.6em;
-        vertical-align: super;
-        margin-left: 2px;
-        font-weight: 700;
-        color: var(--theme-colour);
-        opacity: 0.8;
-    }
-    
-    /* Dynamic color for different stat types */
-    .stat-number[data-target="500"] {
-        color: #ff6b6b;
-    }
-    
-    .stat-number[data-target="2"] {
-        color: #4ecdc4;
-    }
-    
-    .stat-number[data-target="100"] {
-        color: #ffe66d;
-    }
-    
-    .stat-number[data-target="2000"] {
-        color: #a8e6cf;
-    }
-    
-    /* Pulse animation for active counters */
-    .stat-number.animate-pulse {
-        animation: statPulse 1.5s ease-in-out;
-    }
-    
-    @keyframes statPulse {
-        0%, 100% { transform: scale(1); }
-        50% { transform: scale(1.05); }
+
+    .stats-card {
+        /* keeps the overlap effect from ever colliding with the copy
+           column on narrow viewports, where the two columns stack */
+        width: auto;
     }
 
     /* Mobile-specific adjustments */
@@ -403,10 +353,6 @@ document.addEventListener('DOMContentLoaded', function() {
         .highlighted-text-wrapper svg {
             height: 8px;
         }
-        
-        .stat-number.has-suffix {
-            font-size: 1.5rem;
-        }
     }
     
     @media (max-width: 640px) {
@@ -417,14 +363,6 @@ document.addEventListener('DOMContentLoaded', function() {
         
         .highlighted-text-wrapper {
             font-size: 1.15em;
-        }
-        
-        .stat-number.has-suffix {
-            font-size: 1.25rem;
-        }
-        
-        .stat-number.has-suffix::after {
-            font-size: 0.7em;
         }
     }
     
@@ -458,29 +396,6 @@ document.addEventListener('DOMContentLoaded', function() {
         background-color: var(--common-colour);
     }
 
-    .stats-band::before {
-        content: "";
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 2px;
-        background: linear-gradient(90deg, transparent, var(--theme-colour), transparent);
-        opacity: 0.6;
-    }
-    
-    /* Gradient border for stats on mobile */
-    @media (max-width: 640px) {
-        .stats-band .grid > div:not(:last-child) {
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-            padding-bottom: 20px;
-        }
-        
-        .stats-band .grid > div:nth-child(2) {
-            border-bottom: none;
-        }
-    }
-    
     /* Ensure header doesn't overlap */
     header + .hero-texture {
         margin-top: 0;

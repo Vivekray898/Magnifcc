@@ -36,8 +36,8 @@ export interface Props {
 
 const {
     fetchFromSanity = true,
-    subtitle = "# blog",
-    title = "Our Medical Blog.",
+    subtitle = "# Our Blog",
+    title = "Insights for a Healthier",
     buttonText = "View All Blog",
     buttonLink = "/blog",
     showViewAll = true,
@@ -45,7 +45,7 @@ const {
     showCategories = false,
     showSearch = false,
     defaultCategory = "All",
-    backgroundClass = "relative lg:pb-120 md:pb-80 pb-60 section-blog",
+    backgroundClass = "lg:pb-120 md:pb-80 pb-60",
     posts: propPosts,
 } = Astro.props;
 
@@ -124,9 +124,9 @@ if (fetchFromSanity && !propPosts) {
                     id: index + 1,
                     title: post.title || 'Untitled Post',
                     excerpt: truncateExcerpt(post.excerpt, 80),
-                    image: post.featuredImage?.asset?.url || '/assets/img/blog-one-1.jpg',
+                    image: post.featuredImage?.asset?.url || '/assets/img/blog-two-1.jpg',
                     date: day,
-                    month: monthName,
+                    month: monthName.substring(0, 3),
                     author: post.author || 'Admin',
                     comments: post.comments || 0,
                     category: post.category || 'Health & Wellness',
@@ -161,93 +161,256 @@ const { subtitle: finalSubtitle, title: finalTitle, buttonText: finalButtonText,
 
 <section class={backgroundClass}>
     <div class="container">
-        <div class="row items-center max-sm:ml-0">
-            <div class="sm:w-2/3 w-full max-md:px-0">
-                <div class="sm:pb-50 pb-20 w-[fit-content]">
-                    <span class="pb-10 block font-sora font-semibold capitalize xxl:text-xxl xl:text-xl sm:text-lg text-base text-primary">{finalSubtitle}</span>
-                    <h2 class="xl:text-5xl md:text-4xl sm:text-3xl text-2.5xl font-semibold text-secondary font-sora leading-[1.2]">{finalTitle}</h2>
-                </div>
-            </div>
-            {showViewAll && (
-                <div class="sm:w-1/3 w-full max-md:px-0">
-                    <div class="sm:float-right max-sm:mb-30">
-                        <a href={finalButtonLink} class="btn"><span>{finalButtonText}<i class="fa-solid fa-arrow-right"></i></span></a>
-                    </div>
-                </div>
-            )}
+        <!-- Section Header -->
+        <div class="text-center m-auto lg:w-[60%] sm:pb-50 pb-30">
+            <span class="pb-10 block font-sora font-semibold capitalize xxl:text-xxl xl:text-xl sm:text-lg text-base" style="color: var(--theme-colour);">{finalSubtitle}</span>
+            <h2 class="xxl:text-5xl xl:text-4.65xl md:text-3.8xl sm:text-3xl text-2.5xl font-semibold font-sora leading-[1.2]" style="color: var(--common-colour);">{finalTitle}</h2>
         </div>
 
+        <!-- Categories (Optional) -->
         {showCategories && (
-            <div class="flex flex-wrap gap-3 mb-10">
+            <div class="flex flex-wrap justify-center gap-3 mb-30">
                 {categories.map((category) => (
-                    <a href={`?category=${category.toLowerCase()}`} class={`px-6 py-2 rounded-full text-sm font-medium transition-all duration-300 ${category === defaultCategory ? 'bg-primary text-white' : 'bg-gray-100 text-secondary hover:bg-primary hover:text-white'}`}>
+                    <a 
+                        href={`?category=${category.toLowerCase()}`} 
+                        class={`category-btn px-6 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
+                            category === defaultCategory ? 'active' : ''
+                        }`}
+                        style={category === defaultCategory 
+                            ? `background-color: var(--theme-colour); color: var(--color-white);` 
+                            : `color: var(--color-gary); background-color: var(--color-offwhite);`
+                        }
+                    >
                         {category}
                     </a>
                 ))}
             </div>
         )}
 
+        <!-- Search (Optional) -->
         {showSearch && (
-            <div class="mb-10">
-                <input type="text" placeholder="Search blog posts..." class="w-full md:w-1/2 px-6 py-3 rounded-lg border border-gray-200 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20">
+            <div class="flex justify-center mb-30">
+                <input 
+                    type="text" 
+                    placeholder="Search blog posts..." 
+                    class="search-input w-full md:w-1/2 px-6 py-3 rounded-lg border focus:outline-none focus:ring-2"
+                    style="border-color: var(--color-lightgary); color: var(--common-colour);"
+                />
             </div>
         )}
 
+        <!-- Blog Grid -->
         <div class="grid grid-cols-12 gap-25">
             {displayedPosts.length > 0 ? (
                 displayedPosts.map((post) => (
-                    <div class="lg:col-span-4 col-span-12" key={post.id}>
-                        <div class="relative group">
-                            <div class="relative">
-                                <figure class="overflow-hidden mb-20">
-                                    <img src={post.image} alt={post.title} class="group-hover:scale-[1.1] group-hover:rotate-[3deg] duration-500 max-lg:w-full" loading="lazy">
-                                </figure>
-                                <h6 class="text-secondary font-sora font-bold">
-                                    <a href={post.link} class="absolute xxl:text-[33px] text-lg leading-25 max-xxl:size-90 size-110 rounded-full text-center xl:p-32 p-20 text-bold right-10 top-10 shadow-[0px_7px_31px_-6px_rgba(0,0,0,0.15)] font-sora group-hover:bg-primary group-hover:text-white duration-500 text-secondary bg-white">
-                                        {post.date} <span class="text-2sm text-primary group-hover:text-white duration-500 block">{post.month}</span>
+                    <div class="lg:col-span-4 md:col-span-6 col-span-12" key={post.id}>
+                        <div class="blog-card border p-20 group" style="border-color: var(--color-lightgary); background: var(--color-white);">
+                            <!-- Blog Image -->
+                            <figure class="overflow-hidden blog-image-wrapper">
+                                <img src={post.image} alt={post.title} class="blog-image w-full" loading="lazy" />
+                            </figure>
+                            
+                            <!-- Blog Meta -->
+                            <ul class="blog-meta flex items-center gap-20 pt-13 pb-6 relative">
+                                <li class="category-item pl-14 relative" style="color: var(--theme-colour);">{post.category || 'Health & Wellness'}</li>
+                                <li class="date-item pl-14 relative">
+                                    <a href={post.link} class="date-link" style="color: var(--color-gary);">
+                                        {post.month} {post.date}, {new Date().getFullYear()}
                                     </a>
-                                </h6>
-                                {post.featured && (
-                                    <span class="absolute top-4 left-4 bg-primary text-white px-4 py-2 text-xs font-semibold rounded">Featured</span>
-                                )}
-                            </div>		
-                            <div class="inline mr-16">
-                                <a href={post.link} class="text-gary inline-flex items-center gap-x-7 font-sora max-xxl:text-2sm max-xl:text-sm hover:text-primary duration-500">
-                                    <i>
-                                        <svg class="-translate-y-2" width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <path d="M8.43724 7.49957C8.43724 8.0171 8.01722 8.43713 7.4997 8.43713C6.98218 8.43713 6.56216 8.0171 6.56216 7.49957C6.56216 6.98205 6.98218 6.56202 7.4997 6.56202C8.01722 6.56202 8.43724 6.98205 8.43724 7.49957ZM10.6248 6.56202C10.1073 6.56202 9.68729 6.98205 9.68729 7.49957C9.68729 8.0171 10.1073 8.43713 10.6248 8.43713C11.1423 8.43713 11.5624 8.0171 11.5624 7.49957C11.5624 6.98205 11.1423 6.56202 10.6248 6.56202ZM4.37457 6.56202C3.85705 6.56202 3.43704 6.98205 3.43704 7.49957C3.43704 8.0171 3.85705 8.43713 4.37457 8.43713C4.89209 8.43713 5.31211 8.0171 5.31211 7.49957C5.31211 6.98205 4.89209 6.56202 4.37457 6.56202ZM15 7.71209V11.8748C15 13.598 13.5981 15 11.8749 15H8.1766C3.8008 15 0.293159 12.0048 0.0181476 8.03335C-0.132483 5.86073 0.660048 3.73436 2.19261 2.1999C3.72517 0.665438 5.85151 -0.129607 8.02222 0.0172758C11.9349 0.282916 15 3.66248 15 7.71209ZM13.75 7.71209C13.75 4.31752 11.1973 1.48548 7.93784 1.26422C7.79471 1.25422 7.65158 1.24985 7.50907 1.24985C5.84901 1.24985 4.25332 1.90488 3.07702 3.08307C1.79947 4.3619 1.13882 6.13512 1.26507 7.9471C1.49821 11.3098 4.4052 13.7506 8.17723 13.7506H11.8755C12.9093 13.7506 13.7506 12.9093 13.7506 11.8754V7.71271L13.75 7.71209Z" fill="#646464"/>
-                                        </svg>
-                                    </i>
-                                    By {post.author}
+                                </li>
+                            </ul>
+                            
+                            <!-- Blog Title -->
+                            <h4>
+                                <a href={post.link} class="blog-title font-bold xxl:text-2xl xl:text-xxl text-xl leading-30 capitalize xxl:leading-34 pb-20 block font-sora" style="color: var(--common-colour);">
+                                    {post.title}
                                 </a>
-                            </div>
-                            <div class="mr-0 inline">
-                                <a href={post.link} class="text-gary inline-flex items-center gap-7 font-sora max-xxl:text-2sm max-xl:text-sm hover:text-primary duration-500">
-                                    <i>
-                                        <svg width="11" height="15" viewBox="0 0 11 15" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <path d="M5.5 7.5C6.2252 7.5 6.93411 7.28007 7.53709 6.86801C8.14007 6.45596 8.61004 5.87029 8.88756 5.18507C9.16508 4.49984 9.23769 3.74584 9.09621 3.01841C8.95473 2.29099 8.60552 1.6228 8.09273 1.09835C7.57993 0.573905 6.9266 0.216752 6.21533 0.0720569C5.50407 -0.0726377 4.76682 0.00162483 4.09683 0.285454C3.42683 0.569282 2.85418 1.04993 2.45128 1.66661C2.04838 2.2833 1.83333 3.00832 1.83333 3.75C1.8343 4.74426 2.22092 5.69751 2.90835 6.40056C3.59577 7.1036 4.52784 7.49901 5.5 7.5ZM5.5 1.25C5.98347 1.25 6.45607 1.39662 6.85806 1.67133C7.26005 1.94603 7.57336 2.33648 7.75837 2.79329C7.94339 3.25011 7.9918 3.75278 7.89748 4.23773C7.80316 4.72268 7.57035 5.16814 7.22848 5.51777C6.88662 5.8674 6.45106 6.1055 5.97689 6.20197C5.50271 6.29843 5.01122 6.24892 4.56455 6.0597C4.11789 5.87048 3.73612 5.55005 3.46752 5.13893C3.19892 4.72781 3.05556 4.24446 3.05556 3.75C3.05556 3.08696 3.31309 2.45108 3.77152 1.98224C4.22994 1.51339 4.85169 1.25 5.5 1.25Z" fill="#646464"/>
-                                            <path d="M5.5 8.75C4.04181 8.75165 2.6438 9.34482 1.6127 10.3993C0.5816 11.4539 0.00161752 12.8837 0 14.375C0 14.5408 0.0643847 14.6997 0.17899 14.8169C0.293596 14.9342 0.449034 15 0.611111 15C0.773188 15 0.928626 14.9342 1.04323 14.8169C1.15784 14.6997 1.22222 14.5408 1.22222 14.375C1.22222 13.2147 1.67292 12.1019 2.47515 11.2814C3.27739 10.4609 4.36546 10 5.5 10C6.63454 10 7.72261 10.4609 8.52485 11.2814C9.32708 12.1019 9.77778 13.2147 9.77778 14.375C9.77778 14.5408 9.84216 14.6997 9.95677 14.8169C10.0714 14.9342 10.2268 15 10.3889 15C10.551 15 10.7064 14.9342 10.821 14.8169C10.9356 14.6997 11 14.5408 11 14.375C10.9984 12.8837 10.4184 11.4539 9.3873 10.3993C8.3562 9.34482 6.95819 8.75165 5.5 8.75Z" fill="#646464"/>
-                                        </svg>
-                                    </i>
-                                    {post.comments} Comment{post.comments > 1 ? 's' : ''}
-                                </a>
-                            </div>
-                            <h3 class="xxl:text-2xl xl:text-xxl text-xl leading-34 font-bold pb-20 pt-10 text-secondary font-sora hover:text-primary duration-500">
-                                <a href={post.link}>{post.title}</a>
-                            </h3>
-                            <a href={post.link} class="btn two"><span>Read More<i class="fa-solid fa-arrow-right"></i></span></a>
+                            </h4>
+                            
+                            <!-- Read More Button -->
+                            <a href={post.link} class="read-more-btn inline-flex items-center gap-2 px-30 py-12 font-semibold font-sora transition-all duration-400 rounded-full" style="color: var(--common-colour); border: 1px solid var(--color-lightgary); background: transparent;">
+                                <span>Read More</span>
+                                <i class="fa-solid fa-arrow-right arrow-icon transition-all duration-300"></i>
+                            </a>
                         </div>
                     </div>
                 ))
             ) : (
                 <div class="col-span-12 text-center py-10">
-                    <p class="text-gary text-lg">No blog posts available yet. Check back soon!</p>
+                    <p style="color: var(--color-gary);" class="text-lg">No blog posts available yet. Check back soon!</p>
                 </div>
             )}
         </div>
+
+        <!-- View All Button -->
+        {showViewAll && displayedPosts.length > 0 && (
+            <div class="text-center pt-60">
+                <a href={finalButtonLink} class="view-all-btn inline-flex items-center gap-2 px-30 py-12 font-semibold font-sora transition-all duration-400 rounded-full max-xx:px-30" style="color: var(--common-colour); border: 1px solid var(--color-lightgary); background: transparent;">
+                    <span>View All</span>
+                    <i class="fa-solid fa-arrow-right arrow-icon transition-all duration-300"></i>
+                </a>
+            </div>
+        )}
     </div>
-    <ul class="shaps">
-        <li class="absolute"><img src="/assets/img/shaps-7.png" alt="img" class="animate-fa-spin"></li>
-        <li class="absolute"><img src="/assets/img/shaps-8.png" alt="img" class="animate-fa-spin"></li> 
-    </ul>
 </section>
+
+<style is:global>
+/* ===== BLOG CARD ===== */
+.blog-card {
+    transition: all 0.3s ease;
+    border-radius: 12px;
+}
+
+.blog-card:hover {
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+}
+
+/* ===== IMAGE HOVER ===== */
+.blog-image-wrapper {
+    border-radius: 8px;
+}
+
+.blog-image {
+    transition: all 0.5s ease;
+}
+
+.blog-card:hover .blog-image {
+    transform: scale(1.1) rotate(3deg);
+}
+
+/* ===== BLOG META ===== */
+.blog-meta li {
+    position: relative;
+    font-size: 14px;
+}
+
+.blog-meta li.pl-14 {
+    padding-left: 14px;
+}
+
+.blog-meta li.pl-14::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+}
+
+.blog-meta li:first-child.pl-14::before {
+    background: var(--theme-colour);
+}
+
+.blog-meta li:not(:first-child).pl-14::before {
+    background: var(--color-lightgary);
+}
+
+/* ===== DATE LINK HOVER ===== */
+.date-link {
+    transition: color 0.3s ease;
+}
+
+.date-link:hover {
+    color: var(--theme-colour) !important;
+}
+
+/* ===== BLOG TITLE HOVER ===== */
+.blog-title {
+    transition: color 0.3s ease;
+}
+
+.blog-title:hover {
+    color: var(--theme-colour) !important;
+}
+
+/* ===== READ MORE BUTTON HOVER ===== */
+.read-more-btn {
+    transition: all 0.4s ease;
+}
+
+.read-more-btn:hover {
+    background-color: var(--theme-colour) !important;
+    color: var(--color-white) !important;
+    border-color: var(--theme-colour) !important;
+}
+
+.read-more-btn:hover .arrow-icon {
+    transform: translateX(5px);
+}
+
+/* ===== VIEW ALL BUTTON HOVER ===== */
+.view-all-btn {
+    transition: all 0.4s ease;
+}
+
+.view-all-btn:hover {
+    background-color: var(--theme-colour) !important;
+    color: var(--color-white) !important;
+    border-color: var(--theme-colour) !important;
+}
+
+.view-all-btn:hover .arrow-icon {
+    transform: translateX(5px);
+}
+
+/* ===== CATEGORY BUTTON HOVER ===== */
+.category-btn {
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.category-btn:not(.active):hover {
+    background-color: var(--theme-colour) !important;
+    color: var(--color-white) !important;
+}
+
+/* ===== SEARCH INPUT FOCUS ===== */
+.search-input {
+    transition: all 0.3s ease;
+}
+
+.search-input:focus {
+    border-color: var(--theme-colour) !important;
+    box-shadow: 0 0 0 2px rgba(166, 12, 19, 0.2);
+    outline: none;
+}
+
+/* ===== CONTAINER ===== */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 15px;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 1024px) {
+    .blog-card {
+        padding: 20px;
+    }
+}
+
+@media (max-width: 768px) {
+    .blog-meta {
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+    
+    .blog-meta li {
+        font-size: 13px;
+    }
+}
+
+@media (max-width: 480px) {
+    .blog-card {
+        padding: 16px;
+    }
+    
+    .read-more-btn,
+    .view-all-btn {
+        padding: 10px 20px;
+        font-size: 14px;
+    }
+}
+</style>

@@ -9,43 +9,38 @@ export interface Props {
     subtitle?: string;
     heading?: string;
     description?: string;
-    image1?: any;
-    image2?: any;
-    signatureImage?: any;
-    features?: string[];
-    progressStats?: Array<{
-      percentage: number;
-      label: string;
-    }>;
+    image?: any;
+    plusImage?: any;
+    dotsImage?: any;
+    featuresList?: string[];
   };
+  darkMode?: boolean;
 }
 
-const { fetchFromSanity = true, data: propData } = Astro.props;
+const { fetchFromSanity = true, data: propData, darkMode = false } = Astro.props;
 
 // Default fallback data
 const defaultData = {
-  subtitle: 'About Us',
-  heading: 'Excellence in Healthcare Rooted in Trust.',
-  description: 'For years, we\'ve dedicated ourselves to delivering exceptional medical care with integrity, compassion, and respect. Our commitment to excellence goes beyond treatments—we aim to build lasting relationships with every patient, ensuring they feel supported and empowered throughout their health journey.',
-  image1: null,
-  image2: null,
-  signatureImage: null,
-  features: [
-    'Transforming healthcare experiences through',
-    'Providing care with kindness and understanding',
-    'Striving for the highest standards in every service',
-    'Dedicated to improving public health outcomes'
-  ],
-  progressStats: [
-    { percentage: 85, label: 'Qualified Doctors' },
-    { percentage: 60, label: 'Open Communication' },
+  subtitle: '# Dental About Us',
+  heading: 'Where Your Oral Health Comes First.',
+  description: 'Health is our top priority. We are dedicated to providing personalized, high-quality dental care in a warm and welcoming environment. Whether you need preventive care, restorative treatments, or cosmetic enhancements.',
+  image: null,
+  plusImage: null,
+  dotsImage: null,
+  featuresList: [
+    'Comprehensive Services',
+    'Community Focused',
+    'Modern Technology',
+    'Trusted Legacy',
+    'Commitment to Comfort',
+    'Sustainability in Care'
   ],
 };
 
 let data = defaultData;
-let image1Url = '/assets/img/about-1.jpg';
-let image2Url = '/assets/img/about-2.jpg';
-let signatureUrl = '/assets/img/signature.png';
+let imageUrl = '/assets/img/about-three.png';
+let plusImageUrl = '/assets/img/plus.png';
+let dotsImageUrl = '/assets/img/dots-img.png';
 
 // Fetch from Sanity
 if (fetchFromSanity && !propData) {
@@ -55,45 +50,47 @@ if (fetchFromSanity && !propData) {
         subtitle,
         heading,
         description,
-        image1 {
+        image {
           asset->{
             _id,
             url
           }
         },
-        image2 {
+        plusImage {
           asset->{
             _id,
             url
           }
         },
-        signatureImage {
+        dotsImage {
           asset->{
             _id,
             url
           }
         },
-        features,
-        progressStats
+        featuresList
       }
     }`;
     
     const result = await client.fetch(query);
     
     if (result?.aboutSection) {
+      // Merge with defaults, ensuring featuresList is always an array
+      const sectionData = result.aboutSection;
       data = {
         ...defaultData,
-        ...result.aboutSection,
+        ...sectionData,
+        featuresList: sectionData.featuresList || defaultData.featuresList,
       };
       
-      if (result.aboutSection.image1?.asset?.url) {
-        image1Url = result.aboutSection.image1.asset.url;
+      if (sectionData.image?.asset?.url) {
+        imageUrl = sectionData.image.asset.url;
       }
-      if (result.aboutSection.image2?.asset?.url) {
-        image2Url = result.aboutSection.image2.asset.url;
+      if (sectionData.plusImage?.asset?.url) {
+        plusImageUrl = sectionData.plusImage.asset.url;
       }
-      if (result.aboutSection.signatureImage?.asset?.url) {
-        signatureUrl = result.aboutSection.signatureImage.asset.url;
+      if (sectionData.dotsImage?.asset?.url) {
+        dotsImageUrl = sectionData.dotsImage.asset.url;
       }
     }
   } catch (error) {
@@ -103,173 +100,239 @@ if (fetchFromSanity && !propData) {
   data = {
     ...defaultData,
     ...propData,
+    featuresList: propData.featuresList || defaultData.featuresList,
   };
 }
+
+// Ensure featuresList is always an array
+const featuresList = data.featuresList || defaultData.featuresList;
 
 const {
   subtitle,
   heading,
   description,
-  features = defaultData.features,
-  progressStats = defaultData.progressStats,
 } = data;
+
+// Dark mode classes
+const sectionClasses = darkMode 
+  ? 'xl:pt-[120px] lg:pt-[100px] md:pt-[80px] pt-[60px] xl:pb-[120px] lg:pb-[100px] sm:pb-[80px] pb-[60px] relative section-about-two dark-mode'
+  : 'xl:pt-[120px] lg:pt-[100px] md:pt-[80px] pt-[60px] xl:pb-[120px] lg:pb-[100px] sm:pb-[80px] pb-[60px] relative section-about-two';
 ---
 
-<section class="bg-[#f8f6f5] lg:py-120 md:py-80 py-60">
+<section class={sectionClasses}>
   <div class="container">
-    <!-- Top Section: Image 1 + Content -->
-    <div class="grid grid-cols-12 gap-25 items-center">
+    <div class="grid grid-cols-12 gap-30">
+      <!-- Content Column -->
       <div class="lg:col-span-6 col-span-12">
-        <div class="w-full group rounded-2xl overflow-hidden shadow-[0_30px_70px_-25px_rgba(2,25,53,0.3)]">
-          <figure class="overflow-hidden">
-            <img 
-              src={image1Url} 
-              alt="About us" 
-              class="w-full group-hover:scale-[1.08] duration-500"
-              loading="lazy"
-            />
-          </figure>
+        <div class="pb-50 w-[fit-content]">
+          <span class="pb-6 block font-sora font-semibold capitalize xxl:text-xxl xl:text-xl sm:text-lg leading-40" style="color: var(--theme-colour);">{subtitle}</span>
+          <h2 class="xxl:text-5xl xl:text-4.65xl md:text-3.8xl sm:text-3xl text-2.5xl font-semibold font-sora leading-[1.2]" style="color: var(--common-colour);">{heading}</h2>
+          <p class="mt-25 text-base font-normal xl:leading-30 leading-26" style="color: var(--color-gary);">{description}</p>
         </div>
+        
+        <!-- Features List - 2 columns -->
+        <ul class="list-style w-full flex flex-wrap justify-between relative mb-40 before:content-[''] xl:before:left-[46%] before:left-1/2 before:absolute before:w-px before:h-full before:-translate-1/2 before:top-1/2" style="border-color: var(--color-lightgary);">
+          {featuresList.map((feature, index) => (
+            <li key={index} class="w-[45%] pb-21 font-semibold font-sora pl-20 relative max-xl:text-sm" style="color: var(--common-colour);">
+              {feature}
+            </li>
+          ))}
+        </ul>
+        
+        <a href="/about" class="btn max-xxl:px-30" style="background-color: var(--theme-colour); color: var(--color-white);">
+          <span>More About Us<i class="fa-solid fa-arrow-right"></i></span>
+        </a>
       </div>
+      
+      <!-- Image Column -->
       <div class="lg:col-span-6 col-span-12">
-        <div class="lg:ml-16">
-          <div class="flex items-center gap-10 mb-10">
-            <span class="w-24 h-[2px] bg-primary"></span>
-            <span class="font-montserrat text-[11px] font-bold uppercase tracking-[0.18em] text-primary">{subtitle}</span>
-          </div>
-          <h2 class="xxl:text-4.6xl xl:text-4xl sm:text-3xl text-2.5xl font-semibold text-secondary xl:leading-[1.2] font-sora">{heading}</h2>
-          <p class="text-base leading-28 text-gary font-normal xl:mt-24 mt-18">{description}</p>
+        <div class="relative">
+          <img src={imageUrl} alt="About us" class="relative z-10 w-full rounded-2xl" loading="lazy" />
+          {plusImageUrl && (
+            <img src={plusImageUrl} alt="plus" class="plus absolute max-xxl:w-[60%] max-lg:w-[38%]" />
+          )}
+          {dotsImageUrl && (
+            <img src={dotsImageUrl} alt="dots" class="dots-img animate-fa-spin absolute" />
+          )}
         </div>
-      </div>
-    </div>
-    
-    <!-- Bottom Section: Features + Image 2 + Stats -->
-    <div class="grid grid-cols-12 lg:mt-40 mt-15 gap-25"> 
-      <div class="lg:col-span-5 col-span-12">
-        <div class="max-lg:pb-15">
-          <ul class="pt-40 pb-34">
-            {features.map((feature, index) => (
-              <li key={index} class="pb-21 font-semibold font-sora pl-20 relative text-secondary before:absolute before:size-8 before:bg-primary before:rounded-full before:left-0 before:top-9 max-xl:text-sm">
-                {feature}
-              </li>
-            ))}
-          </ul>
-          <div class="flex items-center">
-            <a href="/about" class="btn two">
-              <span>More About Us<i class="fa-solid fa-arrow-right"></i></span>
-            </a>
-            <img 
-              src={signatureUrl} 
-              alt="Signature" 
-              class="sm:ml-30 ml-20 sm:border-l sm:border-secondary/15 sm:pl-30 py-20 sm:py-10"
-              loading="lazy"
-            />
-          </div>
-        </div>
-      </div>
-      <div class="lg:col-span-4 col-span-12">
-        <div class="w-full group rounded-2xl overflow-hidden shadow-[0_30px_70px_-25px_rgba(2,25,53,0.3)]">
-          <figure class="overflow-hidden">
-            <img 
-              src={image2Url} 
-              alt="About us" 
-              class="w-full group-hover:scale-[1.08] duration-500"
-              loading="lazy"
-            />
-          </figure>
-        </div>
-      </div>
-      <div class="lg:col-span-3 col-span-12 flex justify-center flex-wrap max-lg:gap-30">
-        {progressStats.map((stat, index) => (
-          <div key={index} class="sm:pb-17 lg:flex justify-center flex-wrap">
-            <div class="xl:w-150 progressbar text-center">
-              <div class="circle-wrapper">
-                <svg class="circle-svg" viewBox="0 0 120 120">
-                  <!-- Background ring -->
-                  <circle cx="60" cy="60" r="54" fill="none" stroke="#f1f5f9" stroke-width="8" />
-                  <!-- Progress ring -->
-                  <circle 
-                    class="progress-ring" 
-                    cx="60" 
-                    cy="60" 
-                    r="54" 
-                    fill="none" 
-                    stroke="#e11d48" 
-                    stroke-width="8" 
-                    stroke-linecap="round"
-                    stroke-dasharray="339.292"
-                    stroke-dashoffset="339.292"
-                    data-percent={stat.percentage}
-                  />
-                </svg>
-                <span class="percentage-text">{stat.percentage}%</span>
-              </div>
-            </div>
-            <h2 class="xxl:text-lg sm:text-base text-sm font-semibold capitalize font-sora text-secondary xxl:pt-10">{stat.label}</h2>
-          </div>
-        ))}
       </div>
     </div>
   </div>
 </section>
 
-<style>
-  .circle-wrapper {
-    position: relative;
-    width: 120px;
-    height: 120px;
-    margin: 0 auto;
-    filter: drop-shadow(0 10px 20px rgba(225, 29, 72, 0.15));
-  }
-  
-  .circle-svg {
-    width: 100%;
-    height: 100%;
-    transform: rotate(-90deg);
-  }
-  
-  .progress-ring {
-    transition: stroke-dashoffset 1.5s ease;
-  }
-  
-  .percentage-text {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 26px;
-    font-weight: 700;
-    color: #021935;
-    font-family: 'Sora', sans-serif;
-  }
-  
-  .progressbar {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-</style>
+<style is:global>
+/* About Section */
+.section-about-two {
+  position: relative;
+  background: var(--color-offwhite);
+  transition: background 0.3s ease, padding 0.3s ease;
+}
 
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
-    const rings = document.querySelectorAll('.progress-ring');
-    
-    rings.forEach(ring => {
-      const percent = parseInt(ring.getAttribute('data-percent')) || 0;
-      
-      // Animate on scroll
-      const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            const circumference = 2 * Math.PI * 54; // ~339.292
-            const offset = circumference - (percent / 100) * circumference;
-            ring.style.strokeDashoffset = offset;
-            observer.unobserve(entry.target);
-          }
-        });
-      }, { threshold: 0.3 });
-      
-      observer.observe(ring);
-    });
-  });
-</script>
+/* Dark Mode */
+.section-about-two.dark-mode {
+  background: var(--color-secondary);
+}
+
+.section-about-two.dark-mode .list-style li {
+  color: var(--color-white) !important;
+}
+
+.section-about-two.dark-mode .list-style li::before {
+  background-color: var(--theme-colour);
+}
+
+.section-about-two.dark-mode h2 {
+  color: var(--color-white) !important;
+}
+
+.section-about-two.dark-mode p {
+  color: var(--color-lightgary) !important;
+}
+
+.section-about-two.dark-mode .list-style::before {
+  background-color: var(--color-lightgary) !important;
+}
+
+/* Features List */
+.list-style {
+  position: relative;
+}
+
+.list-style li {
+  position: relative;
+  transition: color 0.3s ease;
+}
+
+.list-style li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 8px;
+  height: 8px;
+  background-color: var(--theme-colour);
+  border-radius: 50%;
+  transition: background-color 0.3s ease;
+}
+
+/* Plus Image Position */
+.plus {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 5;
+  opacity: 0.15;
+  pointer-events: none;
+}
+
+/* Dots Image Position */
+.dots-img {
+  position: absolute;
+  bottom: -20px;
+  right: -20px;
+  z-index: 5;
+  max-width: 80px;
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+/* Animation */
+@keyframes fa-spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-fa-spin {
+  animation: fa-spin 20s linear infinite;
+}
+
+/* Button */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 36px;
+  border-radius: 50px;
+  font-weight: 600;
+  font-family: 'Sora', sans-serif;
+  transition: all 0.4s ease;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.btn:hover {
+  opacity: 0.85;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(166, 12, 19, 0.3);
+}
+
+.btn span i {
+  transition: transform 0.3s ease;
+  margin-left: 8px;
+}
+
+.btn:hover span i {
+  transform: translateX(5px);
+}
+
+.btn.max-xxl\:px-30 {
+  padding-left: 30px;
+  padding-right: 30px;
+}
+
+/* Container */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 15px;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .list-style {
+    gap: 8px 0;
+  }
+  
+  .list-style li {
+    width: 48%;
+    font-size: 14px;
+    padding-bottom: 14px;
+  }
+}
+
+@media (max-width: 768px) {
+  .list-style li {
+    width: 100%;
+    padding-bottom: 12px;
+  }
+  
+  .plus {
+    max-width: 60%;
+  }
+  
+  .dots-img {
+    max-width: 50px;
+    bottom: -10px;
+    right: -10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .list-style li {
+    font-size: 13px;
+    padding-bottom: 10px;
+  }
+  
+  .btn {
+    padding: 12px 24px;
+    font-size: 14px;
+  }
+}
+</style>

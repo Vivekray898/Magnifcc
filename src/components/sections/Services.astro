@@ -126,7 +126,7 @@ if (fetchFromSanity && !propData) {
 const { subtitle, title } = sectionData;
 ---
 
-<section class="bg-[#f8f6f5] lg:pt-100 md:pt-70 pt-50">
+<section class="bg-[#f8f6f5] lg:pt-80 md:pt-60 pb-50 pt-50">
   <div class="container">
     <div class="pb-24 md:pb-32 w-[fit-content]">
       <div class="flex items-center gap-10 mb-8">
@@ -141,9 +141,9 @@ const { subtitle, title } = sectionData;
       <div class="swiper-wrapper">
         {services?.map((service, index) => (
           <div class="swiper-slide group" key={index}>
-            <div class="services-box shadow-[0px_0px_12px_0px_rgba(2,25,53,0.06)] relative p-22 xxl:p-24 m-8 before:w-full before:h-0 before:bg-primary before:absolute before:bottom-0 before:left-0 group-hover:before:h-full before:duration-500">
+            <div class="services-box shadow-[0px_0px_12px_0px_rgba(2,25,53,0.06)] relative p-22 xxl:p-24 m-8 before:w-full before:h-0 before:bg-primary before:absolute before:bottom-0 before:left-0 group-hover:before:h-full before:duration-500 h-full flex flex-col pb-6">
               {/* Icon with gradient background */}
-              <div class="icon-circle size-52 flex items-center justify-center mb-16 relative rounded-full group-hover:bg-white"
+              <div class="icon-circle size-52 flex items-center justify-center mb-16 relative rounded-full group-hover:bg-white flex-shrink-0"
                    style={{
                      background: `linear-gradient(135deg, ${service.iconBgColor || '#F05DA8'}, ${service.iconBgColor || '#F05DA8'}dd)`,
                      boxShadow: `0px 0px 16px 0px ${service.iconShadow || 'rgba(240,93,168,0.4)'}`
@@ -153,15 +153,15 @@ const { subtitle, title } = sectionData;
                 </svg>
               </div>
               
-              <h4 class="font-sora text-secondary font-medium leading-[1.2]">
+              <h4 class="font-sora text-secondary font-medium leading-[1.2] flex-shrink-0">
                 <a href={service.link || 'services-details.html'} class="text-lg xl:text-xl font-bold font-sora relative text-secondary group-hover:text-white duration-500">
                   {service.title}
                 </a>
               </h4>
-              <p class="pt-8 pb-14 relative text-sm leading-22 text-[#6f6f6f] font-normal group-hover:text-white duration-500">
+              <p class="pt-8 pb-14 relative text-sm leading-22 text-[#6f6f6f] font-normal group-hover:text-white duration-500 flex-grow">
                 {service.description}
               </p>
-              <a href={service.link || 'services-details.html'} class="relative text-sm font-bold text-secondary font-sora group-hover:text-white duration-500 inline-flex items-center gap-2">
+              <a href={service.link || 'services-details.html'} class="relative text-sm font-bold text-secondary font-sora group-hover:text-white duration-500 inline-flex items-center gap-2 flex-shrink-0 mt-auto">
                 Read More <i class="fa-solid fa-arrow-right text-xs relative"></i>
               </a>
             </div>
@@ -184,6 +184,9 @@ const { subtitle, title } = sectionData;
     overflow: hidden;
     transition: all 0.4s ease;
     background: white;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
   }
   
   .services-box:hover {
@@ -220,6 +223,16 @@ const { subtitle, title } = sectionData;
     color: #F05DA8 !important;
   }
   
+  /* Ensure all slides are the same height */
+  .swiper-slide {
+    height: auto;
+    display: flex;
+  }
+  
+  .swiper-wrapper {
+    align-items: stretch;
+  }
+  
   /* Swiper button styles */
   .services-swiper-button-next,
   .services-swiper-button-prev {
@@ -250,15 +263,6 @@ const { subtitle, title } = sectionData;
     justify-content: center;
     gap: 14px;
     margin-top: 22px;
-  }
-  
-  /* Ensure swiper works */
-  .swiper-slide {
-    height: auto;
-  }
-  
-  .swiper-wrapper {
-    align-items: stretch;
   }
 </style>
 

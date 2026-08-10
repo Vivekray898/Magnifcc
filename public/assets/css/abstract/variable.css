@@ -1,18 +1,16 @@
 :root {
-  --common-colour: #021935;   /* Deep executive navy for headings & footers */
-  --theme-colour: #e11d48;    /* Deep Rose / Pink - Main brand color */
-  --color-gary: #646464;      /* Muted gray for body text */
-  --color-lightgary: #f1f5f9; /* Clean light slate gray for card backgrounds */
-  --color-yellow: #ffa808;    /* For rating stars or highlight badges */
-  --color-pink-light: #ffe4e6; /* Soft pink tint for light card highlights */
-  --color-offwhite: #f8f6f5;  /* Warm off-white for backgrounds */
-  --color-white: #ffffff;
-}
+  /* Brand Colors Extracted from Logo */
+  --theme-colour: #a60c13;      /* Rich Deep Crimson Red (from Logo mark & title) */
+  --theme-colour-hover: #88080d;/* Darker red variant for hover states */
+  --color-pink-light: #fbebee;  /* Very soft crimson tint for light card highlights (replaces soft pink) */
 
-body {
-  background-color: var(--color-offwhite);
-  font-family: 'Urbanist', sans-serif;
-  font-size: 16px;
-  font-weight: 400;
-  color: var(--common-colour);
+  /* Neutral Tones Extracted from Logo */
+  --common-colour: #1a1a1a;     /* Dark charcoal/black for primary text & headings */
+  --color-gary: #4a4a4a;        /* Deep neutral gray (from "HEALTHCARE SOLUTIONS") */
+  --color-lightgary: #e8e6e1;   /* Soft warm gray accent (from the leaf element) */
+  --color-offwhite: #f7f5f0;    /* Warm beige/off-white background (from logo canvas) */
+  
+  /* Accent & Utility Colors */
+  --color-yellow: #ffa808;      /* For rating stars or highlight badges */
+  --color-white: #ffffff;
 }

@@ -15,53 +15,48 @@ export const aboutSection = defineField({
     collapsed: false,
   },
   fields: [
-    subtitleField({ title: 'Subtitle', initialValue: '# About Us' }),
-    // Make sure this is 'heading' - NOT 'title'
+    subtitleField({ 
+      title: 'Subtitle', 
+      initialValue: '# Dental About Us' 
+    }),
     defineField({
-      name: 'heading',  // ← This should be 'heading'
+      name: 'heading',
       title: 'Main Heading',
       type: 'string',
-      initialValue: 'Excellence in Healthcare Rooted in Trust.',
+      initialValue: 'Where Your Oral Health Comes First.',
     }),
     descriptionField({ 
       title: 'Description', 
-      initialValue: 'For years, we\'ve dedicated ourselves to delivering exceptional medical care with integrity, compassion, and respect.' 
+      initialValue: 'Health is our top priority. We are dedicated to providing personalized, high-quality dental care in a warm and welcoming environment. Whether you need preventive care, restorative treatments, or cosmetic enhancements.' 
     }),
-    imageField({ name: 'image1', title: 'First Image' }),
-    imageField({ name: 'image2', title: 'Second Image' }),
+    imageField({ 
+      name: 'image', 
+      title: 'Main Image' 
+    }),
     defineField({
-      name: 'signatureImage',
-      title: 'Signature Image',
+      name: 'plusImage',
+      title: 'Plus Decoration Image',
       type: 'image',
+      description: 'A decorative plus/cross image that appears centered over the main image',
     }),
     defineField({
-      name: 'features',
+      name: 'dotsImage',
+      title: 'Dots Decoration Image',
+      type: 'image',
+      description: 'A decorative dots image that appears in the bottom-right corner',
+    }),
+    defineField({
+      name: 'featuresList',
       title: 'Features List',
       type: 'array',
       of: [{ type: 'string' }],
       initialValue: [
-        'Transforming healthcare experiences through',
-        'Providing care with kindness and understanding',
-        'Striving for the highest standards in every service',
-        'Dedicated to improving public health outcomes'
-      ],
-    }),
-    defineField({
-      name: 'progressStats',
-      title: 'Progress Stats',
-      type: 'array',
-      of: [
-        {
-          type: 'object',
-          fields: [
-            { name: 'percentage', title: 'Percentage', type: 'number', validation: Rule => Rule.min(0).max(100) },
-            { name: 'label', title: 'Label', type: 'string' },
-          ],
-        },
-      ],
-      initialValue: [
-        { percentage: 85, label: 'Qualified Doctors' },
-        { percentage: 60, label: 'Open Communication' },
+        'Comprehensive Services',
+        'Community Focused',
+        'Modern Technology',
+        'Trusted Legacy',
+        'Commitment to Comfort',
+        'Sustainability in Care'
       ],
     }),
   ],
