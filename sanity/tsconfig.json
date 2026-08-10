@@ -12,6 +12,6 @@
     "jsx": "preserve",
     "incremental": true
   },
-  "include": ["**/*.ts", "**/*.tsx"],
+  "include": ["**/*.ts", "**/*.tsx", "../src/components/sections/faq-tabs.tsx", "../src/components/sections/faqSection-1.ts", "../src/components/sections/demo.tsx"],
   "exclude": ["node_modules"]
 }

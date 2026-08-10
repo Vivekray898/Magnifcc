@@ -9,6 +9,8 @@ import { whyChooseUsSection } from '../shared/sections/whyChooseUsSection';
 // import { pricingSection } from '../shared/sections/pricingSection';
 // import { testimonialsSection } from '../shared/sections/testimonialsSection';
 // import { brandLogosSection } from '../shared/sections/brandLogosSection';
+import { faqSection } from '../shared/sections/faqSection'; // Import the new FAQ section
+
 import { blogSection } from '../shared/sections/blogSection';
 
 export default defineType({
@@ -32,6 +34,7 @@ export default defineType({
     marqueeSection,
     portfolioSection,
     whyChooseUsSection,
+    faqSection,              // Add the FAQ section
     // pricingSection,        // Commented out for now
     // testimonialsSection,   // Commented out for now
     // brandLogosSection,     // Commented out for now

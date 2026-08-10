@@ -1,0 +1,329 @@
+---
+// src/components/sections/FAQ.astro
+
+import { client } from '../../lib/sanity';
+
+export interface Props {
+  fetchFromSanity?: boolean;
+  darkMode?: boolean;
+}
+
+const { fetchFromSanity = true, darkMode = false } = Astro.props;
+
+const defaultTitle = 'Frequently Asked Questions';
+const defaultSubtitle = 'FAQ';
+const defaultDescription = 'Have questions? We\'ve got answers. If you can\'t find what you\'re looking for, feel free to contact us.';
+
+const defaultRows = [
+  {
+    id: 'row1',
+    speed: '60s',
+    direction: 'left',
+    items: [
+      { id: 1, question: 'What medical services do you offer?', answer: 'We offer a comprehensive range of medical services including mental health, preventive care, surgical care, dental checkups, and more.' },
+      { id: 2, question: 'How can I book an appointment?', answer: 'You can book an appointment through our online booking system, by calling our reception desk, or by visiting our medical center in person.' },
+      { id: 3, question: 'Do you accept insurance?', answer: 'Yes, we work with most major insurance providers. Please contact our billing department to verify your coverage.' },
+      { id: 4, question: 'What are your operating hours?', answer: 'Our medical center is open Monday through Friday from 8:00 AM to 8:00 PM, Saturday from 9:00 AM to 6:00 PM.' }
+    ]
+  },
+  {
+    id: 'row2',
+    speed: '45s',
+    direction: 'right',
+    items: [
+      { id: 5, question: 'Do you offer telehealth services?', answer: 'Yes, we offer telehealth consultations for many of our services. Contact us to schedule a virtual appointment.' },
+      { id: 6, question: 'What should I bring to my first appointment?', answer: 'Please bring your insurance card, photo ID, any relevant medical records, and a list of current medications.' },
+      { id: 7, question: 'Do you have emergency services?', answer: 'Yes, we offer 24/7 emergency services. For life-threatening emergencies, please call 911 immediately.' },
+      { id: 8, question: 'How do I get my test results?', answer: 'You can access your test results through our patient portal or by contacting our office directly.' }
+    ]
+  },
+  {
+    id: 'row3',
+    speed: '70s',
+    direction: 'left',
+    items: [
+      { id: 9, question: 'Do you offer payment plans?', answer: 'Yes, we offer flexible payment plans and financial assistance programs. Contact our billing department for details.' },
+      { id: 10, question: 'Can I switch doctors?', answer: 'Yes, you can request to switch doctors at any time. Our patient care team will assist you with the transition.' },
+      { id: 11, question: 'Do you provide translation services?', answer: 'Yes, we offer translation services for patients who prefer to communicate in languages other than English.' },
+      { id: 12, question: 'What if I need a specialist?', answer: 'We have a network of trusted specialists and can provide referrals when specialized care is needed.' }
+    ]
+  }
+];
+
+let title = defaultTitle;
+let subtitle = defaultSubtitle;
+let description = defaultDescription;
+let faqRows = defaultRows;
+let numberOfRows = 3; 
+
+if (fetchFromSanity) {
+  try {
+    const query = `*[_type == "homePage"][0]{
+      faqSection {
+        subtitle, title, description, numberOfRows,
+        rows[] { id, speed, direction, items[] { question, answer } }
+      }
+    }`;
+    
+    const result = await client.fetch(query);
+    
+    if (result?.faqSection) {
+      if (result.faqSection.subtitle) subtitle = result.faqSection.subtitle;
+      if (result.faqSection.title) title = result.faqSection.title;
+      if (result.faqSection.description) description = result.faqSection.description;
+      if (result.faqSection.numberOfRows) numberOfRows = result.faqSection.numberOfRows;
+      
+      if (result.faqSection.rows?.length > 0) {
+        const limitedRows = result.faqSection.rows.slice(0, numberOfRows);
+        faqRows = limitedRows.map((row: any, rowIndex: number) => ({
+          id: row.id || `row${rowIndex + 1}`,
+          speed: row.speed || '60s',
+          direction: row.direction || 'left',
+          items: row.items?.map((item: any, itemIndex: number) => ({
+            id: itemIndex + 1,
+            question: item.question || 'Question',
+            answer: item.answer || 'Answer',
+          })) || []
+        }));
+      }
+    }
+  } catch (error) {
+    console.error('Error fetching FAQ data:', error);
+  }
+}
+
+const sectionClasses = darkMode ? 'section-faq-scroll dark-mode' : 'section-faq-scroll';
+---
+
+<section class={sectionClasses}>
+  <div class="container">
+    <!-- Section Header -->
+    <div class="text-center max-w-3xl mx-auto mb-16">
+      <div class="flex items-center justify-center gap-4 mb-6">
+        <span class="w-12 h-[2px] bg-primary"></span>
+        <span class="font-montserrat text-xs font-bold uppercase tracking-[0.2em] text-primary">{subtitle}</span>
+        <span class="w-12 h-[2px] bg-primary"></span>
+      </div>
+      
+      <h2 class="text-3xl md:text-4xl lg:text-5xl font-bold text-secondary font-sora leading-tight mb-6">
+        {title}
+      </h2>
+      
+      {description && (
+        <p class="text-base md:text-lg leading-relaxed text-gray-500 font-normal max-w-2xl mx-auto">{description}</p>
+      )}
+    </div>
+
+    <!-- Horizontal Scrolling FAQ Rows -->
+    <div class="flex flex-col gap-8 md:gap-10">
+      {faqRows.map((row) => (
+        <div class="scroller-wrapper" key={row.id}>
+          <div class="scroller-mask">
+            <div 
+              class={`scroller-track ${row.direction === 'right' ? 'animate-right' : 'animate-left'}`}
+              style={{ '--scroll-duration': row.speed }}
+            >
+              {/* First set */}
+              <div class="scroller-content">
+                {row.items.map((item) => (
+                  <div class="faq-card" key={item.id}>
+                    <div class="faq-card-inner">
+                      <div class="faq-number">{String(item.id).padStart(2, '0')}</div>
+                      <h3 class="faq-question">{item.question}</h3>
+                      <p class="faq-answer">{item.answer}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              
+              {/* Duplicate for seamless loop */}
+              <div class="scroller-content" aria-hidden="true">
+                {row.items.map((item) => (
+                  <div class="faq-card" key={`dup-${item.id}`}>
+                    <div class="faq-card-inner">
+                      <div class="faq-number">{String(item.id).padStart(2, '0')}</div>
+                      <h3 class="faq-question">{item.question}</h3>
+                      <p class="faq-answer">{item.answer}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+
+    {/* CTA Section */}
+    <div class="text-center mt-16 md:mt-20">
+      <div class="inline-flex items-center gap-3 text-gray-500 text-sm">
+        <span>Still have questions?</span>
+        <span class="w-8 h-[1px] bg-primary/30"></span>
+        <a href="/contact" class="group text-primary font-semibold hover:text-secondary transition-colors duration-300 inline-flex items-center gap-2">
+          Contact us
+          <svg class="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+          </svg>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style is:global>
+/* ===== FAQ SCROLLING SECTION ===== */
+.section-faq-scroll {
+  position: relative;
+  background: var(--color-offwhite, #f8f6f5);
+  padding: 80px 0;
+  overflow: hidden;
+  transition: background 0.3s ease;
+}
+
+/* Dark Mode */
+.section-faq-scroll.dark-mode { background: var(--color-secondary, #021935); }
+.section-faq-scroll.dark-mode h2 { color: var(--color-white) !important; }
+.section-faq-scroll.dark-mode .faq-card { background: rgba(255, 255, 255, 0.05) !important; border-color: rgba(255, 255, 255, 0.08) !important; }
+.section-faq-scroll.dark-mode .faq-card .faq-question { color: var(--color-white) !important; }
+.section-faq-scroll.dark-mode .faq-card .faq-answer { color: var(--color-lightgary, #cbd5e1) !important; }
+.section-faq-scroll.dark-mode .faq-card .faq-number { background: rgba(255, 255, 255, 0.08) !important; color: var(--color-primary) !important; }
+
+/* Scroller Wrapper */
+.scroller-wrapper { width: 100%; overflow: hidden; }
+.scroller-mask {
+  width: 100%;
+  overflow: hidden;
+  mask-image: linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%);
+}
+
+.scroller-track {
+  display: flex;
+  gap: 0;
+  width: max-content;
+  align-items: stretch; /* Both duplicated sets share the same height */
+  animation: scroll var(--scroll-duration) linear infinite;
+}
+.scroller-track.animate-left { animation-direction: normal; }
+.scroller-track.animate-right { animation-direction: reverse; }
+
+.scroller-content {
+  display: flex;
+  gap: 24px;
+  padding: 0 12px;
+  flex-shrink: 0;
+  align-items: stretch; /* KEY FIX: every card in a row stretches to match the tallest card */
+}
+
+/* FAQ Card */
+.faq-card {
+  width: 380px;
+  min-height: 240px;
+  flex-shrink: 0;
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+  transition: all 0.3s ease;
+  display: flex;
+}
+
+.faq-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 50px rgba(240, 93, 168, 0.12);
+  border-color: rgba(240, 93, 168, 0.2);
+}
+
+.faq-card-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  flex: 1;
+}
+
+.faq-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(240, 93, 168, 0.08);
+  color: var(--color-primary, #F05DA8);
+  font-size: 12px;
+  font-weight: 700;
+  font-family: 'Sora', sans-serif;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+
+.faq-card:hover .faq-number {
+  background: var(--color-primary, #F05DA8);
+  color: white;
+}
+
+/* FULL TEXT - no clamping, no cutting */
+.faq-question {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--color-secondary, #021935);
+  font-family: 'Sora', sans-serif;
+  line-height: 1.4;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.faq-answer {
+  font-size: 14px;
+  line-height: 1.6;
+  color: #6f6f6f;
+  font-weight: 400;
+  margin: 0;
+  flex: 1; /* Fills remaining space so card bottoms align */
+  overflow-wrap: anywhere; /* Keeps long emails/URLs inside the card */
+}
+
+/* Animations */
+@keyframes scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .section-faq-scroll { padding: 60px 0; }
+  .faq-card { width: 300px; min-height: 220px; padding: 20px; }
+  .faq-question { font-size: 16px; }
+  .faq-answer { font-size: 13px; }
+}
+
+@media (max-width: 480px) {
+  .section-faq-scroll { padding: 40px 0; }
+  .faq-card { width: 280px; min-height: 210px; padding: 16px; }
+  .faq-question { font-size: 15px; }
+  .faq-answer { font-size: 12px; }
+  
+  .scroller-mask {
+    mask-image: linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%);
+  }
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 15px;
+}
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const scrollers = document.querySelectorAll('.scroller-track');
+    scrollers.forEach((scroller) => {
+      const wrapper = scroller.closest('.scroller-wrapper');
+      wrapper.addEventListener('mouseenter', () => scroller.style.animationPlayState = 'paused');
+      wrapper.addEventListener('mouseleave', () => scroller.style.animationPlayState = 'running');
+    });
+  });
+</script>

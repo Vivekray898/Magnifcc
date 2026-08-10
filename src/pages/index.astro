@@ -8,13 +8,15 @@ import HeroBanner from '../components/sections/HeroBanner.astro';
 import About from '../components/sections/About.astro';
 import Services from '../components/sections/Services.astro';
 import Portfolio from '../components/sections/Portfolio.astro';
-
 import WhyChooseUs from '../components/sections/WhyChooseUs.astro';
+import FAQ from '../components/sections/FAQ.astro'; // Import FAQ component
 // import Pricing from '../components/sections/Pricing.astro';
 // import Testimonials from '../components/sections/Testimonials.astro';
 import Blog from '../components/sections/Blog.astro';
 import Marquee from '../components/sections/Marquee.astro';
-import BrandLogos from '../components/sections/BrandLogos.astro';
+// import BrandLogos from '../components/sections/BrandLogos.astro';
+
+
 ---
 
 <Layout title="Home" fetchFromSanity={true}>
@@ -36,12 +38,14 @@ import BrandLogos from '../components/sections/BrandLogos.astro';
     <!-- Portfolio Section -->
     <Portfolio fetchFromSanity={true} />
     
-
     <!-- Why Choose Us Section -->
     <WhyChooseUs fetchFromSanity={true} />
     
     <!-- Brand Logos Section -->
     <!--  <BrandLogos fetchFromSanity={true} class="my-10" /> -->
+    
+    <!-- FAQ Section -->
+    <FAQ fetchFromSanity={true} />
     
     <!-- Blog Section -->
     <Blog fetchFromSanity={true} />

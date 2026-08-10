@@ -1,0 +1,308 @@
+---
+// src/components/sections/FAQ.astro
+
+import { client } from '../../lib/sanity';
+
+export interface Props {
+  fetchFromSanity?: boolean;
+  darkMode?: boolean;
+}
+
+const { fetchFromSanity = true, darkMode = false } = Astro.props;
+
+const defaultTitle = 'Frequently Asked Questions';
+const defaultSubtitle = 'FAQ';
+const defaultDescription = "Have questions? We've got answers. If you can't find what you're looking for, feel free to contact us.";
+
+const defaultItems = [
+  { id: 1, question: 'What medical services do you offer?', answer: 'We offer a comprehensive range of medical services including mental health, preventive care, surgical care, dental checkups, and more.' },
+  { id: 2, question: 'How can I book an appointment?', answer: 'You can book an appointment through our online booking system, by calling our reception desk, or by visiting our medical center in person.' },
+  { id: 3, question: 'Do you accept insurance?', answer: 'Yes, we work with most major insurance providers. Please contact our billing department to verify your coverage.' },
+  { id: 4, question: 'What are your operating hours?', answer: 'Our medical center is open Monday through Friday from 8:00 AM to 8:00 PM, Saturday from 9:00 AM to 6:00 PM.' },
+  { id: 5, question: 'Do you offer telehealth services?', answer: 'Yes, we offer telehealth consultations for many of our services. Contact us to schedule a virtual appointment.' },
+  { id: 6, question: 'What should I bring to my first appointment?', answer: 'Please bring your insurance card, photo ID, any relevant medical records, and a list of current medications.' }
+];
+
+let title = defaultTitle;
+let subtitle = defaultSubtitle;
+let description = defaultDescription;
+let faqItems = defaultItems;
+
+if (fetchFromSanity) {
+  try {
+    // Updated GROQ query to match the simplified schema
+    const query = `*[_type == "homePage"][0]{
+      faqSection {
+        subtitle,
+        title,
+        description,
+        items[] { question, answer }
+      }
+    }`;
+
+    const result = await client.fetch(query);
+
+    if (result?.faqSection) {
+      if (result.faqSection.subtitle) subtitle = result.faqSection.subtitle;
+      if (result.faqSection.title) title = result.faqSection.title;
+      if (result.faqSection.description) description = result.faqSection.description;
+
+      // Directly map the new flat 'items' array
+      if (result.faqSection.items?.length > 0) {
+        faqItems = result.faqSection.items.map((item: any, index: number) => ({
+          id: index + 1,
+          question: item.question || 'Question',
+          answer: item.answer || 'Answer',
+        }));
+      }
+    }
+  } catch (error) {
+    console.error('Error fetching FAQ data:', error);
+  }
+}
+
+const sectionClasses = darkMode ? 'section-faq dark-mode' : 'section-faq';
+---
+
+<section class={sectionClasses}>
+  <div class="container">
+    <!-- Section Header -->
+    <div class="text-center max-w-3xl mx-auto mb-12 md:mb-16">
+      <div class="flex items-center justify-center gap-4 mb-6">
+        <span class="w-12 h-[2px] bg-primary"></span>
+        <span class="font-montserrat text-xs font-bold uppercase tracking-[0.2em] text-primary">{subtitle}</span>
+        <span class="w-12 h-[2px] bg-primary"></span>
+      </div>
+      <h2 class="text-3xl md:text-4xl lg:text-5xl font-bold text-secondary font-sora leading-tight mb-6">{title}</h2>
+      {description && (
+        <p class="text-base md:text-lg leading-relaxed text-gray-500 max-w-2xl mx-auto">{description}</p>
+      )}
+    </div>
+
+    <!-- Accordion -->
+    <div class="faq-list">
+      {faqItems.map((item, index) => (
+        <div class={`faq-item ${index === 0 ? 'open' : ''}`} key={item.id}>
+          <button
+            class="faq-trigger"
+            id={`faq-trigger-${item.id}`}
+            aria-expanded={index === 0 ? 'true' : 'false'}
+            aria-controls={`faq-panel-${item.id}`}
+          >
+            <span class="faq-question">{item.question}</span>
+            <span class="faq-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
+              </svg>
+            </span>
+          </button>
+
+          <div
+            class="faq-panel"
+            id={`faq-panel-${item.id}`}
+            role="region"
+            aria-labelledby={`faq-trigger-${item.id}`}
+          >
+            <div class="faq-panel-inner">
+              <p>{item.answer}</p>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+
+    {/* CTA */}
+    <div class="text-center mt-12 md:mt-16">
+      <div class="inline-flex items-center gap-3 text-gray-500 text-sm">
+        <span>Still have questions?</span>
+        <span class="w-8 h-[1px] bg-primary/30"></span>
+        <a href="/contact" class="group text-primary font-semibold hover:text-secondary transition-colors duration-300 inline-flex items-center gap-2">
+          Contact us
+          <svg class="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+          </svg>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style is:global>
+/* ===== FAQ SECTION ===== */
+.section-faq {
+  background: var(--color-offwhite, #f8f6f5);
+  padding: 80px 0;
+  transition: background 0.3s ease;
+}
+
+.faq-list {
+  max-width: 800px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Item Card */
+.faq-item {
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  border-radius: 14px;
+  overflow: hidden;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.faq-item.open {
+  border-color: rgba(240, 93, 168, 0.35);
+  box-shadow: 0 10px 30px rgba(240, 93, 168, 0.08);
+}
+
+/* Trigger */
+.faq-trigger {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 20px 24px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+}
+
+.faq-trigger:focus-visible {
+  outline: 2px solid var(--color-primary, #F05DA8);
+  outline-offset: -2px;
+  border-radius: 14px;
+}
+
+.faq-question {
+  font-family: 'Sora', sans-serif;
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--color-secondary, #021935);
+  line-height: 1.4;
+  transition: color 0.3s ease;
+}
+
+.faq-trigger:hover .faq-question {
+  color: var(--color-primary, #F05DA8);
+}
+
+/* Plus Icon */
+.faq-icon {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(240, 93, 168, 0.1);
+  color: var(--color-primary, #F05DA8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.35s ease;
+}
+
+.faq-icon svg {
+  width: 16px;
+  height: 16px;
+  transition: transform 0.35s ease;
+}
+
+.faq-item.open .faq-icon {
+  background: var(--color-primary, #F05DA8);
+  color: #ffffff;
+}
+
+.faq-item.open .faq-icon svg {
+  transform: rotate(45deg);
+}
+
+/* Panel — smooth open AND close via CSS grid trick */
+.faq-panel {
+  display: grid;
+  grid-template-rows: 0fr;
+  visibility: hidden;
+  transition: grid-template-rows 0.4s ease, visibility 0.4s;
+}
+
+.faq-item.open .faq-panel {
+  grid-template-rows: 1fr;
+  visibility: visible;
+}
+
+.faq-panel-inner {
+  overflow: hidden;
+}
+
+.faq-panel-inner p {
+  margin: 0 24px;
+  padding: 16px 0 22px;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+  font-size: 15px;
+  line-height: 1.7;
+  color: #6f6f6f;
+}
+
+/* ===== DARK MODE ===== */
+.section-faq.dark-mode { background: var(--color-secondary, #021935); }
+.section-faq.dark-mode h2 { color: var(--color-white) !important; }
+.section-faq.dark-mode .faq-item { background: rgba(255, 255, 255, 0.05); border-color: rgba(255, 255, 255, 0.08); }
+.section-faq.dark-mode .faq-item.open { border-color: rgba(240, 93, 168, 0.5); }
+.section-faq.dark-mode .faq-question { color: var(--color-white); }
+.section-faq.dark-mode .faq-icon { background: rgba(255, 255, 255, 0.1); }
+.section-faq.dark-mode .faq-item.open .faq-icon { background: var(--color-primary, #F05DA8); color: #fff; }
+.section-faq.dark-mode .faq-panel-inner p {
+  color: var(--color-lightgary, #cbd5e1);
+  border-top-color: rgba(255, 255, 255, 0.08);
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  .section-faq { padding: 60px 0; }
+  .faq-trigger { padding: 16px 20px; }
+  .faq-question { font-size: 15px; }
+  .faq-panel-inner p { margin: 0 20px; font-size: 14px; }
+}
+
+@media (max-width: 480px) {
+  .section-faq { padding: 40px 0; }
+  .faq-trigger { padding: 14px 16px; }
+  .faq-question { font-size: 14px; }
+  .faq-icon { width: 28px; height: 28px; }
+  .faq-panel-inner p { margin: 0 16px; font-size: 13px; }
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 15px;
+}
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const items = Array.from(document.querySelectorAll('.faq-item'));
+
+    items.forEach((item) => {
+      const trigger = item.querySelector('.faq-trigger');
+      if (!trigger) return;
+
+      trigger.addEventListener('click', () => {
+        const isOpen = item.classList.contains('open');
+
+        // Single-open accordion: close everything else
+        items.forEach((other) => {
+          if (other !== item) {
+            other.classList.remove('open');
+            other.querySelector('.faq-trigger')?.setAttribute('aria-expanded', 'false');
+          }
+        });
+
+        item.classList.toggle('open', !isOpen);
+        trigger.setAttribute('aria-expanded', String(!isOpen));
+      });
+    });
+  });
+</script>
