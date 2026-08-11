@@ -2,6 +2,8 @@
 // src/components/common/Footer.astro
 import { getFooter } from '../../lib/queries';
 import { imageUrlFor } from '../../lib/sanity-image';
+import FloatingWhatsApp from './FloatingWhatsApp.astro'; // Import the component
+
 
 export interface Props {
   fetchFromSanity?: boolean;
@@ -128,7 +130,23 @@ if (fetchFromSanity) {
 
 const { newsletter, aboutColumn, linkColumn1, linkColumn2, contactColumn, copyright, instagram } = data;
 const currentYear = new Date().getFullYear();
+
+
+// Get WhatsApp number from Sanity or use default
+const whatsappNumber = data.whatsappNumber || '+917047145306';
+const whatsappMessage = data.whatsappMessage || 'Hello! I have a question about your services.';
 ---
+
+{/* Floating WhatsApp Button with offset for scroll-to-top */}
+<FloatingWhatsApp 
+  phoneNumber={whatsappNumber}
+  message={whatsappMessage}
+  position="bottom-right"
+  size="medium"
+  showTooltip={true}
+  tooltipText="Chat with us on WhatsApp"
+  bottomOffset={90} // Adjust this value based on your scroll-to-top button size
+/>
 
 <footer class="footer-light lg:py-120 md:py-80 py-60 relative overflow-hidden">
   <div class="container relative z-10">
