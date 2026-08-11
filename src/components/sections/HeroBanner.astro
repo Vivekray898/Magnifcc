@@ -1,6 +1,5 @@
 ---
 // src/components/sections/HeroBanner.astro
-
 import { client } from '../../lib/sanity';
 
 export interface Props {
@@ -17,6 +16,12 @@ const defaultData = {
   description: 'We are dedicated to putting your health at the forefront of everything we do. Our compassionate team of healthcare.',
   ctaText: 'Read More',
   ctaLink: '/about',
+  features: [
+    { icon: 'fa-solid fa-circle-check', label: 'End-to-End Solution' },
+    { icon: 'fa-solid fa-user-doctor', label: 'Expert Consultants' },
+    { icon: 'fa-solid fa-clock', label: 'Timely Delivery' },
+    { icon: 'fa-solid fa-shield-halved', label: 'Quality Assurance' },
+  ],
   stats: [
     { number: '500', suffix: '+', label: 'Patients Served' },
     { number: '2', suffix: 'M+', label: 'Reports Delivered' },
@@ -41,6 +46,24 @@ const getYouTubeVideoId = (url: string) => {
   return (match && match[2].length === 11) ? match[2] : null;
 };
 
+// Helper function to highlight text in heading
+const highlightHeadingText = (heading: string, highlightedText: string) => {
+  if (!highlightedText || !heading) return heading;
+  
+  // Create a regex to find the highlighted word (case insensitive)
+  const regex = new RegExp(`(${highlightedText})`, 'gi');
+  
+  // Replace the highlighted word with the styled span
+  return heading.replace(regex, (match) => {
+    return `<span class="relative inline-block text-primary highlighted-text-wrapper">
+      ${match}
+      <svg class="absolute left-0 -bottom-4 w-full" height="10" viewBox="0 0 120 10" preserveAspectRatio="none" fill="none">
+        <path d="M2 6 C 20 2, 40 8, 60 5 C 80 2, 100 8, 118 4" stroke="var(--theme-colour)" stroke-width="2.5" stroke-linecap="round" fill="none" opacity="0.55"/>
+      </svg>
+    </span>`;
+  });
+};
+
 // Fetch from Sanity
 if (fetchFromSanity) {
   try {
@@ -50,6 +73,10 @@ if (fetchFromSanity) {
         heading,
         highlightedText,
         description,
+        features[] {
+          icon,
+          label
+        },
         cta {
           text,
           link
@@ -72,6 +99,7 @@ if (fetchFromSanity) {
         ...result.heroBanner,
         ctaText: result.heroBanner.cta?.text || defaultData.ctaText,
         ctaLink: result.heroBanner.cta?.link || defaultData.ctaLink,
+        features: result.heroBanner.features?.length ? result.heroBanner.features : defaultData.features,
         teamStats: {
           ...defaultData.teamStats,
           ...result.heroBanner.teamStats,
@@ -94,9 +122,13 @@ const {
   description,
   ctaText,
   ctaLink,
+  features = defaultData.features,
   stats = defaultData.stats,
   teamStats = defaultData.teamStats,
 } = data;
+
+// Generate the highlighted heading HTML
+const highlightedHeading = highlightHeadingText(heading, highlightedText);
 
 // Helper to extract numeric value
 const getNumericValue = (value: string) => {
@@ -196,20 +228,27 @@ const bandStats = [
                     </span>
                 </div>
 
-                <h1 class="text-3xl sm:text-4xl md:text-4.6xl xl:text-5.2xl font-bold font-sora text-secondary leading-[1.18] tracking-tight">
-                    Your 
-                    <span class="relative inline-block text-primary highlighted-text-wrapper">
-                        {highlightedText}
-                        <svg class="absolute left-0 -bottom-4 w-full" height="10" viewBox="0 0 120 10" preserveAspectRatio="none" fill="none">
-                            <path d="M2 6 C 20 2, 40 8, 60 5 C 80 2, 100 8, 118 4" stroke="var(--theme-colour)" stroke-width="2.5" stroke-linecap="round" fill="none" opacity="0.55"/>
-                        </svg>
-                    </span> 
-                    Our Priority
+                <h1 class="text-3xl sm:text-4xl md:text-4.6xl xl:text-5.2xl font-bold font-sora text-secondary leading-[1.18] tracking-tight" set:html={highlightedHeading}>
                 </h1>
 
                 <p class="text-base leading-27 text-gary font-normal max-w-[46ch] pt-4">
                     {description}
                 </p>
+
+                <!-- ===== FEATURE POINT CHIPS ===== -->
+                {features && features.length > 0 && (
+                  <div class="pt-10">
+                    <span class="block w-40 h-[3px] rounded-full bg-primary/70 mb-14 sm:mb-18"></span>
+                    <div class="feature-chips">
+                      {features.map((feature: any) => (
+                        <div class="feature-chip">
+                          <i class={feature.icon || 'fa-solid fa-circle-check'}></i>
+                          <span>{feature.label}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
                 <div class="flex items-center gap-24 flex-wrap pt-14">
                     <a href={ctaLink} class="hero-cta inline-flex items-center gap-10 bg-primary text-white font-semibold text-sm px-28 py-15 rounded-lg">
@@ -274,7 +313,7 @@ document.addEventListener('DOMContentLoaded', function() {
         position: relative;
         z-index: 10;
         margin-top: 0;
-        padding-top: 120px; /* Default padding for desktop */
+        padding-top: 120px;
         box-shadow: 0 10px 40px -10px rgba(2, 25, 53, 0.08);
     }
     
@@ -301,9 +340,16 @@ document.addEventListener('DOMContentLoaded', function() {
         opacity: 0.7;
     }
 
-    /* Stat numbers: single consistent brand treatment instead of a
-       different neon color per stat, so the card reads as one unit
-       that belongs to the same design system as the rest of the hero. */
+    .feature-chip {
+        transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+    }
+
+    .feature-chip:hover {
+        transform: translateY(-3px);
+        border-color: rgba(225, 29, 72, 0.25);
+        box-shadow: 0 16px 32px -12px rgba(2, 25, 53, 0.25);
+    }
+
     .stat-number {
         display: inline-block;
         position: relative;
@@ -312,15 +358,12 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     .stats-card {
-        /* keeps the overlap effect from never colliding with the copy
-           column on narrow viewports, where the two columns stack */
         width: auto;
     }
 
-    /* Mobile-specific adjustments */
     @media (max-width: 1023px) {
         .hero-texture {
-            padding-top: 100px; /* Increased for mobile to clear header */
+            padding-top: 100px;
             padding-bottom: 40px;
         }
         
@@ -335,7 +378,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     @media (max-width: 640px) {
         .hero-texture {
-            padding-top: 90px; /* Extra padding for small mobile */
+            padding-top: 90px;
             padding-bottom: 30px;
         }
         
@@ -344,14 +387,12 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    /* Fix for very small screens */
     @media (max-width: 375px) {
         .hero-texture {
             padding-top: 100px;
         }
     }
 
-    /* Base styles */
     .hero-texture::before {
         content: "";
         position: absolute;
@@ -374,8 +415,68 @@ document.addEventListener('DOMContentLoaded', function() {
         background-color: var(--common-colour);
     }
 
-    /* Ensure header doesn't overlap */
     header + .hero-texture {
         margin-top: 0;
+    }
+
+    /* ===== FEATURE CHIPS ===== */
+    .feature-chips {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+    }
+
+    .feature-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      max-width: 100%;
+      background: #ffffff;
+      border: 1px solid rgba(2, 25, 53, 0.1);
+      border-radius: 10px;
+      padding: 10px 14px;
+      box-shadow: 0 10px 25px -10px rgba(2, 25, 53, 0.18);
+      transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+    }
+
+    .feature-chip i {
+      color: var(--theme-colour, #e11d48);
+      font-size: 13px;
+      flex-shrink: 0;
+    }
+
+    .feature-chip span {
+      font-family: 'Sora', sans-serif;
+      font-weight: 600;
+      color: var(--color-secondary, #021935);
+      font-size: 12px;
+      line-height: 1.2;
+      white-space: nowrap;
+    }
+
+    /* sm (≥640px) — roomier chips */
+    @media (min-width: 640px) {
+      .feature-chips { gap: 12px; }
+      .feature-chip {
+        padding: 14px 20px;
+        border-radius: 12px;
+        gap: 10px;
+      }
+      .feature-chip i { font-size: 16px; }
+      .feature-chip span { font-size: 14px; }
+    }
+
+    @media (min-width: 768px) and (max-width: 1023px) {
+      .feature-chips { gap: 14px; }
+      .feature-chip span { font-size: 15px; }
+    }
+
+    @media (max-width: 400px) {
+      .feature-chips { gap: 8px; }
+      .feature-chip { padding: 8px 12px; gap: 6px; }
+      .feature-chip i { font-size: 12px; }
+      .feature-chip span { font-size: 11px; }
     }
 </style>
