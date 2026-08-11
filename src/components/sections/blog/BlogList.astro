@@ -182,14 +182,23 @@ if (fetchFromSanity) {
   }
 }
 
-const displayedPosts = posts.slice(0, postsPerPage);
+const totalPages = Math.ceil(totalPosts / postsPerPage);
 ---
 
-<section class="relative lg:py-120 md:py-80 py-60 section-blog">
+<section class="relative lg:py-120 md:py-80 py-60 section-blog" id="blog-list">
   <div class="container">
-    <div class="grid grid-cols-12 gap-25">
-      {displayedPosts.map((post) => (
-        <div class="lg:col-span-4 md:col-span-6 col-span-12" key={post.id}>
+    <div 
+      class="grid grid-cols-12 gap-25" 
+      id="blog-grid"
+      data-posts-per-page={postsPerPage}
+    >
+      {posts.map((post, index) => (
+        <div 
+          class="lg:col-span-4 md:col-span-6 col-span-12 blog-item" 
+          key={post.id}
+          data-index={index}
+          style={index >= postsPerPage ? 'display: none;' : ''}
+        >
           <div class="relative group">
             <div class="relative">
               <figure class="overflow-hidden mb-20">
@@ -233,22 +242,43 @@ const displayedPosts = posts.slice(0, postsPerPage);
       ))}
     </div>
     
-    {showPagination && (
-      <ul class="flex items-center mt-40 pagination justify-center"> 
+    {showPagination && totalPages > 1 && (
+      <ul class="flex items-center mt-40 pagination justify-center" id="blog-pagination"> 
         <li class="page-item ml-7">
-          <a class="pag relativee-link page-link" href="javascript:void(0);" aria-label="Previous">
+          <a class="page-link" href="javascript:void(0);" data-page="prev" aria-label="Previous">
             <span aria-hidden="true"><i class="fa-solid fa-arrow-left"></i></span>
             <span class="sr-only">Previous</span>
           </a>
         </li>
-        <li class="page-item ml-7"><a class="page-link relative" href="javascript:void(0);">1</a></li>
-        <li class="page-item ml-7"><a class="page-link relative" href="javascript:void(0);">2</a></li>
-        <li class="page-item ml-7"><a class="page-link relative" href="javascript:void(0);">...</a></li>
-        <li class="page-item ml-7"><a class="page-link relative" href="javascript:void(0);">12</a></li>
+        
+        {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
+          let pageNum;
+          if (totalPages <= 5) {
+            pageNum = i + 1;
+          } else if (i === 0) {
+            pageNum = 1;
+          } else if (i === 4) {
+            pageNum = totalPages;
+          } else {
+            pageNum = i + 2;
+          }
+          return pageNum;
+        }).map((pageNum) => (
+          <li class="page-item ml-7" key={pageNum}>
+            <a 
+              class={`page-link ${pageNum === 1 ? 'active' : ''}`} 
+              href="javascript:void(0);" 
+              data-page={pageNum}
+            >
+              {pageNum}
+            </a>
+          </li>
+        ))}
+        
         <li class="page-item ml-7">
-          <a class="page-link" href="javascript:void(0);" aria-label="Next">
+          <a class="page-link" href="javascript:void(0);" data-page="next" aria-label="Next">
             <span aria-hidden="true"><i class="fa-solid fa-arrow-right"></i></span>
-            <span class="sr-only ml-7">Next</span>
+            <span class="sr-only">Next</span>
           </a>
         </li>
       </ul>
@@ -260,3 +290,108 @@ const displayedPosts = posts.slice(0, postsPerPage);
     </ul>
   </div>
 </section>
+
+<script define:vars={{ perPage: postsPerPage, totalPages: totalPages }}>
+  document.addEventListener('DOMContentLoaded', function() {
+    let currentPage = 1;
+    
+    const grid = document.getElementById('blog-grid');
+    const pagination = document.getElementById('blog-pagination');
+    
+    if (!grid || !pagination || totalPages <= 1) return;
+    
+    function renderPage(page) {
+      const start = (page - 1) * perPage;
+      const end = Math.min(start + perPage, grid.children.length);
+      
+      // Show/hide blog items
+      const allItems = grid.querySelectorAll('.blog-item');
+      allItems.forEach((item, index) => {
+        if (index >= start && index < end) {
+          item.style.display = '';
+        } else {
+          item.style.display = 'none';
+        }
+      });
+      
+      // Update pagination active state
+      const links = pagination.querySelectorAll('.page-link[data-page]');
+      links.forEach(link => {
+        const pageNum = parseInt(link.dataset.page);
+        if (!isNaN(pageNum)) {
+          link.classList.toggle('active', pageNum === page);
+        }
+      });
+      
+      // Update prev/next buttons
+      const prevBtn = pagination.querySelector('[data-page="prev"]');
+      const nextBtn = pagination.querySelector('[data-page="next"]');
+      if (prevBtn) {
+        prevBtn.style.opacity = page === 1 ? '0.5' : '1';
+        prevBtn.style.pointerEvents = page === 1 ? 'none' : 'auto';
+      }
+      if (nextBtn) {
+        nextBtn.style.opacity = page === totalPages ? '0.5' : '1';
+        nextBtn.style.pointerEvents = page === totalPages ? 'none' : 'auto';
+      }
+      
+      currentPage = page;
+    }
+    
+    // Handle pagination clicks
+    pagination.addEventListener('click', function(e) {
+      const target = e.target.closest('.page-link');
+      if (!target) return;
+      
+      const page = target.dataset.page;
+      
+      if (page === 'prev') {
+        if (currentPage > 1) {
+          renderPage(currentPage - 1);
+          document.getElementById('blog-list').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      } else if (page === 'next') {
+        if (currentPage < totalPages) {
+          renderPage(currentPage + 1);
+          document.getElementById('blog-list').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      } else {
+        const pageNum = parseInt(page);
+        if (!isNaN(pageNum) && pageNum !== currentPage && pageNum >= 1 && pageNum <= totalPages) {
+          renderPage(pageNum);
+          document.getElementById('blog-list').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }
+    });
+    
+    // Initialize - show first page
+    renderPage(1);
+  });
+</script>
+
+<style>
+  .page-link.active {
+    background-color: var(--theme-colour, #a60c13) !important;
+    color: #ffffff !important;
+    border-color: var(--theme-colour, #a60c13) !important;
+  }
+  
+  .page-link.active:hover {
+    background-color: var(--theme-colour, #a60c13) !important;
+    color: #ffffff !important;
+  }
+  
+  .blog-item {
+    transition: opacity 0.3s ease;
+  }
+  
+  .page-link {
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  
+  .page-link:hover {
+    background-color: var(--theme-colour, #a60c13);
+    color: #ffffff;
+  }
+</style>
