@@ -29,32 +29,32 @@ const defaultData = {
     {
       title: 'Mental Health',
       description: 'Our comprehensive preventive care services are designed to identify potential.',
-      iconBgColor: 'rgb(240,93,193)',
-      iconShadow: 'rgba(240,93,168,0.4)',
+      iconBgColor: 'var(--theme-colour)',
+      iconShadow: 'rgba(166,12,19,0.4)',
       link: '/services/mental-health',
       slug: 'mental-health',
     },
     {
       title: 'Preventive Care',
       description: 'Our comprehensive preventive care services are designed to identify potential.',
-      iconBgColor: '#69b741',
-      iconShadow: 'rgba(105,183,65,0.4)',
+      iconBgColor: 'var(--theme-colour)',
+      iconShadow: 'rgba(166,12,19,0.4)',
       link: '/services/preventive-care',
       slug: 'preventive-care',
     },
     {
       title: 'Surgical Care',
       description: 'Our comprehensive preventive care services are designed to identify potential.',
-      iconBgColor: '#58CBF2',
-      iconShadow: 'rgba(88,203,242,0.4)',
+      iconBgColor: 'var(--theme-colour)',
+      iconShadow: 'rgba(166,12,19,0.4)',
       link: '/services/surgical-care',
       slug: 'surgical-care',
     },
     {
       title: 'Dental Checkup',
       description: 'Our comprehensive preventive care services are designed to identify potential.',
-      iconBgColor: '#9B52E1',
-      iconShadow: 'rgba(155,82,225,0.4)',
+      iconBgColor: 'var(--theme-colour)',
+      iconShadow: 'rgba(166,12,19,0.4)',
       link: '/services/dental-checkup',
       slug: 'dental-checkup',
     },
@@ -106,8 +106,8 @@ if (fetchFromSanity && !propData) {
       services = servicesResult.map((service: any, index: number) => ({
         title: service.title || 'Untitled Service',
         description: truncateDescription(service.description, 60),
-        iconBgColor: service.iconBgColor || '#F05DA8',
-        iconShadow: service.iconShadow || 'rgba(240,93,168,0.4)',
+        iconBgColor: service.iconBgColor || 'var(--theme-colour)',
+        iconShadow: service.iconShadow || 'rgba(166,12,19,0.4)',
         link: `/services/${service.slug?.current || 'service'}`,
         slug: service.slug?.current || `service-${index + 1}`,
       }));
@@ -145,8 +145,8 @@ const { subtitle, title } = sectionData;
               {/* Icon with gradient background */}
               <div class="icon-circle size-52 flex items-center justify-center mb-16 relative rounded-full group-hover:bg-white flex-shrink-0"
                    style={{
-                     background: `linear-gradient(135deg, ${service.iconBgColor || '#F05DA8'}, ${service.iconBgColor || '#F05DA8'}dd)`,
-                     boxShadow: `0px 0px 16px 0px ${service.iconShadow || 'rgba(240,93,168,0.4)'}`
+                     background: `var(--theme-colour)`,
+                     boxShadow: `0px 0px 16px 0px rgba(166,12,19,0.4)`
                    }}>
                 <svg class="w-6 h-6 text-white group-hover:text-secondary transition-colors duration-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
@@ -179,6 +179,11 @@ const { subtitle, title } = sectionData;
 </section>
 
 <style>
+  :root {
+    --theme-colour: #a60c13;
+    --theme-colour-hover: #88080d;
+  }
+
   .services-box {
     border-radius: 10px;
     overflow: hidden;
@@ -198,6 +203,7 @@ const { subtitle, title } = sectionData;
     display: flex;
     align-items: center;
     justify-content: center;
+    background: var(--theme-colour) !important;
   }
   
   .services-box .icon-circle svg {
@@ -211,8 +217,8 @@ const { subtitle, title } = sectionData;
   }
   
   .services-box:hover .icon-circle svg {
-    color: #021935 !important;
-    stroke: #021935;
+    color: var(--theme-colour) !important;
+    stroke: var(--theme-colour) !important;
   }
   
   .services-box h4 a {
@@ -220,7 +226,7 @@ const { subtitle, title } = sectionData;
   }
   
   .services-box h4 a:hover {
-    color: #F05DA8 !important;
+    color: var(--theme-colour) !important;
   }
   
   /* Ensure all slides are the same height */
@@ -254,7 +260,7 @@ const { subtitle, title } = sectionData;
   
   .services-swiper-button-next:hover,
   .services-swiper-button-prev:hover {
-    background: #F05DA8;
+    background: var(--theme-colour);
     color: white;
   }
   

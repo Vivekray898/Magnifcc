@@ -36,19 +36,7 @@ export const whyChooseUsSection = defineField({
       type: 'image',
       description: 'Small logo that appears in the credential card',
     }),
-    defineField({
-      name: 'circleImage',
-      title: 'Circle Decoration Image',
-      type: 'image',
-      description: 'Decorative background image for the logo circle',
-    }),
-    defineField({
-      name: 'badgeText',
-      title: 'Badge Text',
-      type: 'string',
-      description: 'Text displayed below the subtitle in the credential card',
-      initialValue: 'Accredited healthcare advisory practice',
-    }),
+    // circleImage and badgeText removed
     defineField({
       name: 'features',
       title: 'Features',
