@@ -8,6 +8,7 @@ export interface Props {
   subtitle?: string;
   title?: string;
   showPagination?: boolean;
+  servicesPerPage?: number;
 }
 
 const {
@@ -15,6 +16,7 @@ const {
   subtitle = "# Our Services",
   title = "Our Medical Services.",
   showPagination = true,
+  servicesPerPage = 6,
 } = Astro.props;
 
 // Helper function to truncate description
@@ -25,7 +27,12 @@ const truncateDescription = (text: string, maxLength: number = 60): string => {
 };
 
 let services: any[] = [];
-let sectionData = { subtitle, title };
+let sectionData = { 
+  subtitle, 
+  title, 
+  showPagination, 
+  servicesPerPage 
+};
 
 // Fetch from Sanity
 if (fetchFromSanity) {
@@ -34,7 +41,9 @@ if (fetchFromSanity) {
     const settingsQuery = `*[_type == "servicesPage"][0]{
       servicesSection {
         subtitle,
-        title
+        title,
+        showPagination,
+        servicesPerPage
       }
     }`;
     
@@ -44,6 +53,10 @@ if (fetchFromSanity) {
       sectionData = {
         subtitle: settingsResult.servicesSection.subtitle || subtitle,
         title: settingsResult.servicesSection.title || title,
+        showPagination: settingsResult.servicesSection.showPagination !== undefined 
+          ? settingsResult.servicesSection.showPagination 
+          : showPagination,
+        servicesPerPage: settingsResult.servicesSection.servicesPerPage || servicesPerPage,
       };
     }
     
@@ -72,70 +85,220 @@ if (fetchFromSanity) {
     console.error('Error fetching services data:', error);
   }
 }
+
+// Use the fetched or default values
+const displaySubtitle = sectionData.subtitle || subtitle;
+const displayTitle = sectionData.title || title;
+const displayShowPagination = sectionData.showPagination;
+const displayServicesPerPage = sectionData.servicesPerPage;
+const totalPages = Math.ceil(services.length / displayServicesPerPage);
 ---
 
-<section class="lg:py-120 md:py-100 sm:py-80 py-60">
+<section class="lg:py-120 md:py-100 sm:py-80 py-60" id="services-list">
   <div class="container">
     <div class="xl:pb-50 lg:pb-40 pb-30 w-[fit-content]"> 
-      <span class="capitalize font-semibold xxl:text-xxl xl:text-xl sm:text-lg text-base text-primary font-sora pb-5 block">{sectionData.subtitle}</span>
-      <h2 class="xl:text-5xl md:text-4xl sm:text-3xl text-2.5xl font-semibold text-secondary font-sora leading-[1.2]">{sectionData.title}</h2> 
+      <span class="capitalize font-semibold xxl:text-xxl xl:text-xl sm:text-lg text-base text-primary font-sora pb-5 block">
+        {displaySubtitle}
+      </span>
+      <h2 class="xl:text-5xl md:text-4xl sm:text-3xl text-2.5xl font-semibold text-secondary font-sora leading-[1.2]">
+        {displayTitle}
+      </h2> 
     </div>
     
     {services.length > 0 ? (
-      <div class="grid grid-cols-12">
-        {services.map((service, index) => (
-          <div class="lg:col-span-4 md:col-span-6 col-span-12 group" key={index}>
-            <div class="services-section shadow-[0px_0px_15px_0px_rgba(0,0,0,0.07)] relative xxl:p-40 p-30 xxl:m-15 m-10 before:w-full before:h-0 before:bg-primary before:absolute before:bottom-0 before:left-0 group-hover:before:h-full before:duration-500">
-              <i class="group-hover:bg-white size-90 flex items-center justify-center mb-25 relative rounded-full" 
-                 style={`box-shadow: 0px 0px 24px 0px ${service.iconBgColor || 'rgba(240,93,168,0.4)'};`}>
-                {service.icon ? (
-                  <span set:html={service.icon} />
-                ) : (
-                  <svg width="45" height="47" viewBox="0 0 45 47" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M15.7414 46V40.1304H13.5011C11.8953 40.1304 10.3552 39.512 9.2197 38.4113C8.08421 37.3105 7.4463 35.8176 7.4463 34.2609V28.3913H2.01718C1.85567 28.3906 1.6966 28.353 1.55285 28.2816C1.4091 28.2102 1.28469 28.1071 1.18969 27.9804C1.09764 27.858 1.03684 27.7161 1.01228 27.5665C0.987725 27.4168 1.00011 27.2637 1.04841 27.1196C5.22621 14.5587 8.1325 1.00001 24.319 1.00001C28.4694 0.99527 32.5149 2.26412 35.8759 4.62478C39.2368 6.98545 41.7408 10.3168 43.0291 14.1415C44.3173 17.9663 44.3238 22.0882 43.0474 25.9167C41.7711 29.7452 39.2776 33.0838 35.924 35.4544V46M19.3742 19.3124C18.8539 19.4842 18.3092 19.5766 17.7596 19.5863C17.097 19.5606 16.4461 19.4086 15.8441 19.1391C15.2421 18.8695 14.7007 18.4877 14.2509 18.0153C13.8011 17.5429 13.4517 16.9893 13.2226 16.386C12.9935 15.7828 12.8893 15.1417 12.9158 14.4993C12.9423 13.857 13.099 13.226 13.3771 12.6424C13.6552 12.0588 14.0491 11.534 14.5363 11.098C15.0236 10.6619 15.5947 10.3232 16.217 10.1011C16.8393 9.87907 17.5007 9.77799 18.1633 9.80368C18.5425 8.973 19.1538 8.26165 19.928 7.74996C20.7023 7.23827 21.6087 6.94663 22.5449 6.90797C23.4811 6.8693 24.4098 7.08516 25.2262 7.53116C26.0425 7.97716 26.714 8.63554 27.1647 9.43194C27.9872 9.03822 28.8913 8.83083 29.8086 8.82542C31.2993 8.81556 32.7412 9.33909 33.8584 10.2958C34.9757 11.2524 35.6895 12.575 35.8634 14.0102C36.8362 14.7125 37.6233 15.6284 38.1601 16.6827C38.6969 17.737 38.968 18.8998 38.9514 20.0754C39.0167 21.956 38.3096 23.7849 36.9852 25.1606C35.6607 26.5362 33.8273 27.3461 31.8874 27.4124C30.3858 27.3741 28.935 26.8767 27.7425 25.9912C26.55 25.1057 25.6766 23.8774 25.2474 22.4819C24.0522 22.5941 22.8502 22.351 21.8011 21.7848C20.7519 21.2186 19.9055 20.3562 19.3742 19.3124ZM19.3742 19.3124L19.9596 17.6303C20.4182 16.2986 21.3666 15.1773 22.6237 14.4803L23.8145 13.7172M35.0764 11.7608C30.8178 12.7978 30.1922 14.8326 29.8692 15.6739M34.9956 26.6702C34.5989 24.6339 33.5376 22.7751 31.9682 21.368" stroke="#021935" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg>
-                )}
-              </i>
-              <h4 class="xl:text-xl font-sora text-secondary font-medium leading-[1.2]">
-                <a href={service.link} class="xxl:text-2xl text-xl font-bold font-sora relative text-secondary group-hover:text-white duration-500">
-                  {service.title}
+      <>
+        <!-- Services Grid -->
+        <div 
+          class="grid grid-cols-12" 
+          id="services-grid"
+          data-services-per-page={displayServicesPerPage}
+        >
+          {services.map((service, index) => (
+            <div 
+              class="lg:col-span-4 md:col-span-6 col-span-12 group service-item" 
+              key={index} 
+              data-index={index}
+              style={index >= displayServicesPerPage ? 'display: none;' : ''}
+            >
+              <div class="services-section shadow-[0px_0px_15px_0px_rgba(0,0,0,0.07)] relative xxl:p-40 p-30 xxl:m-15 m-10 before:w-full before:h-0 before:bg-primary before:absolute before:bottom-0 before:left-0 group-hover:before:h-full before:duration-500">
+                <i class="group-hover:bg-white size-90 flex items-center justify-center mb-25 relative rounded-full" 
+                   style={`box-shadow: 0px 0px 24px 0px ${service.iconBgColor || 'rgba(240,93,168,0.4)'};`}>
+                  {service.icon ? (
+                    <span set:html={service.icon} />
+                  ) : (
+                    <svg width="45" height="47" viewBox="0 0 45 47" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M15.7414 46V40.1304H13.5011C11.8953 40.1304 10.3552 39.512 9.2197 38.4113C8.08421 37.3105 7.4463 35.8176 7.4463 34.2609V28.3913H2.01718C1.85567 28.3906 1.6966 28.353 1.55285 28.2816C1.4091 28.2102 1.28469 28.1071 1.18969 27.9804C1.09764 27.858 1.03684 27.7161 1.01228 27.5665C0.987725 27.4168 1.00011 27.2637 1.04841 27.1196C5.22621 14.5587 8.1325 1.00001 24.319 1.00001C28.4694 0.99527 32.5149 2.26412 35.8759 4.62478C39.2368 6.98545 41.7408 10.3168 43.0291 14.1415C44.3173 17.9663 44.3238 22.0882 43.0474 25.9167C41.7711 29.7452 39.2776 33.0838 35.924 35.4544V46M19.3742 19.3124C18.8539 19.4842 18.3092 19.5766 17.7596 19.5863C17.097 19.5606 16.4461 19.4086 15.8441 19.1391C15.2421 18.8695 14.7007 18.4877 14.2509 18.0153C13.8011 17.5429 13.4517 16.9893 13.2226 16.386C12.9935 15.7828 12.8893 15.1417 12.9158 14.4993C12.9423 13.857 13.099 13.226 13.3771 12.6424C13.6552 12.0588 14.0491 11.534 14.5363 11.098C15.0236 10.6619 15.5947 10.3232 16.217 10.1011C16.8393 9.87907 17.5007 9.77799 18.1633 9.80368C18.5425 8.973 19.1538 8.26165 19.928 7.74996C20.7023 7.23827 21.6087 6.94663 22.5449 6.90797C23.4811 6.8693 24.4098 7.08516 25.2262 7.53116C26.0425 7.97716 26.714 8.63554 27.1647 9.43194C27.9872 9.03822 28.8913 8.83083 29.8086 8.82542C31.2993 8.81556 32.7412 9.33909 33.8584 10.2958C34.9757 11.2524 35.6895 12.575 35.8634 14.0102C36.8362 14.7125 37.6233 15.6284 38.1601 16.6827C38.6969 17.737 38.968 18.8998 38.9514 20.0754C39.0167 21.956 38.3096 23.7849 36.9852 25.1606C35.6607 26.5362 33.8273 27.3461 31.8874 27.4124C30.3858 27.3741 28.935 26.8767 27.7425 25.9912C26.55 25.1057 25.6766 23.8774 25.2474 22.4819C24.0522 22.5941 22.8502 22.351 21.8011 21.7848C20.7519 21.2186 19.9055 20.3562 19.3742 19.3124ZM19.3742 19.3124L19.9596 17.6303C20.4182 16.2986 21.3666 15.1773 22.6237 14.4803L23.8145 13.7172M35.0764 11.7608C30.8178 12.7978 30.1922 14.8326 29.8692 15.6739M34.9956 26.6702C34.5989 24.6339 33.5376 22.7751 31.9682 21.368" stroke="#021935" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  )}
+                </i>
+                <h4 class="xl:text-xl font-sora text-secondary font-medium leading-[1.2]">
+                  <a href={service.link} class="xxl:text-2xl text-xl font-bold font-sora relative text-secondary group-hover:text-white duration-500">
+                    {service.title}
+                  </a>
+                </h4>
+                <p class="pt-10 pb-20 relative text-base leading-32 text-[#6f6f6f] font-normal group-hover:text-white duration-500">
+                  {service.description || 'Click to learn more about this service.'}
+                </p>
+                <a href={service.link} class="relative font-bold text-secondary font-sora group-hover:text-white duration-500">
+                  Read More<i class="fa-solid fa-arrow-right ml-12 relative"></i>
                 </a>
-              </h4>
-              <p class="pt-10 pb-20 relative text-base leading-32 text-[#6f6f6f] font-normal group-hover:text-white duration-500">
-                {service.description || 'Click to learn more about this service.'}
-              </p>
-              <a href={service.link} class="relative font-bold text-secondary font-sora group-hover:text-white duration-500">
-                Read More<i class="fa-solid fa-arrow-right ml-12 relative"></i>
-              </a>
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+        
+        <!-- Pagination -->
+        {displayShowPagination && totalPages > 1 && (
+          <ul class="flex items-center mt-40 pagination justify-center" id="pagination-controls"> 
+            <li class="page-item ml-7">
+              <a class="page-link" href="javascript:void(0);" data-page="prev" aria-label="Previous">
+                <span aria-hidden="true"><i class="fa-solid fa-arrow-left"></i></span>
+                <span class="sr-only">Previous</span>
+              </a>
+            </li>
+            
+            {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
+              let pageNum;
+              if (totalPages <= 5) {
+                pageNum = i + 1;
+              } else if (i === 0) {
+                pageNum = 1;
+              } else if (i === 4) {
+                pageNum = totalPages;
+              } else {
+                pageNum = i + 2;
+              }
+              return pageNum;
+            }).map((pageNum) => (
+              <li class="page-item ml-7" key={pageNum}>
+                <a 
+                  class={`page-link ${pageNum === 1 ? 'active' : ''}`} 
+                  href="javascript:void(0);" 
+                  data-page={pageNum}
+                >
+                  {pageNum}
+                </a>
+              </li>
+            ))}
+            
+            <li class="page-item ml-7">
+              <a class="page-link" href="javascript:void(0);" data-page="next" aria-label="Next">
+                <span aria-hidden="true"><i class="fa-solid fa-arrow-right"></i></span>
+                <span class="sr-only">Next</span>
+              </a>
+            </li>
+          </ul>
+        )}
+      </>
     ) : (
       <div class="text-center py-20">
         <p class="text-gary text-lg">No services available. Please add services in Sanity.</p>
       </div>
     )}
-    
-    {showPagination && services.length > 6 && (
-      <ul class="flex items-center mt-40 pagination justify-center"> 
-        <li class="page-item ml-7">
-          <a class="page-link" href="javascript:void(0);" aria-label="Previous">
-            <span aria-hidden="true"><i class="fa-solid fa-arrow-left"></i></span>
-            <span class="sr-only">Previous</span>
-          </a>
-        </li>
-        <li class="page-item ml-7"><a class="page-link" href="javascript:void(0);">1</a></li>
-        <li class="page-item ml-7"><a class="page-link" href="javascript:void(0);">2</a></li>
-        <li class="page-item ml-7"><a class="page-link" href="javascript:void(0);">...</a></li>
-        <li class="page-item ml-7"><a class="page-link" href="javascript:void(0);">12</a></li>
-        <li class="page-item ml-7">
-          <a class="page-link" href="javascript:void(0);" aria-label="Next">
-            <span aria-hidden="true"><i class="fa-solid fa-arrow-right"></i></span>
-            <span class="sr-only ml-7">Next</span>
-          </a>
-        </li>
-      </ul>
-    )}
   </div>
 </section>
+
+<script define:vars={{ perPage: displayServicesPerPage, totalPages: totalPages }}>
+  document.addEventListener('DOMContentLoaded', function() {
+    let currentPage = 1;
+    
+    const grid = document.getElementById('services-grid');
+    const paginationControls = document.getElementById('pagination-controls');
+    
+    if (!grid || !paginationControls || totalPages <= 1) return;
+    
+    function renderPage(page) {
+      const start = (page - 1) * perPage;
+      const end = Math.min(start + perPage, grid.children.length);
+      
+      // Show/hide service items
+      const allItems = grid.querySelectorAll('.service-item');
+      allItems.forEach((item, index) => {
+        if (index >= start && index < end) {
+          item.style.display = '';
+        } else {
+          item.style.display = 'none';
+        }
+      });
+      
+      // Update pagination active state
+      const links = paginationControls.querySelectorAll('.page-link[data-page]');
+      links.forEach(link => {
+        const pageNum = parseInt(link.dataset.page);
+        if (!isNaN(pageNum)) {
+          link.classList.toggle('active', pageNum === page);
+        }
+      });
+      
+      // Update prev/next buttons
+      const prevBtn = paginationControls.querySelector('[data-page="prev"]');
+      const nextBtn = paginationControls.querySelector('[data-page="next"]');
+      if (prevBtn) {
+        prevBtn.style.opacity = page === 1 ? '0.5' : '1';
+        prevBtn.style.pointerEvents = page === 1 ? 'none' : 'auto';
+      }
+      if (nextBtn) {
+        nextBtn.style.opacity = page === totalPages ? '0.5' : '1';
+        nextBtn.style.pointerEvents = page === totalPages ? 'none' : 'auto';
+      }
+      
+      currentPage = page;
+    }
+    
+    // Handle pagination clicks
+    paginationControls.addEventListener('click', function(e) {
+      const target = e.target.closest('.page-link');
+      if (!target) return;
+      
+      const page = target.dataset.page;
+      
+      if (page === 'prev') {
+        if (currentPage > 1) {
+          renderPage(currentPage - 1);
+          document.getElementById('services-list').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      } else if (page === 'next') {
+        if (currentPage < totalPages) {
+          renderPage(currentPage + 1);
+          document.getElementById('services-list').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      } else {
+        const pageNum = parseInt(page);
+        if (!isNaN(pageNum) && pageNum !== currentPage && pageNum >= 1 && pageNum <= totalPages) {
+          renderPage(pageNum);
+          document.getElementById('services-list').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }
+    });
+    
+    // Initialize - show first page
+    renderPage(1);
+  });
+</script>
+
+<style>
+  .page-link.active {
+    background-color: var(--theme-colour, #a60c13) !important;
+    color: #ffffff !important;
+    border-color: var(--theme-colour, #a60c13) !important;
+  }
+  
+  .page-link.active:hover {
+    background-color: var(--theme-colour, #a60c13) !important;
+    color: #ffffff !important;
+  }
+  
+  .service-item {
+    transition: opacity 0.3s ease;
+  }
+  
+  .page-link {
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  
+  .page-link:hover {
+    background-color: var(--theme-colour, #a60c13);
+    color: #ffffff;
+  }
+</style>

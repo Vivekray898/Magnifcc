@@ -6,13 +6,39 @@ import Header from "../../components/common/Header.astro";
 import Footer from "../../components/common/Footer.astro";
 import ServicesHero from "../../components/sections/services/ServicesHero.astro";
 import ServicesList from "../../components/sections/services/ServicesList.astro";
+import { client } from "../../lib/sanity";
 
 // Disable static generation - use SSR
 export const prerender = false;
+
+// Fetch page data from Sanity
+let pageData = {
+  title: 'Services',
+  metaTitle: '',
+  metaDescription: 'Explore our comprehensive healthcare services including hospital planning, medical equipment, NABH accreditation, and healthcare IT solutions.',
+};
+
+try {
+  const query = `*[_type == "servicesPage"][0]{
+    title,
+    metaTitle,
+    metaDescription
+  }`;
+  const result = await client.fetch(query);
+  if (result) {
+    pageData = { ...pageData, ...result };
+  }
+} catch (error) {
+  console.error('Error fetching services page data:', error);
+}
+
+// Use metaTitle if available, otherwise use title
+const pageTitle = pageData.metaTitle || pageData.title || 'Services';
+const pageDescription = pageData.metaDescription || 'Explore our comprehensive healthcare services';
 ---
 
-<Layout title="Services" description="Our medical services">
-  <Header fetchFromSanity={true} slot="header" />
+<Layout title={pageTitle} description={pageDescription} fetchFromSanity={true}>
+  <Header fetchFromSanity={true} slot="header" currentPage="services" />
   
   <!-- Services Hero -->
   <ServicesHero fetchFromSanity={true} />
