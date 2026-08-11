@@ -8,9 +8,15 @@ export interface Props {
   variant?: 'primary' | 'secondary';
   className?: string;
   fetchFromSanity?: boolean;
+  speed?: 'slow' | 'normal' | 'fast';
 }
 
-const { variant = 'primary', className = '', fetchFromSanity = true } = Astro.props;
+const { 
+  variant = 'primary', 
+  className = '', 
+  fetchFromSanity = true,
+  speed = 'normal'
+} = Astro.props;
 
 // Default items - updated to match the image
 const defaultItems = [
@@ -58,42 +64,46 @@ if (fetchFromSanity) {
 // Determine which marquee style to render
 const isPrimary = variant === 'primary';
 const isSecondary = variant === 'secondary';
+
+// Animation duration based on speed
+const speedMap = {
+  slow: '40s',
+  normal: '25s',
+  fast: '15s'
+};
+const animationDuration = speedMap[speed] || speedMap.normal;
 ---
 
 <!-- Primary Marquee -->
 {
   isPrimary && (
-    <div class={`marquee-mask flex overflow-hidden relative z-[11] ${className}`}>
-      <div class="py-16 bg-primary flex w-full">
-        <div class="animate-scroll-one flex items-center" style="gap: 26px;">
+    <div class={`marquee-wrapper ${className}`}>
+      <div class="marquee-track marquee-primary">
+        <div class="marquee-content" style={`animation-duration: ${animationDuration}`}>
           {items.map((item, index) => (
-            <div key={`primary-1-${index}`} class="flex-shrink-0 flex items-center" style={{ gap: '16px' }}>
+            <div key={`primary-1-${index}`} class="marquee-item">
               <img 
                 src={item.icon.startsWith('http') ? item.icon : `${imageBase}${item.icon}`}
                 alt={item.text} 
-                class="w-32 md:w-40 opacity-90"
+                class="marquee-icon"
                 loading="lazy"
               />
-              <h3 class="text-xl md:text-2.3xl xl:text-2.5xl uppercase font-semibold tracking-[0.02em] text-white font-sora whitespace-nowrap">
-                {item.text}
-              </h3>
-              <span class="text-white/30 text-lg">&bull;</span>
+              <span class="marquee-text">{item.text}</span>
+              <span class="marquee-separator">&bull;</span>
             </div>
           ))}
         </div>
-        <div class="animate-scroll-one flex items-center" style={{ gap: '26px', marginLeft: '26px' }} aria-hidden="true">
+        <div class="marquee-content marquee-content-duplicate" style={`animation-duration: ${animationDuration}`} aria-hidden="true">
           {items.map((item, index) => (
-            <div key={`primary-2-${index}`} class="flex-shrink-0 flex items-center" style={{ gap: '16px' }}>
+            <div key={`primary-2-${index}`} class="marquee-item">
               <img 
                 src={item.icon.startsWith('http') ? item.icon : `${imageBase}${item.icon}`}
                 alt="" 
-                class="w-32 md:w-40 opacity-90"
+                class="marquee-icon"
                 loading="lazy"
               />
-              <h3 class="text-xl md:text-2.3xl xl:text-2.5xl uppercase font-semibold tracking-[0.02em] text-white font-sora whitespace-nowrap">
-                {item.text}
-              </h3>
-              <span class="text-white/30 text-lg">&bull;</span>
+              <span class="marquee-text">{item.text}</span>
+              <span class="marquee-separator">&bull;</span>
             </div>
           ))}
         </div>
@@ -102,40 +112,36 @@ const isSecondary = variant === 'secondary';
   )
 }
 
-<!-- Secondary Marquee - rotated strip, width overshoots the container so the tilt never reveals the background behind it -->
+<!-- Secondary Marquee - rotated strip -->
 {
   isSecondary && (
-    <div class={`gap-30 flex items-center z-[1] md:pb-120 pb-70 overflow-hidden relative ${className}`}>
-      <div class="marquee-mask flex bg-secondary py-16 rotate-[-3deg] w-[112%] -ml-[6%]">
-        <div class="animate-scroll-two flex items-center" style={{ gap: '26px' }}>
+    <div class={`marquee-wrapper marquee-secondary-wrapper ${className}`}>
+      <div class="marquee-track marquee-secondary">
+        <div class="marquee-content marquee-reverse" style={`animation-duration: ${animationDuration}`}>
           {items.map((item, index) => (
-            <div key={`secondary-1-${index}`} class="flex-shrink-0 flex items-center" style={{ gap: '16px' }}>
+            <div key={`secondary-1-${index}`} class="marquee-item">
               <img 
                 src={item.icon.startsWith('http') ? item.icon : `${imageBase}${item.icon}`}
                 alt={item.text} 
-                class="w-32 md:w-40 opacity-90"
+                class="marquee-icon"
                 loading="lazy"
               />
-              <h3 class="text-xl md:text-2.3xl xl:text-2.5xl uppercase font-semibold tracking-[0.02em] text-white font-sora whitespace-nowrap">
-                {item.text}
-              </h3>
-              <span class="text-white/30 text-lg">&bull;</span>
+              <span class="marquee-text">{item.text}</span>
+              <span class="marquee-separator">&bull;</span>
             </div>
           ))}
         </div>
-        <div class="animate-scroll-two flex items-center" style={{ gap: '26px', marginLeft: '26px' }} aria-hidden="true">
+        <div class="marquee-content marquee-content-duplicate marquee-reverse" style={`animation-duration: ${animationDuration}`} aria-hidden="true">
           {items.map((item, index) => (
-            <div key={`secondary-2-${index}`} class="flex-shrink-0 flex items-center" style={{ gap: '16px' }}>
+            <div key={`secondary-2-${index}`} class="marquee-item">
               <img 
                 src={item.icon.startsWith('http') ? item.icon : `${imageBase}${item.icon}`}
                 alt="" 
-                class="w-32 md:w-40 opacity-90"
+                class="marquee-icon"
                 loading="lazy"
               />
-              <h3 class="text-xl md:text-2.3xl xl:text-2.5xl uppercase font-semibold tracking-[0.02em] text-white font-sora whitespace-nowrap">
-                {item.text}
-              </h3>
-              <span class="text-white/30 text-lg">&bull;</span>
+              <span class="marquee-text">{item.text}</span>
+              <span class="marquee-separator">&bull;</span>
             </div>
           ))}
         </div>
@@ -145,21 +151,182 @@ const isSecondary = variant === 'secondary';
 }
 
 <style>
-  /*
-    No local animation/keyframe overrides here on purpose — animate-scroll-one and
-    animate-scroll-two are already defined once, correctly, in the global theme
-    (scroll-one moves left, scroll-two moves right). Redefining them locally was
-    what broke the alternating-direction effect; removed rather than duplicated.
-  */
+  /* Marquee Container */
+  .marquee-wrapper {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    z-index: 11;
+  }
 
-  .animate-scroll-one:hover,
-  .animate-scroll-two:hover {
+  .marquee-secondary-wrapper {
+    padding: 30px 0;
+    z-index: 1;
+  }
+
+  /* Marquee Track - the scrolling container */
+  .marquee-track {
+    display: flex;
+    width: 100%;
+    position: relative;
+  }
+
+  .marquee-primary {
+    background: var(--color-primary, #a60c13);
+    padding: 16px 0;
+  }
+
+  .marquee-secondary {
+    background: var(--color-secondary, #1a1a1a);
+    padding: 16px 0;
+    transform: rotate(-3deg);
+    width: 112%;
+    margin-left: -6%;
+  }
+
+  /* Marquee Content - the actual scrolling content */
+  .marquee-content {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    gap: 48px;
+    animation: marquee-scroll-left 25s linear infinite;
+    will-change: transform;
+  }
+
+  .marquee-content-duplicate {
+    margin-left: 48px;
+  }
+
+  .marquee-reverse {
+    animation-name: marquee-scroll-right;
+  }
+
+  /* Pause on hover */
+  .marquee-track:hover .marquee-content {
     animation-play-state: paused;
   }
 
-  /* Fade the marquee out at both edges instead of a hard visual cut */
-  .marquee-mask {
-    -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 5%, #000 95%, transparent 100%);
-    mask-image: linear-gradient(90deg, transparent 0, #000 5%, #000 95%, transparent 100%);
+  /* Individual Item */
+  .marquee-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+
+  /* Icon */
+  .marquee-icon {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+    opacity: 0.9;
+    flex-shrink: 0;
+  }
+
+  @media (min-width: 768px) {
+    .marquee-icon {
+      width: 40px;
+      height: 40px;
+    }
+  }
+
+  /* Text */
+  .marquee-text {
+    font-family: 'Sora', sans-serif;
+    font-size: 20px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    color: white;
+    white-space: nowrap;
+  }
+
+  @media (min-width: 768px) {
+    .marquee-text {
+      font-size: 23px;
+    }
+  }
+
+  @media (min-width: 1280px) {
+    .marquee-text {
+      font-size: 25px;
+    }
+  }
+
+  /* Separator */
+  .marquee-separator {
+    color: rgba(255, 255, 255, 0.3);
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+
+  /* Keyframe Animations */
+  @keyframes marquee-scroll-left {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-100%);
+    }
+  }
+
+  @keyframes marquee-scroll-right {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(0);
+    }
+  }
+
+  /* Fade edges */
+  .marquee-wrapper::before,
+  .marquee-wrapper::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 80px;
+    z-index: 2;
+    pointer-events: none;
+  }
+
+  .marquee-wrapper::before {
+    left: 0;
+    background: linear-gradient(90deg, 
+      var(--color-offwhite, #f7f5f0) 0%, 
+      transparent 100%
+    );
+  }
+
+  .marquee-wrapper::after {
+    right: 0;
+    background: linear-gradient(270deg, 
+      var(--color-offwhite, #f7f5f0) 0%, 
+      transparent 100%
+    );
+  }
+
+  .marquee-secondary-wrapper::before {
+    background: linear-gradient(90deg, 
+      var(--color-offwhite, #f7f5f0) 0%, 
+      transparent 100%
+    );
+  }
+
+  .marquee-secondary-wrapper::after {
+    background: linear-gradient(270deg, 
+      var(--color-offwhite, #f7f5f0) 0%, 
+      transparent 100%
+    );
+  }
+
+  /* Accessibility: Respect reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    .marquee-content {
+      animation: none;
+    }
   }
 </style>
