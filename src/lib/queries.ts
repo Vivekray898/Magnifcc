@@ -2,10 +2,34 @@
 
 import { client } from './sanity';
 
-// ... existing queries ...
+// Helper function to ensure links have leading slashes
+function normalizeLinks(obj: any): any {
+  if (!obj) return obj;
+  
+  // If it's an array, process each item
+  if (Array.isArray(obj)) {
+    return obj.map(item => normalizeLinks(item));
+  }
+  
+  // If it's an object, process each property
+  if (typeof obj === 'object' && obj !== null) {
+    const result: any = {};
+    for (const [key, value] of Object.entries(obj)) {
+      // If the property is 'link' and it's a string, add leading slash
+      if (key === 'link' && typeof value === 'string' && value && !value.startsWith('/') && !value.startsWith('javascript:') && !value.startsWith('#')) {
+        result[key] = '/' + value;
+      } else {
+        result[key] = normalizeLinks(value);
+      }
+    }
+    return result;
+  }
+  
+  return obj;
+}
 
 export async function getHeader() {
-  return await client.fetch(`*[_type == "header"][0]{
+  const rawData = await client.fetch(`*[_type == "header"][0]{
     title,
     logo {
       asset->{
@@ -29,10 +53,13 @@ export async function getHeader() {
     },
     searchEnabled
   }`);
+  
+  // Normalize all links to have leading slashes
+  return normalizeLinks(rawData);
 }
 
 export async function getFooter() {
-  return await client.fetch(`*[_type == "footer"][0]{
+  const rawData = await client.fetch(`*[_type == "footer"][0]{
     title,
     newsletter {
       title,
@@ -94,6 +121,9 @@ export async function getFooter() {
       }
     }
   }`);
+  
+  // Normalize all links to have leading slashes
+  return normalizeLinks(rawData);
 }
 
 // ============================================
