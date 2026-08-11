@@ -14,7 +14,7 @@ export const servicesSection = defineField({
   },
   fields: [
     subtitleField({ title: 'Subtitle', initialValue: '# Our Services' }),
-    titleField({ title: 'Section Title', initialValue: 'Our Medical Services.' }),
+    titleField({ title: 'Section Title', initialValue: 'Our  Services.' }),
     // REMOVED: services array - now fetched from servicesDetails
   ],
 });
