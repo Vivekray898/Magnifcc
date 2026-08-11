@@ -136,44 +136,36 @@ const { subtitle, title } = sectionData;
       <h2 class="xl:text-4xl md:text-3.5xl sm:text-3xl text-2.3xl font-semibold text-secondary font-sora leading-[1.2]">{title}</h2>
     </div>
     
-    <!-- Swiper Container -->
-    <div class="swiper services-slider" id="servicesSlider">
-      <div class="swiper-wrapper">
-        {services?.map((service, index) => (
-          <div class="swiper-slide group" key={index}>
-            <div class="services-box shadow-[0px_0px_12px_0px_rgba(2,25,53,0.06)] relative p-22 xxl:p-24 m-8 before:w-full before:h-0 before:bg-primary before:absolute before:bottom-0 before:left-0 group-hover:before:h-full before:duration-500 h-full flex flex-col pb-6">
-              {/* Icon with gradient background */}
-              <div class="icon-circle size-52 flex items-center justify-center mb-16 relative rounded-full group-hover:bg-white flex-shrink-0"
-                   style={{
-                     background: `var(--theme-colour)`,
-                     boxShadow: `0px 0px 16px 0px rgba(166,12,19,0.4)`
-                   }}>
-                <svg class="w-6 h-6 text-white group-hover:text-secondary transition-colors duration-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-                </svg>
-              </div>
-              
-              <h4 class="font-sora text-secondary font-medium leading-[1.2] flex-shrink-0">
-                <a href={service.link || 'services-details.html'} class="text-lg xl:text-xl font-bold font-sora relative text-secondary group-hover:text-white duration-500">
-                  {service.title}
-                </a>
-              </h4>
-              <p class="pt-8 pb-14 relative text-sm leading-22 text-[#6f6f6f] font-normal group-hover:text-white duration-500 flex-grow">
-                {service.description}
-              </p>
-              <a href={service.link || 'services-details.html'} class="relative text-sm font-bold text-secondary font-sora group-hover:text-white duration-500 inline-flex items-center gap-2 flex-shrink-0 mt-auto">
-                Read More <i class="fa-solid fa-arrow-right text-xs relative"></i>
-              </a>
+    <!-- Services Grid - 4 columns -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      {services?.map((service, index) => (
+        <div class="group h-full" key={index}>
+          <div class="services-box shadow-[0px_0px_12px_0px_rgba(2,25,53,0.06)] relative p-22 xxl:p-24 rounded-[10px] before:w-full before:h-0 before:bg-primary before:absolute before:bottom-0 before:left-0 group-hover:before:h-full before:duration-500 h-full flex flex-col pb-6 overflow-hidden bg-white hover:translate-y-[-4px] transition-all duration-300">
+            {/* Icon with gradient background */}
+            <div class="icon-circle size-52 flex items-center justify-center mb-16 relative rounded-full group-hover:bg-white flex-shrink-0"
+                 style={{
+                   background: `var(--theme-colour)`,
+                   boxShadow: `0px 0px 16px 0px rgba(166,12,19,0.4)`
+                 }}>
+              <svg class="w-6 h-6 text-white group-hover:text-secondary transition-colors duration-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+              </svg>
             </div>
+            
+            <h4 class="font-sora text-secondary font-medium leading-[1.2] flex-shrink-0">
+              <a href={service.link || 'services-details.html'} class="text-lg xl:text-xl font-bold font-sora relative text-secondary group-hover:text-white duration-500">
+                {service.title}
+              </a>
+            </h4>
+            <p class="pt-8 pb-14 relative text-sm leading-22 text-[#6f6f6f] font-normal group-hover:text-white duration-500 flex-grow">
+              {service.description}
+            </p>
+            <a href={service.link || 'services-details.html'} class="relative text-sm font-bold text-secondary font-sora group-hover:text-white duration-500 inline-flex items-center gap-2 flex-shrink-0 mt-auto">
+              Read More <i class="fa-solid fa-arrow-right text-xs relative"></i>
+            </a>
           </div>
-        ))}
-      </div>
-      
-      <!-- Navigation Buttons -->
-      <div class="swiper-button">
-        <div class="services-swiper-button-prev"><i class="fa-solid fa-arrow-left"></i></div>
-        <div class="services-swiper-button-next"><i class="fa-solid fa-arrow-right"></i></div>
-      </div>
+        </div>
+      ))}
     </div>
   </div>
 </section>
@@ -192,10 +184,29 @@ const { subtitle, title } = sectionData;
     display: flex;
     flex-direction: column;
     height: 100%;
+    position: relative;
+    z-index: 1;
+  }
+  
+  .services-box::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 0;
+    background: var(--theme-colour);
+    transition: height 0.5s ease;
+    z-index: -1;
+  }
+  
+  .services-box:hover::before {
+    height: 100%;
   }
   
   .services-box:hover {
     transform: translateY(-4px);
+    box-shadow: 0 10px 30px rgba(166, 12, 19, 0.15);
   }
   
   .services-box .icon-circle {
@@ -228,160 +239,27 @@ const { subtitle, title } = sectionData;
   .services-box h4 a:hover {
     color: var(--theme-colour) !important;
   }
-  
-  /* Ensure all slides are the same height */
-  .swiper-slide {
-    height: auto;
-    display: flex;
+
+  /* Responsive adjustments */
+  @media (max-width: 640px) {
+    .services-box {
+      padding: 20px;
+    }
+    
+    .services-box .icon-circle {
+      width: 44px;
+      height: 44px;
+    }
+    
+    .services-box .icon-circle svg {
+      width: 20px;
+      height: 20px;
+    }
   }
   
-  .swiper-wrapper {
-    align-items: stretch;
-  }
-  
-  /* Swiper button styles */
-  .services-swiper-button-next,
-  .services-swiper-button-prev {
-    width: 38px;
-    height: 38px;
-    background: white;
-    border-radius: 50%;
-    display: flex !important;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 4px 12px rgba(2,25,53,0.1);
-    cursor: pointer;
-    transition: all 0.3s ease;
-    color: #021935;
-    font-size: 13px;
-    position: relative;
-    z-index: 10;
-  }
-  
-  .services-swiper-button-next:hover,
-  .services-swiper-button-prev:hover {
-    background: var(--theme-colour);
-    color: white;
-  }
-  
-  .swiper-button {
-    display: flex;
-    justify-content: center;
-    gap: 14px;
-    margin-top: 22px;
+  @media (min-width: 641px) and (max-width: 1024px) {
+    .services-box {
+      padding: 22px;
+    }
   }
 </style>
-
-<!-- Load Swiper CSS and JS -->
-<script is:inline>
-  // Load Swiper CSS
-  const link = document.createElement('link');
-  link.rel = 'stylesheet';
-  link.href = 'https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css';
-  document.head.appendChild(link);
-</script>
-
-<script>
-  // Initialize Swiper
-  function initSwiper() {
-    // Check if Swiper is available
-    if (typeof Swiper === 'undefined') {
-      // Load Swiper JS dynamically
-      const script = document.createElement('script');
-      script.src = 'https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js';
-      script.onload = function() {
-        createSwiperInstance();
-      };
-      script.onerror = function() {
-        console.error('Failed to load Swiper library');
-      };
-      document.head.appendChild(script);
-    } else {
-      createSwiperInstance();
-    }
-  }
-  
-  function createSwiperInstance() {
-    const swiperEl = document.querySelector('#servicesSlider');
-    if (!swiperEl) {
-      console.error('Swiper container not found');
-      return;
-    }
-    
-    const slides = swiperEl.querySelectorAll('.swiper-slide');
-    if (slides.length === 0) {
-      console.error('No slides found');
-      return;
-    }
-    
-    // Destroy existing instance if any
-    if (swiperEl.swiper) {
-      swiperEl.swiper.destroy(true, true);
-    }
-    
-    // Determine number of slides per view
-    let slidesPerView = 1;
-    if (window.innerWidth >= 1280) slidesPerView = Math.min(4, slides.length);
-    else if (window.innerWidth >= 1024) slidesPerView = Math.min(3, slides.length);
-    else if (window.innerWidth >= 768) slidesPerView = Math.min(2, slides.length);
-    else if (window.innerWidth >= 640) slidesPerView = Math.min(2, slides.length);
-    else slidesPerView = 1;
-    
-    // Initialize Swiper
-    const swiper = new Swiper(swiperEl, {
-      slidesPerView: slidesPerView,
-      spaceBetween: 16,
-      loop: slides.length > slidesPerView,
-      autoplay: {
-        delay: 3000,
-        disableOnInteraction: false,
-        pauseOnMouseEnter: true,
-        stopOnLastSlide: false,
-      },
-      navigation: {
-        nextEl: '.services-swiper-button-next',
-        prevEl: '.services-swiper-button-prev',
-      },
-      breakpoints: {
-        640: {
-          slidesPerView: Math.min(2, slides.length),
-          spaceBetween: 16,
-        },
-        768: {
-          slidesPerView: Math.min(2, slides.length),
-          spaceBetween: 20,
-        },
-        1024: {
-          slidesPerView: Math.min(3, slides.length),
-          spaceBetween: 20,
-        },
-        1280: {
-          slidesPerView: Math.min(4, slides.length),
-          spaceBetween: 24,
-        },
-      },
-    });
-    
-    console.log('Swiper initialized successfully!');
-  }
-  
-  // Initialize when DOM is ready
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initSwiper);
-  } else {
-    initSwiper();
-  }
-  
-  // Re-initialize on resize
-  let resizeTimer;
-  window.addEventListener('resize', function() {
-    clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(function() {
-      const swiperEl = document.querySelector('#servicesSlider');
-      if (swiperEl && swiperEl.swiper) {
-        swiperEl.swiper.destroy(true, true);
-        createSwiperInstance();
-      }
-    }, 250);
-  });
-</script>
