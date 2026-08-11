@@ -2,8 +2,7 @@
 // src/components/common/Footer.astro
 import { getFooter } from '../../lib/queries';
 import { imageUrlFor } from '../../lib/sanity-image';
-import FloatingWhatsApp from './FloatingWhatsApp.astro'; // Import the component
-
+import FloatingWhatsApp from './FloatingWhatsApp.astro';
 
 export interface Props {
   fetchFromSanity?: boolean;
@@ -71,6 +70,16 @@ const defaultData = {
       { src: '/assets/img/instagram-3.jpg', link: 'https://www.instagram.com/' },
     ],
   },
+  whatsapp: {
+    enabled: true,
+    phoneNumber: '+917047145306',
+    message: 'Hello! I have a question about your services.',
+    position: 'bottom-right',
+    size: 'medium',
+    showTooltip: true,
+    tooltipText: 'Chat with us on WhatsApp',
+    bottomOffset: 90,
+  },
 };
 
 let data = defaultData;
@@ -128,25 +137,22 @@ if (fetchFromSanity) {
   }
 }
 
-const { newsletter, aboutColumn, linkColumn1, linkColumn2, contactColumn, copyright, instagram } = data;
+const { newsletter, aboutColumn, linkColumn1, linkColumn2, contactColumn, copyright, instagram, whatsapp } = data;
 const currentYear = new Date().getFullYear();
-
-
-// Get WhatsApp number from Sanity or use default
-const whatsappNumber = data.whatsappNumber || '+917047145306';
-const whatsappMessage = data.whatsappMessage || 'Hello! I have a question about your services.';
 ---
 
-{/* Floating WhatsApp Button with offset for scroll-to-top */}
-<FloatingWhatsApp 
-  phoneNumber={whatsappNumber}
-  message={whatsappMessage}
-  position="bottom-right"
-  size="medium"
-  showTooltip={true}
-  tooltipText="Chat with us on WhatsApp"
-  bottomOffset={90} // Adjust this value based on your scroll-to-top button size
-/>
+{/* Floating WhatsApp Button - Only render if enabled */}
+{whatsapp?.enabled !== false && (
+  <FloatingWhatsApp 
+    phoneNumber={whatsapp?.phoneNumber || '+917047145306'}
+    message={whatsapp?.message || 'Hello! I have a question about your services.'}
+    position={whatsapp?.position || 'bottom-right'}
+    size={whatsapp?.size || 'medium'}
+    showTooltip={whatsapp?.showTooltip !== false}
+    tooltipText={whatsapp?.tooltipText || 'Chat with us on WhatsApp'}
+    bottomOffset={whatsapp?.bottomOffset || 90}
+  />
+)}
 
 <footer class="footer-light lg:py-120 md:py-80 py-60 relative overflow-hidden">
   <div class="container relative z-10">
@@ -262,32 +268,9 @@ const whatsappMessage = data.whatsappMessage || 'Hello! I have a question about 
           </ul>
         </div>
       </div>
-
-      {/*
-      <!-- ===== INSTAGRAM STRIP (commented out — re-enable when ready) ===== -->
-      <div class="lg:w-5/12 w-full">
-        <div class="lg:ml-70 max-lg:pt-40 instagram-img">
-          <h3 class="text-common uppercase xxl:text-5.2xl lg:text-4.65xl text-[32px] font-sora font-medium leading-[1.2]">{instagram.title}</h3>
-          <ul class="flex items-center justify-between mt-16 gap-8">
-            {instagram.images?.map((img: any, index: number) => (
-              <li key={index} class="w-full">
-                <a href={img.link} target="_blank" rel="noopener noreferrer" class="block group">
-                  <figure class="relative w-full overflow-hidden rounded-[10px]">
-                    <img src={img.src} alt="Instagram" class="w-full duration-500 group-hover:scale-110">
-                  </figure>
-                </a>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </div>
-      */}
     </div>
 
   </div>
-
-  <!-- Decorative line (commented out — doesn't fit light theme) -->
-  <!-- <img src="/assets/img/footer-line.png" alt="" aria-hidden="true" class="footer-line max-xl:hidden"> -->
 </footer>
 
 <style is:global>

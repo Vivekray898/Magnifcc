@@ -1,0 +1,679 @@
+---
+// src/components/sections/EnquiryForm.astro
+import { client } from '../../lib/sanity';
+
+export interface Props {
+  fetchFromSanity?: boolean;
+}
+
+const { fetchFromSanity = true } = Astro.props;
+
+const defaultData = {
+  badge: 'Get In Touch',
+  title: 'Enquire',
+  titleHighlight: 'Now',
+  description:
+    "Whenever and wherever you need — it's our job to get you started on the correct path for your imminent or existing Health Care Facility. Reach out and let's begin your healthcare journey together.",
+  phoneLabel: 'Phone',
+  phone: '(+91)-7047145306',
+  emailLabel: 'Email',
+  email: 'info@magnifichcs.com',
+  addressLabel: 'Address',
+  address: 'Sarada Apartment, Opp. College Para Sishu Uddyan, Ashutosh Mukherjee Road, College Para, Siliguri – 734001',
+  socialLinks: [
+    { platform: 'Facebook', url: 'https://www.facebook.com/', icon: 'fa-brands fa-facebook-f', color: '#1877F2' },
+    { platform: 'Instagram', url: 'https://www.instagram.com/', icon: 'fa-brands fa-instagram', color: '#E1306C' },
+    { platform: 'LinkedIn', url: 'https://www.linkedin.com/', icon: 'fa-brands fa-linkedin-in', color: '#0A66C2' },
+    { platform: 'YouTube', url: 'https://www.youtube.com/', icon: 'fa-brands fa-youtube', color: '#FF0000' },
+  ],
+  form: {
+    firstNamePlaceholder: 'John',
+    lastNamePlaceholder: 'Doe',
+    emailPlaceholder: 'john@example.com',
+    phonePlaceholder: '+91 XXXXX XXXXX',
+    companyPlaceholder: 'Your hospital or organization name',
+    messagePlaceholder: 'Tell us about your healthcare facility requirements...',
+    buttonText: 'Submit Enquiry',
+  },
+};
+
+let data = defaultData;
+
+if (fetchFromSanity) {
+  try {
+    const query = `*[_type == "contactPage"][0]{
+      enquirySection {
+        badge, title, titleHighlight, description,
+        phoneLabel, phone, emailLabel, email, addressLabel, address,
+        socialLinks[] { platform, url, icon, color },
+        form {
+          firstNamePlaceholder, lastNamePlaceholder, emailPlaceholder,
+          phonePlaceholder, companyPlaceholder, messagePlaceholder, buttonText
+        }
+      }
+    }`;
+    const result = await client.fetch(query);
+    if (result?.enquirySection) {
+      data = {
+        ...defaultData,
+        ...result.enquirySection,
+        socialLinks: result.enquirySection.socialLinks?.length
+          ? result.enquirySection.socialLinks
+          : defaultData.socialLinks,
+        form: { ...defaultData.form, ...result.enquirySection.form },
+      };
+    }
+  } catch (error) {
+    console.error('Error fetching enquiry data:', error);
+  }
+}
+
+const { badge, title, titleHighlight, description, phoneLabel, phone, emailLabel, email, addressLabel, address, socialLinks, form } = data;
+---
+
+<section class="enquiry-section relative overflow-hidden">
+  <!-- Decorative background elements -->
+  <div class="enquiry-bg-shapes" aria-hidden="true">
+    <div class="shape shape-1"></div>
+    <div class="shape shape-2"></div>
+    <div class="shape shape-3"></div>
+  </div>
+
+  <div class="container relative z-10">
+    <div class="enquiry-wrapper">
+
+      <!-- ===== LEFT COLUMN ===== -->
+      <div class="enquiry-info">
+        <!-- Badge -->
+        <div class="enquiry-badge-wrapper">
+          <span class="enquiry-badge">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M4 4H20C21.1 4 22 4.9 22 6V18C22 19.1 21.1 20 20 20H4C2.9 20 2 19.1 2 18V6C2 4.9 2.9 4 4 4ZM4 8V18H20V8L12 13L4 8ZM20 6H4L12 11L20 6Z" fill="currentColor"/>
+            </svg>
+            {badge}
+          </span>
+        </div>
+
+        <!-- Title -->
+        <h2 class="enquiry-title">
+          {title} <span class="highlight">{titleHighlight}</span>
+        </h2>
+
+        <!-- Description -->
+        <p class="enquiry-desc">{description}</p>
+
+        <!-- Contact Cards -->
+        <div class="enquiry-contact-grid">
+          <div class="contact-card">
+            <div class="contact-card-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M6.62 10.79C8.06 13.62 10.38 15.94 13.21 17.38L15.41 15.18C15.69 14.9 16.08 14.82 16.43 14.93C17.55 15.3 18.75 15.5 20 15.5C20.55 15.5 21 15.95 21 16.5V20C21 20.55 20.55 21 20 21C10.61 21 3 13.39 3 4C3 3.45 3.45 3 4 3H7.5C8.05 3 8.5 3.45 8.5 4C8.5 5.25 8.7 6.45 9.07 7.57C9.18 7.92 9.1 8.31 8.82 8.59L6.62 10.79Z"/>
+              </svg>
+            </div>
+            <div>
+              <span class="contact-card-label">{phoneLabel}</span>
+              <a href={`tel:${phone.replace(/[^0-9+]/g, '')}`} class="contact-card-value">{phone}</a>
+            </div>
+          </div>
+
+          <div class="contact-card">
+            <div class="contact-card-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M20 4H4C2.9 4 2.01 4.9 2.01 6L2 18C2 19.1 2.9 20 4 20H20C21.1 20 22 19.1 22 18V6C22 4.9 21.1 4 20 4ZM20 18H4V8L12 13L20 8V18ZM12 11L4 6H20L12 11Z"/>
+              </svg>
+            </div>
+            <div>
+              <span class="contact-card-label">{emailLabel}</span>
+              <a href={`mailto:${email}`} class="contact-card-value">{email}</a>
+            </div>
+          </div>
+
+          <div class="contact-card contact-card-full">
+            <div class="contact-card-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2C8.13 2 5 5.13 5 9C5 14.25 12 22 12 22C12 22 19 14.25 19 9C19 5.13 15.87 2 12 2ZM12 11.5C10.62 11.5 9.5 10.38 9.5 9C9.5 7.62 10.62 6.5 12 6.5C13.38 6.5 14.5 7.62 14.5 9C14.5 10.38 13.38 11.5 12 11.5Z"/>
+              </svg>
+            </div>
+            <div>
+              <span class="contact-card-label">{addressLabel}</span>
+              <span class="contact-card-value">{address}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Social Links -->
+        <div class="enquiry-social-section">
+          <span class="social-label">Connect with us</span>
+          <ul class="enquiry-socials">
+            {socialLinks.map((social: any, index: number) => (
+              <li key={index}>
+                <a
+                  href={social.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="enquiry-social"
+                  style={`--social-color: ${social.color || 'var(--theme-colour)'}`}
+                  aria-label={social.platform}
+                >
+                  <i class={social.icon}></i>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+
+      <!-- ===== RIGHT COLUMN: FORM ===== -->
+      <div class="enquiry-form-wrap">
+        <div class="form-header">
+          <h3 class="form-title">Send us a Message</h3>
+          <p class="form-subtitle">Fill in the details below and we'll get back to you</p>
+        </div>
+
+        <form class="enquiry-form" data-enquiry-form novalidate>
+          <div class="ef-grid">
+            <div class="ef-field">
+              <label for="ef-firstname">First Name <span class="ef-req">*</span></label>
+              <input id="ef-firstname" type="text" name="firstName" placeholder={form.firstNamePlaceholder} required />
+            </div>
+            <div class="ef-field">
+              <label for="ef-lastname">Last Name <span class="ef-req">*</span></label>
+              <input id="ef-lastname" type="text" name="lastName" placeholder={form.lastNamePlaceholder} required />
+            </div>
+            <div class="ef-field">
+              <label for="ef-email">Email Address <span class="ef-req">*</span></label>
+              <input id="ef-email" type="email" name="email" placeholder={form.emailPlaceholder} required />
+            </div>
+            <div class="ef-field">
+              <label for="ef-phone">Phone Number <span class="ef-req">*</span></label>
+              <input id="ef-phone" type="tel" name="phone" placeholder={form.phonePlaceholder} required />
+            </div>
+            <div class="ef-field ef-full">
+              <label for="ef-company">Organization Name</label>
+              <input id="ef-company" type="text" name="company" placeholder={form.companyPlaceholder} />
+            </div>
+            <div class="ef-field ef-full">
+              <label for="ef-message">Your Message</label>
+              <textarea id="ef-message" name="message" rows="4" placeholder={form.messagePlaceholder}></textarea>
+            </div>
+            <div class="ef-field ef-full">
+              <button type="submit" class="ef-submit" data-enquiry-btn>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M2.01 21L23 12L2.01 3L2 10L17 12L2 14L2.01 21Z"/>
+                </svg>
+                <span>{form.buttonText}</span>
+              </button>
+              <p class="ef-note" data-enquiry-note hidden>
+                <i class="fa-solid fa-circle-check"></i>
+                Thank you! Your enquiry has been received — our team will contact you within 24 hours.
+              </p>
+            </div>
+          </div>
+        </form>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<script>
+  document.querySelectorAll('[data-enquiry-form]').forEach((form) => {
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!(form as HTMLFormElement).checkValidity()) {
+        (form as HTMLFormElement).reportValidity();
+        return;
+      }
+      const btn = form.querySelector('[data-enquiry-btn]') as HTMLButtonElement;
+      const note = form.querySelector('[data-enquiry-note]') as HTMLElement;
+      const original = btn.innerHTML;
+
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> <span>Sending…</span>';
+
+      await new Promise((r) => setTimeout(r, 900));
+
+      btn.classList.add('is-success');
+      btn.innerHTML = '<i class="fa-solid fa-check"></i> <span>Enquiry Sent!</span>';
+      note.hidden = false;
+      (form as HTMLFormElement).reset();
+
+      setTimeout(() => {
+        btn.disabled = false;
+        btn.classList.remove('is-success');
+        btn.innerHTML = original;
+        note.hidden = true;
+      }, 5000);
+    });
+  });
+</script>
+
+<style>
+  /* ===== SECTION ===== */
+  .enquiry-section {
+    background: linear-gradient(135deg, #f8f6f2 0%, #f0ede8 100%);
+    padding: 100px 0;
+    position: relative;
+    overflow: hidden;
+  }
+
+  @media (max-width: 1024px) {
+    .enquiry-section {
+      padding: 70px 0;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .enquiry-section {
+      padding: 50px 0;
+    }
+  }
+
+  /* ===== BACKGROUND SHAPES ===== */
+  .enquiry-bg-shapes {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  .shape {
+    position: absolute;
+    border-radius: 50%;
+    opacity: 0.06;
+  }
+
+  .shape-1 {
+    width: 500px;
+    height: 500px;
+    top: -200px;
+    right: -100px;
+    background: var(--theme-colour, #a60c13);
+  }
+
+  .shape-2 {
+    width: 300px;
+    height: 300px;
+    bottom: -100px;
+    left: -50px;
+    background: var(--theme-colour, #a60c13);
+  }
+
+  .shape-3 {
+    width: 150px;
+    height: 150px;
+    top: 50%;
+    left: 40%;
+    background: var(--theme-colour, #a60c13);
+    opacity: 0.04;
+  }
+
+  /* ===== WRAPPER ===== */
+  .enquiry-wrapper {
+    display: grid;
+    grid-template-columns: 1fr 1.2fr;
+    gap: 60px;
+    align-items: start;
+    position: relative;
+  }
+
+  @media (max-width: 1024px) {
+    .enquiry-wrapper {
+      grid-template-columns: 1fr;
+      gap: 50px;
+    }
+  }
+
+  /* ===== LEFT COLUMN ===== */
+  .enquiry-info {
+    position: relative;
+  }
+
+  .enquiry-badge-wrapper {
+    margin-bottom: 24px;
+  }
+
+  .enquiry-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(166, 12, 19, 0.08);
+    color: var(--theme-colour, #a60c13);
+    font-family: 'Sora', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    padding: 10px 20px;
+    border-radius: 999px;
+    border: 1px solid rgba(166, 12, 19, 0.1);
+  }
+
+  .enquiry-title {
+    color: var(--common-colour, #1a1a1a);
+    font-family: 'Sora', sans-serif;
+    font-weight: 800;
+    font-size: clamp(40px, 5vw, 56px);
+    line-height: 1.08;
+    letter-spacing: -0.02em;
+    margin-bottom: 20px;
+  }
+
+  .enquiry-title .highlight {
+    color: var(--theme-colour, #a60c13);
+    font-weight: 500;
+    font-style: italic;
+  }
+
+  .enquiry-desc {
+    color: var(--color-gary, #4a4a4a);
+    font-size: 17px;
+    line-height: 1.8;
+    margin-bottom: 36px;
+    max-width: 48ch;
+  }
+
+  /* ===== CONTACT CARDS ===== */
+  .enquiry-contact-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+
+  .contact-card-full {
+    grid-column: 1 / -1;
+  }
+
+  .contact-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 20px;
+    background: var(--color-white, #ffffff);
+    border-radius: 14px;
+    border: 1px solid rgba(0, 0, 0, 0.04);
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.02);
+  }
+
+  .contact-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+    border-color: var(--theme-colour, #a60c13);
+  }
+
+  .contact-card-icon {
+    flex-shrink: 0;
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: rgba(166, 12, 19, 0.06);
+    color: var(--theme-colour, #a60c13);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.3s ease;
+  }
+
+  .contact-card:hover .contact-card-icon {
+    background: var(--theme-colour, #a60c13);
+    color: #ffffff;
+  }
+
+  .contact-card-label {
+    display: block;
+    color: var(--color-gary, #4a4a4a);
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 2px;
+  }
+
+  .contact-card-value {
+    display: inline-block;
+    color: var(--common-colour, #1a1a1a);
+    font-family: 'Sora', sans-serif;
+    font-weight: 600;
+    font-size: 15px;
+    line-height: 1.4;
+    text-decoration: none;
+    transition: color 0.3s ease;
+  }
+
+  a.contact-card-value:hover {
+    color: var(--theme-colour, #a60c13);
+  }
+
+  /* ===== SOCIAL SECTION ===== */
+  .enquiry-social-section {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding-top: 8px;
+  }
+
+  .social-label {
+    color: var(--color-gary, #4a4a4a);
+    font-size: 14px;
+    font-weight: 600;
+    font-family: 'Sora', sans-serif;
+  }
+
+  .enquiry-socials {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    gap: 10px;
+  }
+
+  .enquiry-social {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(0, 0, 0, 0.08);
+    color: var(--common-colour, #1a1a1a);
+    font-size: 16px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    background: transparent;
+  }
+
+  .enquiry-social:hover {
+    background: var(--social-color, var(--theme-colour));
+    color: #ffffff;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+    border-color: var(--social-color, var(--theme-colour));
+  }
+
+  /* ===== RIGHT COLUMN: FORM ===== */
+  .enquiry-form-wrap {
+    background: var(--color-white, #ffffff);
+    border-radius: 24px;
+    padding: 40px 36px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.04);
+    border: 1px solid rgba(0, 0, 0, 0.04);
+    position: relative;
+  }
+
+  @media (max-width: 640px) {
+    .enquiry-form-wrap {
+      padding: 28px 20px;
+    }
+  }
+
+  .form-header {
+    margin-bottom: 28px;
+  }
+
+  .form-title {
+    color: var(--common-colour, #1a1a1a);
+    font-family: 'Sora', sans-serif;
+    font-weight: 700;
+    font-size: 26px;
+    margin-bottom: 8px;
+  }
+
+  .form-subtitle {
+    color: var(--color-gary, #4a4a4a);
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  .ef-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px 24px;
+  }
+
+  .ef-full {
+    grid-column: 1 / -1;
+  }
+
+  .ef-field label {
+    display: block;
+    color: var(--common-colour, #1a1a1a);
+    font-family: 'Sora', sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 8px;
+  }
+
+  .ef-req {
+    color: var(--theme-colour, #a60c13);
+  }
+
+  .ef-field input,
+  .ef-field textarea {
+    width: 100%;
+    background: var(--color-offwhite, #f7f5f0);
+    border: 2px solid transparent;
+    border-radius: 12px;
+    padding: 14px 18px;
+    font-family: 'Urbanist', sans-serif;
+    font-size: 15px;
+    color: var(--common-colour, #1a1a1a);
+    outline: none;
+    transition: all 0.3s ease;
+  }
+
+  .ef-field input::placeholder,
+  .ef-field textarea::placeholder {
+    color: #9b9b9b;
+  }
+
+  .ef-field input:focus,
+  .ef-field textarea:focus {
+    border-color: var(--theme-colour, #a60c13);
+    background: var(--color-white, #ffffff);
+    box-shadow: 0 0 0 4px rgba(166, 12, 19, 0.06);
+  }
+
+  .ef-field textarea {
+    resize: vertical;
+    min-height: 120px;
+  }
+
+  /* ===== SUBMIT BUTTON ===== */
+  .ef-submit {
+    width: 100%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    background: var(--theme-colour, #a60c13);
+    color: #ffffff;
+    border: none;
+    border-radius: 14px;
+    padding: 18px 32px;
+    font-family: 'Sora', sans-serif;
+    font-weight: 700;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .ef-submit::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 50%);
+    pointer-events: none;
+  }
+
+  .ef-submit:hover:not(:disabled) {
+    background: var(--theme-colour-hover, #88080d);
+    transform: translateY(-2px);
+    box-shadow: 0 12px 32px rgba(166, 12, 19, 0.25);
+  }
+
+  .ef-submit:active:not(:disabled) {
+    transform: translateY(0);
+  }
+
+  .ef-submit:disabled {
+    opacity: 0.8;
+    cursor: wait;
+  }
+
+  .ef-submit.is-success {
+    background: #1d7a4f;
+    box-shadow: 0 12px 32px rgba(29, 122, 79, 0.25);
+  }
+
+  .ef-note {
+    margin-top: 14px;
+    color: #1d7a4f;
+    font-weight: 600;
+    font-size: 15px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 640px) {
+    .ef-grid {
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+
+    .enquiry-contact-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .enquiry-social-section {
+      flex-wrap: wrap;
+    }
+
+    .enquiry-title {
+      font-size: 32px;
+    }
+
+    .enquiry-desc {
+      font-size: 16px;
+    }
+
+    .form-title {
+      font-size: 22px;
+    }
+
+    .contact-card-value {
+      font-size: 14px;
+    }
+  }
+
+  @media (min-width: 641px) and (max-width: 1024px) {
+    .enquiry-contact-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+</style>

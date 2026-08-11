@@ -5,7 +5,8 @@ import Layout from "../layouts/Layout.astro";
 import Header from '../components/common/Header.astro';
 import Footer from '../components/common/Footer.astro';
 import ContactHero from '../components/sections/contact/ContactHero.astro';
-import ContactForm from '../components/sections/contact/ContactForm.astro';
+// import ContactForm from '../components/sections/contact/ContactForm.astro';
+import EnquiryForm from '../components/sections/EnquiryForm.astro';
 ---
 
 <Layout title="Contact Us" description="Get in touch with us">
@@ -15,7 +16,8 @@ import ContactForm from '../components/sections/contact/ContactForm.astro';
   <ContactHero fetchFromSanity={true} />
   
   <!-- Contact Form & Info -->
-  <ContactForm fetchFromSanity={true} />
+  <!-- <ContactForm fetchFromSanity={true} /> -->
+   <EnquiryForm fetchFromSanity={true} />
   
   <Footer fetchFromSanity={true} slot="footer" />
 </Layout>

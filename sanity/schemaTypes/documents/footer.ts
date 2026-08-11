@@ -90,6 +90,84 @@ export default defineType({
         ]},
       ],
     }),
+    // WhatsApp Settings
+    defineField({
+      name: 'whatsapp',
+      title: '💬 WhatsApp Settings',
+      type: 'object',
+      options: { collapsible: true, collapsed: false },
+      fields: [
+        { 
+          name: 'enabled', 
+          title: 'Enable WhatsApp Button', 
+          type: 'boolean', 
+          initialValue: true,
+          description: 'Show/hide the floating WhatsApp button'
+        },
+        { 
+          name: 'phoneNumber', 
+          title: 'Phone Number', 
+          type: 'string', 
+          initialValue: '+917047145306',
+          description: 'Enter phone number with country code (e.g., +917047145306)'
+        },
+        { 
+          name: 'message', 
+          title: 'Default Message', 
+          type: 'text', 
+          initialValue: 'Hello! I have a question about your services.',
+          description: 'Pre-filled message when user clicks the WhatsApp button'
+        },
+        { 
+          name: 'position', 
+          title: 'Button Position', 
+          type: 'string', 
+          initialValue: 'bottom-right',
+          options: {
+            list: [
+              { title: 'Bottom Right', value: 'bottom-right' },
+              { title: 'Bottom Left', value: 'bottom-left' },
+              { title: 'Top Right', value: 'top-right' },
+              { title: 'Top Left', value: 'top-left' },
+            ]
+          }
+        },
+        { 
+          name: 'size', 
+          title: 'Button Size', 
+          type: 'string', 
+          initialValue: 'medium',
+          options: {
+            list: [
+              { title: 'Small (48px)', value: 'small' },
+              { title: 'Medium (62px)', value: 'medium' },
+              { title: 'Large (76px)', value: 'large' },
+            ]
+          }
+        },
+        { 
+          name: 'showTooltip', 
+          title: 'Show Tooltip', 
+          type: 'boolean', 
+          initialValue: true,
+          description: 'Show/hide the "Chat with us on WhatsApp" tooltip'
+        },
+        { 
+          name: 'tooltipText', 
+          title: 'Tooltip Text', 
+          type: 'string', 
+          initialValue: 'Chat with us on WhatsApp',
+          description: 'Text displayed in the tooltip'
+        },
+        { 
+          name: 'bottomOffset', 
+          title: 'Bottom Offset (px)', 
+          type: 'number', 
+          initialValue: 90,
+          description: 'Distance from bottom of screen. Set higher if you have a scroll-to-top button (default: 90px)'
+        },
+      ],
+    }),
     // Instagram Section
     defineField({
       name: 'instagram',
