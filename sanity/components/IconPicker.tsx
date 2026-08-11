@@ -102,13 +102,12 @@ export default function IconPicker(props: IconPickerProps) {
         </Box>
       )}
 
-      {/* Search */}
+      {/* Search - REMOVED clearable prop */}
       <Box>
         <TextInput
           placeholder="Search icons..."
           value={searchTerm}
           onChange={(event) => setSearchTerm(event.currentTarget.value)}
-          clearable
         />
       </Box>
 
@@ -130,7 +129,7 @@ export default function IconPicker(props: IconPickerProps) {
         </Flex>
       </Box>
 
-      {/* Icon Grid */}
+      {/* Icon Grid - Changed to use Flex with column direction */}
       <Grid columns={[3, 4, 5]} gap={2}>
         {filteredIcons.map((icon) => {
           const isSelected = value === icon.value;
@@ -160,7 +159,8 @@ export default function IconPicker(props: IconPickerProps) {
                 e.currentTarget.style.boxShadow = 'none';
               }}
             >
-              <Stack space={1} align="center">
+              {/* Changed to Flex with column direction */}
+              <Flex direction="column" align="center" gap={1}>
                 <Box style={{ 
                   width: '36px', 
                   height: '36px', 
@@ -183,7 +183,7 @@ export default function IconPicker(props: IconPickerProps) {
                     ✓
                   </Badge>
                 )}
-              </Stack>
+              </Flex>
             </Card>
           );
         })}

@@ -155,10 +155,7 @@ const bandStats = [
                     )}
                 </div>
 
-                <!-- STATS CARD: same card language as the video frame above it
-                     (white, rounded-2xl, border-secondary/10, soft navy shadow),
-                     pulled up over the card on lg+ so it reads as one composition
-                     instead of a disconnected dark band further down the page. -->
+                <!-- STATS CARD -->
                 <div class="stats-card relative z-10 mx-14 sm:mx-24 lg:-mt-28 -mt-20 rounded-2xl border border-secondary/10 bg-white shadow-[0_25px_60px_-20px_rgba(2,25,53,0.2)]">
                     <div class="grid grid-cols-2 sm:grid-cols-4 divide-x divide-y sm:divide-y-0 divide-secondary/10">
                         {bandStats.map((stat, index) => {
@@ -219,26 +216,6 @@ const bandStats = [
                         <span>{ctaText}</span>
                         <i class="fa-solid fa-arrow-right text-xs"></i>
                     </a>
-
-                    <div class="flex items-center gap-12">
-                        <ul class="flex experience-team">
-                            <li class="-ml-12 first:ml-0">
-                                <img src="assets/img/team-1.png" alt="img" class="w-38 h-38 rounded-full ring-3 ring-[#f8f6f5] object-cover" />
-                            </li>
-                            <li class="-ml-12">
-                                <img src="assets/img/team-2.png" alt="img" class="w-38 h-38 rounded-full ring-3 ring-[#f8f6f5] object-cover" />
-                            </li>
-                            <li class="-ml-12">
-                                <img src="assets/img/team-3.png" alt="img" class="w-38 h-38 rounded-full ring-3 ring-[#f8f6f5] object-cover" />
-                            </li>
-                        </ul>
-                        <div class="leading-tight">
-                            <h6 class="font-bold text-secondary font-sora text-sm">
-                                {teamStats.number}{teamStats.suffix}
-                            </h6>
-                            <span class="text-gary text-xs">{teamStats.label}</span>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
@@ -335,7 +312,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     .stats-card {
-        /* keeps the overlap effect from ever colliding with the copy
+        /* keeps the overlap effect from never colliding with the copy
            column on narrow viewports, where the two columns stack */
         width: auto;
     }

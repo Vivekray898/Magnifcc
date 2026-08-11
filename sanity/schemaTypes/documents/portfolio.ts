@@ -1,26 +1,28 @@
 // /sanity/schemaTypes/documents/portfolio.ts
-export default {
+import { defineType, defineField } from 'sanity';
+
+export default defineType({
   name: 'portfolio',
   title: 'Portfolio',
   type: 'document',
   fields: [
-    {
+    defineField({
       name: 'title',
       title: 'Title',
       type: 'string',
-      validation: Rule => Rule.required(),
-    },
-    {
+      validation: (Rule: any) => Rule.required(),
+    }),
+    defineField({
       name: 'slug',
       title: 'Slug',
       type: 'slug',
-      validation: Rule => Rule.required(),
+      validation: (Rule: any) => Rule.required(),
       options: {
         source: 'title',
         maxLength: 96,
       },
-    },
-    {
+    }),
+    defineField({
       name: 'category',
       title: 'Category',
       type: 'string',
@@ -39,42 +41,42 @@ export default {
           { title: 'Patient Education', value: 'Patient Education' },
         ],
       },
-      validation: Rule => Rule.required(),
-    },
-    {
+      validation: (Rule: any) => Rule.required(),
+    }),
+    defineField({
       name: 'description',
       title: 'Description',
       type: 'text',
-      validation: Rule => Rule.required(),
-    },
-    {
+      validation: (Rule: any) => Rule.required(),
+    }),
+    defineField({
       name: 'client',
       title: 'Client Name',
       type: 'string',
       description: 'Name of the client or project owner',
-    },
-    {
+    }),
+    defineField({
       name: 'timeframe',
       title: 'Timeframe',
       type: 'string',
       description: 'Project completion date or timeframe (e.g., "August 03, 2024")',
-    },
-    {
+    }),
+    defineField({
       name: 'websiteLink',
       title: 'Website Link',
       type: 'url',
       description: 'Link to the project or client website',
-    },
-    {
+    }),
+    defineField({
       name: 'image',
       title: 'Main Image',
       type: 'image',
-      validation: Rule => Rule.required(),
+      validation: (Rule: any) => Rule.required(),
       options: {
         hotspot: true,
       },
-    },
-    {
+    }),
+    defineField({
       name: 'bannerImage',
       title: 'Banner Image',
       type: 'image',
@@ -82,8 +84,8 @@ export default {
       options: {
         hotspot: true,
       },
-    },
-    {
+    }),
+    defineField({
       name: 'gallery',
       title: 'Gallery Images',
       type: 'array',
@@ -96,8 +98,8 @@ export default {
         },
       ],
       description: 'Additional images for the portfolio gallery',
-    },
-    {
+    }),
+    defineField({
       name: 'content',
       title: 'Content',
       type: 'array',
@@ -106,7 +108,7 @@ export default {
         { type: 'image' },
       ],
       description: 'Rich text content for the portfolio detail page',
-    },
+    }),
   ],
   orderings: [
     {
@@ -127,4 +129,4 @@ export default {
       media: 'image',
     },
   },
-};
+});
