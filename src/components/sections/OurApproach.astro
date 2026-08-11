@@ -1,0 +1,361 @@
+---
+// src/components/sections/OurApproach.astro
+import { client } from '../../lib/sanity';
+
+export interface Props {
+  fetchFromSanity?: boolean;
+}
+
+const { fetchFromSanity = true } = Astro.props;
+
+const defaultData = {
+  subtitle: 'Our Process',
+  title: 'Process that moves things forward',
+  steps: [
+    { icon: 'fa-solid fa-file-pen', title: 'Assessment of current state' },
+    { icon: 'fa-solid fa-lightbulb', title: 'Defining the opportunities' },
+    { icon: 'fa-solid fa-eye', title: 'Cast the vision' },
+    { icon: 'fa-solid fa-diagram-project', title: 'Identifying best evidence-based practices' },
+    { icon: 'fa-solid fa-compass-drafting', title: 'Designing the implementation plan' },
+    { icon: 'fa-solid fa-wand-magic-sparkles', title: 'Recommending customized, sustainable solutions' },
+    { icon: 'fa-solid fa-magnifying-glass-chart', title: 'Review work at each stage' },
+    { icon: 'fa-solid fa-arrows-rotate', title: 'Refine key success factors' },
+  ],
+};
+
+let data = defaultData;
+
+if (fetchFromSanity) {
+  try {
+    const query = `*[_type == "homePage"][0]{
+      ourApproach {
+        subtitle,
+        title,
+        steps[] {
+          icon,
+          title
+        }
+      }
+    }`;
+    const result = await client.fetch(query);
+    if (result?.ourApproach) {
+      data = {
+        ...defaultData,
+        ...result.ourApproach,
+        steps: result.ourApproach.steps?.length >= 2 ? result.ourApproach.steps : defaultData.steps,
+      };
+    }
+  } catch (error) {
+    console.error('Error fetching our approach data:', error);
+  }
+}
+
+const { subtitle, title, steps } = data;
+
+const rowForward = steps.slice(0, 4);
+const rowBack = steps.slice(4, 8);
+---
+
+<section class="our-process relative overflow-hidden py-24 lg:py-32">
+  <div class="container relative z-10">
+
+    {/* ===== Header ===== */}
+    <div class="process-header text-center max-w-3xl mx-auto mb-24 lg:mb-28">
+      <span class="process-eyebrow">{subtitle}</span>
+      <h2 class="process-title">{title}</h2>
+    </div>
+
+    {/* ===== ROW 1 : left → right ===== */}
+    <div class="process-row process-row--forward">
+      {rowForward.map((step: any, i: number) => (
+        <div class="process-step">
+          <div class="step-icon">
+            <i class={step.icon || 'fa-solid fa-circle-check'}></i>
+          </div>
+          <div class="step-card">
+            <h3>{step.title}</h3>
+          </div>
+
+          {i < 3 && (
+            <svg class="connector connector--right" viewBox="0 0 76 72" fill="none" aria-hidden="true">
+              <path d="M2 56 H24 V20 H58" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M50 10 L62 20 L50 30" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          )}
+          {i === 3 && (
+            <svg class="connector connector--right connector--exit" viewBox="0 0 76 72" fill="none" aria-hidden="true">
+              <path d="M2 56 H24 V20 H58" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M50 10 L62 20 L50 30" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          )}
+
+          {i < 3 && (
+            <svg class="v-connector" viewBox="0 0 24 56" fill="none" aria-hidden="true">
+              <path d="M12 2 V38" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              <path d="M4 30 L12 40 L20 30" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          )}
+        </div>
+      ))}
+    </div>
+
+    {/* ===== ROW 2 : right → left (serpentine) ===== */}
+    {rowBack.length > 0 && (
+      <div class="process-row process-row--back">
+        {rowBack.map((step: any, i: number) => (
+          <div class="process-step">
+            <div class="step-icon">
+              <i class={step.icon || 'fa-solid fa-circle-check'}></i>
+            </div>
+            <div class="step-card">
+              <h3>{step.title}</h3>
+            </div>
+
+            {i < 3 && (
+              <svg class="connector connector--left" viewBox="0 0 76 72" fill="none" aria-hidden="true">
+                <path d="M2 56 H24 V20 H58" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M50 10 L62 20 L50 30" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            )}
+            {i === 3 && (
+              <svg class="connector connector--left connector--exit" viewBox="0 0 76 72" fill="none" aria-hidden="true">
+                <path d="M2 56 H24 V20 H58" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M50 10 L62 20 L50 30" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            )}
+
+            {i < 3 && (
+              <svg class="v-connector" viewBox="0 0 24 56" fill="none" aria-hidden="true">
+                <path d="M12 2 V38" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <path d="M4 30 L12 40 L20 30" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            )}
+          </div>
+        ))}
+      </div>
+    )}
+  </div>
+</section>
+
+<style is:global>
+/* ===== OUR PROCESS (brand-palette light theme) ===== */
+.our-process {
+  background: var(--color-offwhite, #f7f5f0);
+  /* All colors below are drawn strictly from your root palette */
+  --pc-bg: var(--color-offwhite, #f7f5f0);
+  --pc-line: var(--color-lightgary, #e8e6e1);      /* soft warm-gray connectors/borders */
+  --pc-text: var(--common-colour, #1a1a1a);        /* headings */
+  --pc-muted: var(--color-gary, #4a4a4a);          /* subtitles */
+  --pc-accent: var(--theme-colour, #a60c13);       /* crimson */
+  --pc-accent-hover: var(--theme-colour-hover, #88080d);
+  --pc-tint: var(--color-pink-light, #fbebee);     /* soft crimson tint for hover */
+}
+
+/* ===== Header ===== */
+.process-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--pc-accent);
+  font-family: 'Sora', sans-serif;
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  margin-bottom: 18px;
+}
+
+.process-eyebrow::before,
+.process-eyebrow::after {
+  content: '';
+  width: 28px;
+  height: 1px;
+  background: var(--pc-accent);
+  opacity: 0.6;
+}
+
+.process-title {
+  color: var(--pc-text);
+  font-family: 'Sora', sans-serif;
+  font-weight: 800;
+  font-size: clamp(32px, 5vw, 56px);
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+}
+
+/* ===== Rows ===== */
+.process-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  column-gap: 72px;
+  row-gap: 96px;
+  position: relative;
+}
+
+.process-row--back {
+  direction: rtl;               /* flows right → left */
+  margin-top: 110px;
+}
+
+.process-row--back .process-step {
+  direction: ltr;               /* inner content stays LTR */
+}
+
+/* ===== Step ===== */
+.process-step {
+  position: relative;
+  padding-top: 48px;
+}
+
+/* Circle icon badge — outlined in warm gray, bg matches canvas so it "cuts" the card */
+.step-icon {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 96px;
+  height: 96px;
+  border: 2px solid var(--pc-line);
+  border-radius: 50%;
+  background: var(--pc-bg);
+  box-shadow: 0 0 0 12px var(--pc-bg);   /* gap in card border around the icon */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3;
+  transition: border-color 0.35s ease, transform 0.35s ease, background 0.35s ease;
+}
+
+.step-icon i {
+  color: var(--pc-accent);
+  font-size: 30px;
+  transition: transform 0.35s ease, color 0.35s ease;
+}
+
+.process-step:hover .step-icon {
+  border-color: var(--pc-accent);
+  background: var(--pc-tint);
+  transform: translateX(-50%) scale(1.06);
+}
+
+.process-step:hover .step-icon i {
+  transform: rotate(-8deg);
+  color: var(--pc-accent-hover);
+}
+
+/* Outlined rounded card with open top-right corner */
+.step-card {
+  position: relative;
+  border: 2px solid var(--pc-line);
+  border-radius: 26px;
+  padding: 64px 26px 34px;
+  min-height: 210px;
+  display: flex;
+  align-items: flex-end;
+  background: transparent;
+  transition: border-color 0.35s ease, transform 0.35s ease, background 0.35s ease, box-shadow 0.35s ease;
+}
+
+/* erase the top-right border segment ("open corner" look) */
+.step-card::before {
+  content: '';
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 44%;
+  height: 56%;
+  background: var(--pc-bg);   /* matches the offwhite canvas */
+  z-index: 1;
+  pointer-events: none;
+}
+
+.step-card h3 {
+  position: relative;
+  z-index: 2;
+  color: var(--pc-text);
+  font-family: 'Urbanist', sans-serif;
+  font-weight: 600;
+  font-size: 20px;
+  line-height: 1.35;
+  margin: 0;
+  transition: color 0.35s ease;
+}
+
+.process-step:hover .step-card {
+  border-color: var(--pc-accent);
+  background: var(--pc-tint);                /* soft crimson tint on hover */
+  transform: translateY(-6px);
+  box-shadow: 0 20px 40px -18px rgba(166, 12, 19, 0.18);
+}
+
+.process-step:hover .step-card h3 {
+  color: var(--pc-accent-hover);
+}
+
+/* ===== Horizontal stepped connectors ===== */
+.connector {
+  position: absolute;
+  width: 76px;
+  height: 72px;
+  color: var(--pc-line);                     /* soft warm gray */
+  z-index: 2;
+  pointer-events: none;
+  top: calc(48px + 46%);
+  transition: color 0.35s ease;
+}
+
+.connector--right {
+  left: calc(100% - 2px);
+}
+
+.connector--left {
+  right: calc(100% - 2px);
+  transform: scaleX(-1);
+}
+
+/* ===== Vertical connector (mobile) ===== */
+.v-connector {
+  display: none;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: -78px;
+  width: 24px;
+  height: 56px;
+  color: var(--pc-line);
+  pointer-events: none;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 1200px) {
+  .process-row { column-gap: 48px; }
+  .step-card { padding: 56px 20px 28px; min-height: 190px; }
+  .step-card h3 { font-size: 18px; }
+  .step-icon { width: 84px; height: 84px; }
+  .step-icon i { font-size: 26px; }
+}
+
+@media (max-width: 1023px) {
+  .process-row,
+  .process-row--back {
+    grid-template-columns: 1fr;
+    direction: ltr;
+    column-gap: 0;
+    row-gap: 84px;
+    max-width: 480px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .process-row--back { margin-top: 84px; }
+  .connector { display: none; }
+  .v-connector { display: block; }
+  .process-step { padding-top: 44px; }
+}
+
+@media (max-width: 640px) {
+  .step-icon { width: 76px; height: 76px; box-shadow: 0 0 0 10px var(--pc-bg); }
+  .step-icon i { font-size: 24px; }
+  .step-card { min-height: 170px; border-radius: 22px; }
+  .step-card h3 { font-size: 17px; }
+}
+</style>

@@ -8,6 +8,7 @@ import HeroBanner from '../components/sections/HeroBanner.astro';
 import About from '../components/sections/About.astro';
 import Services from '../components/sections/Services.astro';
 import Portfolio from '../components/sections/Portfolio.astro';
+import OurApproach from '../components/sections/OurApproach.astro';  // ← new
 import WhyChooseUs from '../components/sections/WhyChooseUs.astro';
 import FAQ from '../components/sections/FAQ.astro'; // Import FAQ component
 // import Pricing from '../components/sections/Pricing.astro';
@@ -34,6 +35,10 @@ import Marquee from '../components/sections/Marquee.astro';
     <!-- Marquee Sections -->
     <Marquee variant="primary" fetchFromSanity={true} />
     <Marquee variant="secondary" fetchFromSanity={true} />
+    
+        <!-- Replaced Portfolio with Our Approach -->
+    <OurApproach fetchFromSanity={true} />
+
     
     <!-- Portfolio Section -->
     <Portfolio fetchFromSanity={true} />

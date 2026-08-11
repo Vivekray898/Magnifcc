@@ -5,7 +5,8 @@ import { heroBannerSection } from '../shared/sections/heroBanner';
 import { servicesSection } from '../shared/sections/servicesSection';
 import { aboutSection } from '../shared/sections/aboutSection';
 import { marqueeSection } from '../shared/sections/marqueeSection';
-import { portfolioSection } from '../shared/sections/portfolioSection';
+// import { portfolioSection } from '../shared/sections/portfolioSection';
+import { ourApproachSection } from '../shared/sections/ourApproachSection'; // Changed to named import
 import { whyChooseUsSection } from '../shared/sections/whyChooseUsSection';
 import { faqSection } from '../shared/sections/faqSection';
 import { blogSection } from '../shared/sections/blogSection';
@@ -29,7 +30,8 @@ export default defineType({
     servicesSection as any,
     aboutSection as any,
     marqueeSection as any,
-    portfolioSection as any,
+   // portfolioSection as any,
+    ourApproachSection as any,
     whyChooseUsSection as any,
     faqSection as any,
     blogSection as any,
