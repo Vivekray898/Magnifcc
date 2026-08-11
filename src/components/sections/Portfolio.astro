@@ -94,12 +94,12 @@ const sectionClasses = darkMode
               <!-- Image -->
               <img src={item.image} alt={item.title} loading="lazy" />
 
-              <!-- Frosted-glass blur at bottom (like reference) -->
+              <!-- Frosted-glass blur at bottom -->
               <div class="card-blur" aria-hidden="true"></div>
               <!-- Soft dark gradient for text readability -->
               <div class="card-gradient" aria-hidden="true"></div>
 
-              <!-- Bottom content: title/subtitle left, circle arrow right -->
+              <!-- Bottom content -->
               <div class="card-content">
                 <div class="card-text">
                   <h3>{item.title}</h3>
@@ -115,6 +115,19 @@ const sectionClasses = darkMode
       ))}
     </div>
   </div>
+
+  {/* ===== WAVY DIVIDER (3 layered waves) ===== */}
+  <div class="wave-divider" aria-hidden="true">
+    <svg class="wave wave-1" viewBox="0 0 1440 160" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0,96 C240,40 480,140 720,96 C960,52 1200,120 1440,72 L1440,160 L0,160 Z"/>
+    </svg>
+    <svg class="wave wave-2" viewBox="0 0 1440 160" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0,80 C180,130 360,30 540,70 C720,110 900,40 1080,80 C1260,120 1380,60 1440,90 L1440,160 L0,160 Z"/>
+    </svg>
+    <svg class="wave wave-3" viewBox="0 0 1440 160" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0,110 C200,60 400,140 600,100 C800,60 1000,130 1200,90 C1320,70 1400,100 1440,110 L1440,160 L0,160 Z"/>
+    </svg>
+  </div>
 </section>
 
 <style is:global>
@@ -123,6 +136,8 @@ const sectionClasses = darkMode
   position: relative;
   background: var(--color-offwhite);
   transition: background 0.3s ease;
+  /* Extra bottom padding so cards don't touch the waves */
+  padding-bottom: clamp(60px, 8vw, 120px);
 }
 
 .section-portfolio.dark-mode {
@@ -137,13 +152,72 @@ const sectionClasses = darkMode
   color: var(--color-lightgary) !important;
 }
 
-/* ===== PORTFOLIO CARD (reference design) ===== */
+/* ===== WAVY DIVIDER ===== */
+.wave-divider {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;               /* sits flush with section bottom */
+  width: 100%;
+  height: clamp(80px, 10vw, 160px);
+  overflow: hidden;
+  line-height: 0;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.wave-divider .wave {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Layer 1 — furthest back, subtle brand tint */
+.wave-divider .wave-1 {
+  fill: var(--theme-colour, #F05DA8);
+  opacity: 0.08;
+  transform: translateY(-30%);
+}
+
+/* Layer 2 — middle wave */
+.wave-divider .wave-2 {
+  fill: var(--theme-colour, #F05DA8);
+  opacity: 0.15;
+  transform: translateY(-15%);
+}
+
+/* Layer 3 — front wave, matches the next section (white by default) */
+.wave-divider .wave-3 {
+  fill: #ffffff;
+  opacity: 1;
+}
+
+/* Dark mode — front wave becomes dark to bridge to dark sections */
+.section-portfolio.dark-mode .wave-divider .wave-1 {
+  fill: var(--theme-colour, #F05DA8);
+  opacity: 0.12;
+}
+
+.section-portfolio.dark-mode .wave-divider .wave-2 {
+  fill: var(--theme-colour, #F05DA8);
+  opacity: 0.22;
+}
+
+.section-portfolio.dark-mode .wave-divider .wave-3 {
+  fill: #ffffff;
+}
+
+/* ===== PORTFOLIO CARD ===== */
 .portfolio-card {
   text-decoration: none;
   cursor: pointer;
+  position: relative;
+  z-index: 1;              /* cards sit above the waves */
 }
 
-/* White rounded frame around the image */
 .portfolio-card .card-frame {
   background: var(--color-white, #ffffff);
   padding: 10px;
@@ -158,7 +232,6 @@ const sectionClasses = darkMode
   box-shadow: 0 30px 70px rgba(0, 0, 0, 0.15);
 }
 
-/* Inner rounded image area — near-square like the mock */
 .portfolio-card .card-inner {
   position: relative;
   border-radius: 20px;
@@ -180,7 +253,6 @@ const sectionClasses = darkMode
   transform: scale(1.07);
 }
 
-/* Frosted glass blur fading out towards the top */
 .portfolio-card .card-blur {
   position: absolute;
   left: 0;
@@ -194,7 +266,6 @@ const sectionClasses = darkMode
   pointer-events: none;
 }
 
-/* Subtle dark gradient so white text always reads */
 .portfolio-card .card-gradient {
   position: absolute;
   inset: 0;
@@ -205,7 +276,6 @@ const sectionClasses = darkMode
   pointer-events: none;
 }
 
-/* Bottom row: text left + circle button right */
 .portfolio-card .card-content {
   position: absolute;
   left: 0;
@@ -234,7 +304,6 @@ const sectionClasses = darkMode
   margin: 0;
 }
 
-/* White circular arrow button */
 .portfolio-card .card-arrow {
   flex: 0 0 auto;
   width: 60px;
@@ -264,7 +333,6 @@ const sectionClasses = darkMode
   transform: rotate(-45deg);
 }
 
-/* Dark mode frame */
 .section-portfolio.dark-mode .portfolio-card .card-frame {
   background: #23252b;
   box-shadow: 0 15px 45px rgba(0, 0, 0, 0.35);
@@ -319,6 +387,7 @@ const sectionClasses = darkMode
   .portfolio-card .card-text h3 { font-size: 18px; margin-bottom: 4px; }
   .portfolio-card .card-text p { font-size: 13px; }
   .portfolio-card .card-arrow { width: 46px; height: 46px; font-size: 16px; }
+  .wave-divider { height: clamp(60px, 12vw, 100px); }
 }
 
 /* Container */
