@@ -13,6 +13,45 @@ export default defineType({
       type: 'string',
       initialValue: 'Contact Us',
     }),
+    // Hero Section
+    defineField({
+      name: 'heroSection',
+      title: '🎯 Hero Section',
+      type: 'object',
+      options: { collapsible: true, collapsed: false },
+      fields: [
+        defineField({
+          name: 'title',
+          title: 'Hero Title',
+          type: 'string',
+          initialValue: 'contact us',
+        }),
+        defineField({
+          name: 'subtitle',
+          title: 'Breadcrumb Text',
+          type: 'string',
+          initialValue: 'contact us',
+        }),
+        defineField({
+          name: 'image',
+          title: 'Hero Image',
+          type: 'image',
+          options: {
+            hotspot: true,
+          },
+        }),
+        defineField({
+          name: 'backgroundImage',
+          title: 'Background Image',
+          type: 'image',
+          options: {
+            hotspot: true,
+          },
+          description: 'Optional background image for the hero section',
+        }),
+      ],
+    }),
+    // Enquiry Section
     defineField({
       name: 'enquirySection',
       title: '📝 Enquiry Section',

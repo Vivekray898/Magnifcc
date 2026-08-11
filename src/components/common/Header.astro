@@ -6,9 +6,10 @@ import { imageUrlFor } from '../../lib/sanity-image';
 
 export interface Props {
   fetchFromSanity?: boolean;
+  currentPage?: string; // 'home', 'contact', 'about', 'services', 'blog', 'portfolio', 'appointment', 'other'
 }
 
-const { fetchFromSanity = true } = Astro.props;
+const { fetchFromSanity = true, currentPage = 'home' } = Astro.props;
 
 // Default header data with absolute paths
 const defaultData = {
@@ -38,6 +39,11 @@ const defaultData = {
     ]},
     { label: 'Contact', link: '/contact', hasDropdown: false, dropdownItems: [] },
   ],
+  contactLinkSettings: {
+    contactPageSlug: 'contact',
+    contactSectionId: 'contact',
+    pagesWithContactForm: ['home', 'contact'],
+  },
   ctaButton: { text: 'Book Appointment', link: '/appointment', show: true },
   searchEnabled: true,
 };
@@ -60,7 +66,54 @@ if (fetchFromSanity) {
   }
 }
 
-const { navItems, ctaButton, searchEnabled } = data;
+// Get contact settings
+const contactSettings = data.contactLinkSettings || defaultData.contactLinkSettings;
+const pagesWithForm = contactSettings.pagesWithContactForm || ['home', 'contact'];
+const contactPageSlug = contactSettings.contactPageSlug || 'contact';
+const contactSectionId = contactSettings.contactSectionId || 'contact';
+
+// Function to check if current page has the contact form
+const hasContactForm = (page: string): boolean => {
+  if (pagesWithForm.includes('all')) return true;
+  return pagesWithForm.includes(page);
+};
+
+// Function to determine the contact link
+const getContactLink = (page: string): string => {
+  const hasForm = hasContactForm(page);
+  
+  if (hasForm) {
+    // If the form is on this page, link to the section with smooth scroll
+    return `#${contactSectionId}`;
+  } else {
+    // If the form is not on this page, link to the contact page with anchor
+    return `/${contactPageSlug}#${contactSectionId}`;
+  }
+};
+
+// Process nav items to update the contact link
+const processedNavItems = data.navItems.map((item: any) => {
+  if (item.isContact || item.label.toLowerCase() === 'contact') {
+    const contactLink = getContactLink(currentPage);
+    return {
+      ...item,
+      link: contactLink
+    };
+  }
+  return item;
+});
+
+// Process CTA button
+let ctaLink = data.ctaButton?.link || '/appointment';
+if (data.ctaButton?.isContact) {
+  ctaLink = getContactLink(currentPage);
+}
+
+const { searchEnabled } = data;
+const ctaButton = {
+  ...data.ctaButton,
+  link: ctaLink
+};
 ---
 
 <header class="z-99 sticky-header main-bar-wraper navbar-expand-lg duretion-500">
@@ -81,7 +134,7 @@ const { navItems, ctaButton, searchEnabled } = data;
         </a>
         <nav class="navbar lg:block hidden">
           <ul class="navbar-links">
-            {navItems.map((item, index) => (
+            {processedNavItems.map((item, index) => (
               <li key={index} class={`navbar-dropdown ${item.hasDropdown ? 'menu-item-children' : ''}`}>
                 <a href={item.link}>{item.label}</a>
                 {item.hasDropdown && item.dropdownItems?.length > 0 && (
@@ -129,7 +182,7 @@ const { navItems, ctaButton, searchEnabled } = data;
         </a>
       </div>
       <ul>
-        {navItems.map((item, index) => (
+        {processedNavItems.map((item, index) => (
           <li key={index} class={item.hasDropdown ? 'menu-item-has-children' : ''}>
             <a href={item.link}>{item.label}</a>
             {item.hasDropdown && item.dropdownItems?.length > 0 && (
@@ -146,3 +199,42 @@ const { navItems, ctaButton, searchEnabled } = data;
     </div>
   </div>
 </header>
+
+<!-- Add smooth scroll JavaScript -->
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    // Handle hash links for smooth scrolling
+    const hash = window.location.hash;
+    if (hash) {
+      const target = document.querySelector(hash);
+      if (target) {
+        setTimeout(() => {
+          const headerHeight = document.querySelector('header')?.offsetHeight || 80;
+          const targetPosition = target.getBoundingClientRect().top + window.pageYOffset - headerHeight;
+          window.scrollTo({ top: targetPosition, behavior: 'smooth' });
+        }, 300);
+      }
+    }
+
+    // Handle click on contact links
+    document.querySelectorAll('a[href^="#contact"]').forEach(link => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        const targetId = link.getAttribute('href');
+        if (targetId) {
+          const target = document.querySelector(targetId);
+          if (target) {
+            const headerHeight = document.querySelector('header')?.offsetHeight || 80;
+            const targetPosition = target.getBoundingClientRect().top + window.pageYOffset - headerHeight;
+            window.scrollTo({ top: targetPosition, behavior: 'smooth' });
+            
+            // Update URL without page reload
+            if (history.pushState) {
+              history.pushState(null, null, targetId);
+            }
+          }
+        }
+      });
+    });
+  });
+</script>

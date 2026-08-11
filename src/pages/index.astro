@@ -23,7 +23,7 @@ import EnquiryForm from '../components/sections/EnquiryForm.astro';
 ---
 
 <Layout title="Home" fetchFromSanity={true}>
-    <Header fetchFromSanity={true} slot="header" />
+  <Header slot="header" currentPage="home" fetchFromSanity={true} />
     
     <!-- Hero Banner -->
     <HeroBanner fetchFromSanity={true} />
@@ -54,7 +54,7 @@ import EnquiryForm from '../components/sections/EnquiryForm.astro';
     <!-- FAQ Section -->
     <FAQ fetchFromSanity={true} />
 
-    <EnquiryForm fetchFromSanity={true} />
+    <EnquiryForm id="contact" fetchFromSanity={true} />
     
     <!-- Blog Section -->
     <Blog fetchFromSanity={true} />

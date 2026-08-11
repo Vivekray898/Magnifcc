@@ -4,9 +4,10 @@ import { client } from '../../lib/sanity';
 
 export interface Props {
   fetchFromSanity?: boolean;
+  id?: string;
 }
 
-const { fetchFromSanity = true } = Astro.props;
+const { fetchFromSanity = true, id = 'contact' } = Astro.props;
 
 const defaultData = {
   badge: 'Get In Touch',
@@ -71,7 +72,7 @@ if (fetchFromSanity) {
 const { badge, title, titleHighlight, description, phoneLabel, phone, emailLabel, email, addressLabel, address, socialLinks, form } = data;
 ---
 
-<section class="enquiry-section relative overflow-hidden">
+<section id={id} class="enquiry-section relative overflow-hidden">
   <!-- Decorative background elements -->
   <div class="enquiry-bg-shapes" aria-hidden="true">
     <div class="shape shape-1"></div>
@@ -255,6 +256,7 @@ const { badge, title, titleHighlight, description, phoneLabel, phone, emailLabel
     padding: 100px 0;
     position: relative;
     overflow: hidden;
+    scroll-margin-top: 80px; /* For smooth scrolling with fixed header */
   }
 
   @media (max-width: 1024px) {

@@ -10,14 +10,15 @@ import EnquiryForm from '../components/sections/EnquiryForm.astro';
 ---
 
 <Layout title="Contact Us" description="Get in touch with us">
-  <Header fetchFromSanity={true} slot="header" />
+  <Header slot="header" currentPage="contact" fetchFromSanity={true} />
   
   <!-- Contact Hero -->
   <ContactHero fetchFromSanity={true} />
   
   <!-- Contact Form & Info -->
   <!-- <ContactForm fetchFromSanity={true} /> -->
-   <EnquiryForm fetchFromSanity={true} />
+     <EnquiryForm id="contact" fetchFromSanity={true} />
+
   
   <Footer fetchFromSanity={true} slot="footer" />
 </Layout>

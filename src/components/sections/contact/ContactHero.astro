@@ -2,23 +2,32 @@
 // src/components/sections/contact/ContactHero.astro
 
 import { client } from '../../../lib/sanity';
+import { imageUrlFor } from '../../../lib/sanity-image';
 
 export interface Props {
   fetchFromSanity?: boolean;
   title?: string;
   subtitle?: string;
   image?: string;
+  backgroundImage?: string;
 }
 
 const { 
   fetchFromSanity = true,
   title = "contact us",
   subtitle = "contact us",
-  image = "assets/img/bannr-img-3.png",
+  image = "/assets/img/bannr-img-3.png",
+  backgroundImage = "",
 } = Astro.props;
 
-let data = { title, subtitle, image };
+let data = { 
+  title, 
+  subtitle, 
+  image, 
+  backgroundImage 
+};
 let imageUrl = image;
+let bgImageUrl = backgroundImage;
 
 // Fetch from Sanity
 if (fetchFromSanity) {
@@ -28,6 +37,12 @@ if (fetchFromSanity) {
         title,
         subtitle,
         image {
+          asset->{
+            _id,
+            url
+          }
+        },
+        backgroundImage {
           asset->{
             _id,
             url
@@ -44,25 +59,46 @@ if (fetchFromSanity) {
       if (result.heroSection.image?.asset?.url) {
         imageUrl = result.heroSection.image.asset.url;
       }
+      
+      if (result.heroSection.backgroundImage?.asset?.url) {
+        bgImageUrl = result.heroSection.backgroundImage.asset.url;
+      }
     }
   } catch (error) {
     console.error('Error fetching contact hero data:', error);
   }
 }
+
+// Determine background style
+const bgStyle = bgImageUrl 
+  ? `background-image: url(${bgImageUrl}); background-size: cover; background-position: center; background-repeat: no-repeat;`
+  : 'background: #f4f4f4;';
 ---
 
-<section class="pt-90 relative max-lg:bg-[right_center] bg-[#f4f4f4] bg-[url(../img/bannr-bg-img.png)] about-banner overflow-hidden">
-  <div class="container">
+<section 
+  class="pt-90 relative about-banner overflow-hidden" 
+  style={bgStyle}
+>
+  {!bgImageUrl && (
+    <div class="absolute inset-0 bg-[#f4f4f4] -z-10"></div>
+  )}
+  
+  <div class="container relative z-10">
     <div class="row items-center">
       <div class="lg:w-1/2 w-full">
         <div class="relative max-md:text-center">
-          <h2 class="xxl:text-7.7xl xl:text-6.3xl md:text-5.2xl sm:text-4.75xl text-4.6xl font-bold capitalize font-sora text-secondary leading-[1.2]">{data.title}</h2>
+          <h2 class="xxl:text-7.7xl xl:text-6.3xl md:text-5.2xl sm:text-4.75xl text-4.6xl font-bold capitalize font-sora text-secondary leading-[1.2]">
+            {data.title}
+          </h2>
         </div>
         <ol class="mb-16 flex items-center max-md:justify-center max-md:mb-40 pt-10">
           <li class="xxl:text-xxl md:text-xl text-sm text-secondary font-sora capitalize">
             <a href="/"> Home </a>
           </li>
-          <li class="xxl:text-xxl md:text-xl text-sm text-gary capitalize before:content-['-'] before:float-left before:text-gary before:px-10" aria-current="page">
+          <li 
+            class="xxl:text-xxl md:text-xl text-sm text-gary capitalize before:content-['-'] before:float-left before:text-gary before:px-10" 
+            aria-current="page"
+          >
             {data.subtitle}
           </li>
         </ol>
@@ -71,7 +107,7 @@ if (fetchFromSanity) {
         <div>
           <img 
             src={imageUrl} 
-            alt="img" 
+            alt="Contact Us" 
             class="w-[120%] xxl:max-w-[unset]"
             loading="lazy"
           >

@@ -11,10 +11,12 @@ import Marquee from '../components/sections/Marquee.astro';
 import WhyChooseUs from '../components/sections/WhyChooseUs.astro';
 import OurApproach from '../components/sections/OurApproach.astro';  // ← new
 // Pricing and Testimonials removed - no longer needed for About page
+import EnquiryForm from '../components/sections/EnquiryForm.astro';
+
 ---
 
 <Layout title="About Us" description="Learn more about our healthcare services">
-  <Header fetchFromSanity={true} slot="header" />
+  <Header slot="header" currentPage="about" fetchFromSanity={true} />
 
   <!-- About Hero Section -->
   <AboutHero fetchFromSanity={true} />
@@ -34,6 +36,8 @@ import OurApproach from '../components/sections/OurApproach.astro';  // ← new
 
   <!-- Why Choose Us Section -->
   <WhyChooseUs fetchFromSanity={true} />
+  
+      <EnquiryForm id="contact" fetchFromSanity={true} />
 
   <Footer fetchFromSanity={true} slot="footer" />
 </Layout>

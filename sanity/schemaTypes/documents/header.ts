@@ -38,6 +38,13 @@ export default defineType({
                 { name: 'link', title: 'Link', type: 'string' },
               ]}
             ], hidden: ({ parent }) => !parent?.hasDropdown },
+            { 
+              name: 'isContact', 
+              title: 'Is Contact Link?', 
+              type: 'boolean', 
+              initialValue: false,
+              description: 'Enable this to make the link scroll to the contact form section'
+            },
           ],
         },
       ],
@@ -64,17 +71,70 @@ export default defineType({
           { label: 'Our Blog', link: 'our-blog.html' },
           { label: 'Blog Details', link: 'blog-details.html' },
         ]},
-        { label: 'Contact', link: 'contact.html', hasDropdown: false },
+        { label: 'Contact', link: 'contact.html', hasDropdown: false, isContact: true },
+      ],
+    }),
+    defineField({
+      name: 'contactLinkSettings',
+      title: 'Contact Link Settings',
+      type: 'object',
+      options: { collapsible: true, collapsed: false },
+      fields: [
+        defineField({
+          name: 'contactPageSlug',
+          title: 'Contact Page Slug',
+          type: 'string',
+          initialValue: 'contact',
+          description: 'The URL slug where the contact form is located (e.g., "contact" for /contact)',
+        }),
+        defineField({
+          name: 'contactSectionId',
+          title: 'Contact Section ID',
+          type: 'string',
+          initialValue: 'contact',
+          description: 'The ID of the contact form section (default: "contact")',
+        }),
+        defineField({
+          name: 'pagesWithContactForm',
+          title: 'Pages with Contact Form',
+          type: 'array',
+          of: [
+            {
+              type: 'string',
+              options: {
+                list: [
+                  { title: 'Homepage', value: 'home' },
+                  { title: 'Contact Page', value: 'contact' },
+                  { title: 'About Page', value: 'about' },
+                  { title: 'Services Page', value: 'services' },
+                  { title: 'Blog Page', value: 'blog' },
+                  { title: 'Portfolio Page', value: 'portfolio' },
+                  { title: 'Appointment Page', value: 'appointment' },
+                  { title: 'All Pages', value: 'all' },
+                ],
+              },
+            },
+          ],
+          initialValue: ['home', 'contact'],
+          description: 'Select which pages have the contact form embedded. The contact link will scroll to the form on these pages.'
+        }),
       ],
     }),
     defineField({
       name: 'ctaButton',
-      title: 'CTA Button (Book Appointment)',
+      title: 'CTA Button',
       type: 'object',
       fields: [
         { name: 'text', title: 'Button Text', type: 'string', initialValue: 'Book Appointment' },
         { name: 'link', title: 'Button Link', type: 'string', initialValue: 'appointment.html' },
         { name: 'show', title: 'Show Button?', type: 'boolean', initialValue: true },
+        { 
+          name: 'isContact', 
+          title: 'Link to Contact Section?', 
+          type: 'boolean', 
+          initialValue: false,
+          description: 'Enable to make the CTA button scroll to the contact form section'
+        },
       ],
     }),
     defineField({
