@@ -40,18 +40,7 @@ export default defineType({
           type: 'image',
           options: { hotspot: true }
         },
-        defineField({
-          name: 'shapeImages',
-          title: 'Shape Images',
-          type: 'object',
-          fields: [
-            { name: 'shape1', title: 'Shape 1', type: 'image' },
-            { name: 'shape2', title: 'Shape 2', type: 'image' },
-            { name: 'shape3', title: 'Shape 3', type: 'image' },
-            { name: 'shape4', title: 'Shape 4', type: 'image' },
-            { name: 'shape5', title: 'Shape 5', type: 'image' },
-          ],
-        }),
+        // shapeImages removed - only text side floating icon remains in the component
       ],
     }),
     // You can add more sections here later

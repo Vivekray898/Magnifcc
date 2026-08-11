@@ -8,7 +8,7 @@ export interface Props {
 
 const { fetchFromSanity = true } = Astro.props;
 
-// Default fallback data
+// Default fallback data (matches new schema — no teamStats / teamImages)
 const defaultData = {
   subtitle: 'Solutions for Better Health',
   heading: 'Your Health Our Priority',
@@ -27,11 +27,6 @@ const defaultData = {
     { number: '2', suffix: 'M+', label: 'Reports Delivered' },
     { number: '100', suffix: '+', label: 'Expert Specialists' },
   ],
-  teamStats: {
-    number: '2000',
-    suffix: '+',
-    label: 'Experience Team',
-  },
   heroVideoUrl: null,
 };
 
@@ -49,11 +44,9 @@ const getYouTubeVideoId = (url: string) => {
 // Helper function to highlight text in heading
 const highlightHeadingText = (heading: string, highlightedText: string) => {
   if (!highlightedText || !heading) return heading;
-  
-  // Create a regex to find the highlighted word (case insensitive)
+
   const regex = new RegExp(`(${highlightedText})`, 'gi');
-  
-  // Replace the highlighted word with the styled span
+
   return heading.replace(regex, (match) => {
     return `<span class="relative inline-block text-primary highlighted-text-wrapper">
       ${match}
@@ -64,7 +57,7 @@ const highlightHeadingText = (heading: string, highlightedText: string) => {
   });
 };
 
-// Fetch from Sanity
+// Fetch from Sanity (query matches the NEW schema exactly)
 if (fetchFromSanity) {
   try {
     const query = `*[_type == "homePage"][0]{
@@ -82,11 +75,6 @@ if (fetchFromSanity) {
           link
         },
         stats,
-        teamStats {
-          number,
-          suffix,
-          label
-        },
         heroVideoUrl,
       }
     }`;
@@ -100,10 +88,7 @@ if (fetchFromSanity) {
         ctaText: result.heroBanner.cta?.text || defaultData.ctaText,
         ctaLink: result.heroBanner.cta?.link || defaultData.ctaLink,
         features: result.heroBanner.features?.length ? result.heroBanner.features : defaultData.features,
-        teamStats: {
-          ...defaultData.teamStats,
-          ...result.heroBanner.teamStats,
-        },
+        stats: result.heroBanner.stats?.length ? result.heroBanner.stats : defaultData.stats,
       };
 
       if (result.heroBanner.heroVideoUrl) {
@@ -124,7 +109,6 @@ const {
   ctaLink,
   features = defaultData.features,
   stats = defaultData.stats,
-  teamStats = defaultData.teamStats,
 } = data;
 
 // Generate the highlighted heading HTML
@@ -140,10 +124,19 @@ const hasSuffix = (value: string) => {
   return /[^0-9]/.test(value);
 };
 
-const bandStats = [
-  ...stats,
-  { number: teamStats.number, suffix: teamStats.suffix, label: teamStats.label },
-];
+// Stats band = only the stats array now (teamStats removed from schema)
+const bandStats = [...stats];
+
+// Adaptive grid so the stats card never has an empty column
+const statCount = bandStats.length;
+const statsGridClass =
+  statCount >= 4
+    ? 'grid-cols-2 sm:grid-cols-4 divide-x divide-y sm:divide-y-0'
+    : statCount === 3
+      ? 'grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x'
+      : statCount === 2
+        ? 'grid-cols-2 divide-x'
+        : 'grid-cols-1';
 ---
 
 <section class="hero-texture relative bg-[#f8f6f5] pt-100 pb-56 overflow-hidden z-10">
@@ -187,9 +180,9 @@ const bandStats = [
                     )}
                 </div>
 
-                <!-- STATS CARD -->
+                <!-- STATS CARD (adaptive columns) -->
                 <div class="stats-card relative z-10 mx-14 sm:mx-24 lg:-mt-28 -mt-20 rounded-2xl border border-secondary/10 bg-white shadow-[0_25px_60px_-20px_rgba(2,25,53,0.2)]">
-                    <div class="grid grid-cols-2 sm:grid-cols-4 divide-x divide-y sm:divide-y-0 divide-secondary/10">
+                    <div class={`grid ${statsGridClass} divide-secondary/10`}>
                         {bandStats.map((stat, index) => {
                             const numericValue = getNumericValue(stat.number);
                             const suffix = stat.suffix || '';
@@ -316,7 +309,7 @@ document.addEventListener('DOMContentLoaded', function() {
         padding-top: 120px;
         box-shadow: 0 10px 40px -10px rgba(2, 25, 53, 0.08);
     }
-    
+
     /* Enhanced typography for highlighted text */
     .highlighted-text-wrapper {
         position: relative;
@@ -329,11 +322,11 @@ document.addEventListener('DOMContentLoaded', function() {
         background-clip: text;
         text-shadow: none;
     }
-    
+
     .highlighted-text-wrapper svg {
         -webkit-text-fill-color: initial;
     }
-    
+
     .highlighted-text-wrapper svg path {
         stroke: var(--theme-colour);
         stroke-width: 3;
@@ -366,27 +359,27 @@ document.addEventListener('DOMContentLoaded', function() {
             padding-top: 100px;
             padding-bottom: 40px;
         }
-        
+
         .highlighted-text-wrapper {
             font-size: 1.1em;
         }
-        
+
         .highlighted-text-wrapper svg {
             height: 8px;
         }
     }
-    
+
     @media (max-width: 640px) {
         .hero-texture {
             padding-top: 90px;
             padding-bottom: 30px;
         }
-        
+
         .highlighted-text-wrapper {
             font-size: 1.15em;
         }
     }
-    
+
     @media (max-width: 375px) {
         .hero-texture {
             padding-top: 100px;
@@ -408,7 +401,7 @@ document.addEventListener('DOMContentLoaded', function() {
         box-shadow: 0 14px 30px -10px rgba(225, 29, 72, 0.45);
         transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
     }
-    
+
     .hero-cta:hover {
         transform: translateY(-2px);
         box-shadow: 0 18px 36px -8px rgba(225, 29, 72, 0.55);

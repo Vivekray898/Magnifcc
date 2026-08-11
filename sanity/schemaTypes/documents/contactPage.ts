@@ -25,18 +25,7 @@ export default defineType({
         { name: 'title', title: 'Hero Title', type: 'string', initialValue: 'contact us' },
         { name: 'subtitle', title: 'Breadcrumb Text', type: 'string', initialValue: 'contact us' },
         { name: 'image', title: 'Hero Image', type: 'image', options: { hotspot: true } },
-        defineField({
-          name: 'shapeImages',
-          title: 'Shape Images',
-          type: 'object',
-          fields: [
-            { name: 'shape1', title: 'Shape 1', type: 'image' },
-            { name: 'shape2', title: 'Shape 2', type: 'image' },
-            { name: 'shape3', title: 'Shape 3', type: 'image' },
-            { name: 'shape4', title: 'Shape 4', type: 'image' },
-            { name: 'shape5', title: 'Shape 5', type: 'image' },
-          ],
-        }),
+        // shapeImages removed - only text side floating icon remains in the component
       ],
     }),
     defineField({

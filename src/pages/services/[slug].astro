@@ -24,16 +24,43 @@ if (slug) {
       description,
       slug,
       icon,
-      longDescription,
+      longDescription[] {
+        ...,
+        _type == "image" => {
+          ...,
+          asset->{ _id, url }
+        }
+      },
       sectionTitle,
-      sectionContent,
+      sectionContent[] {
+        ...,
+        _type == "image" => {
+          ...,
+          asset->{ _id, url }
+        }
+      },
       image {
         asset->{
           url
         }
       },
-      bottomText,
-      faqs,
+      bottomText[] {
+        ...,
+        _type == "image" => {
+          ...,
+          asset->{ _id, url }
+        }
+      },
+      faqs[] {
+        question,
+        answer[] {
+          ...,
+          _type == "image" => {
+            ...,
+            asset->{ _id, url }
+          }
+        }
+      },
       servicesList,
       socialLinks,
       prevService {

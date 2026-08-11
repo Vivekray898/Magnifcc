@@ -1,6 +1,5 @@
 // sanity/schemaTypes/shared/sections/heroBanner.ts
 import { defineField } from 'sanity';
-import { titleField } from '../fields/title';
 import { subtitleField } from '../fields/subtitle';
 import { descriptionField } from '../fields/description';
 import { ctaField } from '../fields/cta';
@@ -95,21 +94,5 @@ export const heroBannerSection = defineField({
 
     ctaField({ text: 'Read More', link: '/about' }),
     statsField({ title: 'Statistics Cards' }),
-    defineField({
-      name: 'teamImages',
-      title: 'Team Images',
-      type: 'array',
-      of: [{ type: 'image', options: { hotspot: true } }],
-    }),
-    defineField({
-      name: 'teamStats',
-      title: '👥 Team Statistics',
-      type: 'object',
-      fields: [
-        defineField({ name: 'number', title: 'Number (e.g., 2000)', type: 'string', initialValue: '2000' }),
-        defineField({ name: 'suffix', title: 'Suffix (e.g., +)', type: 'string', initialValue: '+' }),
-        defineField({ name: 'label', title: 'Label (e.g., Experience Team)', type: 'string', initialValue: 'Experience Team' }),
-      ],
-    }),
   ],
 });

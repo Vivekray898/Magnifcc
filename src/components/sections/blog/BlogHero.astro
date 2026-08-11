@@ -8,13 +8,6 @@ export interface Props {
   title?: string;
   subtitle?: string;
   image?: string;
-  shapeImages?: {
-    shape1?: string;
-    shape2?: string;
-    shape3?: string;
-    shape4?: string;
-    shape5?: string;
-  };
 }
 
 const { 
@@ -22,16 +15,9 @@ const {
   title = "Our Blog",
   subtitle = "Our Blog",
   image = "/assets/img/bannr-img.png",
-  shapeImages = {
-    shape1: "/assets/img/shaps-1.png",
-    shape2: "/assets/img/bannr-shap.png",
-    shape3: "/assets/img/shaps-4.png",
-    shape4: "/assets/img/shaps-5.png",
-    shape5: "/assets/img/shaps-6.png",
-  }
 } = Astro.props;
 
-let data = { title, subtitle, image, shapeImages };
+let data = { title, subtitle, image };
 let imageUrl = image;
 
 // Fetch from Sanity
@@ -46,33 +32,6 @@ if (fetchFromSanity) {
             _id,
             url
           }
-        },
-        shapeImages {
-          shape1 {
-            asset->{
-              url
-            }
-          },
-          shape2 {
-            asset->{
-              url
-            }
-          },
-          shape3 {
-            asset->{
-              url
-            }
-          },
-          shape4 {
-            asset->{
-              url
-            }
-          },
-          shape5 {
-            asset->{
-              url
-            }
-          }
         }
       }
     }`;
@@ -85,22 +44,11 @@ if (fetchFromSanity) {
       if (result.heroSection.image?.asset?.url) {
         imageUrl = result.heroSection.image.asset.url;
       }
-      
-      if (result.heroSection.shapeImages) {
-        const shapes = result.heroSection.shapeImages;
-        if (shapes.shape1?.asset?.url) shapeImages.shape1 = shapes.shape1.asset.url;
-        if (shapes.shape2?.asset?.url) shapeImages.shape2 = shapes.shape2.asset.url;
-        if (shapes.shape3?.asset?.url) shapeImages.shape3 = shapes.shape3.asset.url;
-        if (shapes.shape4?.asset?.url) shapeImages.shape4 = shapes.shape4.asset.url;
-        if (shapes.shape5?.asset?.url) shapeImages.shape5 = shapes.shape5.asset.url;
-      }
     }
   } catch (error) {
     console.error('Error fetching blog hero data:', error);
   }
 }
-
-const { shape1, shape2, shape3, shape4, shape5 } = shapeImages;
 ---
 
 <section class="pt-90 relative max-lg:bg-[right_center] bg-[#f4f4f4] bg-[url(../img/bannr-bg-img.png)] about-banner overflow-hidden">
@@ -133,48 +81,6 @@ const { shape1, shape2, shape3, shape4, shape5 } = shapeImages;
             class="w-[120%] xxl:max-w-[unset]"
             loading="lazy"
           >
-          <ul class="shaps">
-            <li class="absolute">
-              <img 
-                src={shape1} 
-                alt="img" 
-                class="xxl:w-80 w-60 animate-topshap max-md:hidden"
-                loading="lazy"
-              >
-            </li>
-            <li class="absolute">
-              <img 
-                src={shape2} 
-                alt="img" 
-                class="animate-topshap max-md:hidden"
-                loading="lazy"
-              >
-            </li>
-            <li class="absolute">
-              <img 
-                src={shape3} 
-                alt="img" 
-                class="animate-fa-spin max-md:hidden"
-                loading="lazy"
-              >
-            </li>
-            <li class="absolute">
-              <img 
-                src={shape4} 
-                alt="img" 
-                class="animate-fa-spin max-md:hidden"
-                loading="lazy"
-              >
-            </li>
-            <li class="absolute">
-              <img 
-                src={shape5} 
-                alt="img" 
-                class="animate-fa-spin max-md:hidden"
-                loading="lazy"
-              >
-            </li>
-          </ul>
         </div>
       </div>
     </div>

@@ -4,7 +4,7 @@
 import Layout from "../../layouts/Layout.astro";
 import Header from '../../components/common/Header.astro';
 import Footer from '../../components/common/Footer.astro';
-import BlogHero from '../../components/sections/blog/BlogHero.astro';
+// import BlogHero from '../../components/sections/blog/BlogHero.astro';
 import BlogDetails from '../../components/sections/blog/BlogDetails.astro';
 import { client } from '../../lib/sanity';
 
@@ -76,7 +76,7 @@ if (slug) {
   
   {blogExists ? (
     <>
-      <BlogHero fetchFromSanity={true} />
+      {/* <BlogHero fetchFromSanity={true} /> */}
       <BlogDetails slug={slug} fetchFromSanity={true} />
     </>
   ) : (
