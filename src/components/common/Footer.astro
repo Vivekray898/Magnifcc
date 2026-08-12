@@ -50,17 +50,16 @@ const defaultData = {
     title: 'Contact Us',
     addresses: [
       { 
-        label: 'Address', 
         text: 'Sarada Apartment, Opp. College Para Sishu Uddyan, Ashutosh Mukherjee Road, College Para, Siliguri – 734001' 
       }
     ],
     phones: [
-      { label: 'Phone Number', number: '+91 70471 45306' },
-      { label: 'Phone Number', number: '+91 70473 88300' }
+      { number: '+91 70471 45306' },
+      { number: '+91 70473 88300' }
     ],
     emails: [
-      { label: 'Email Address', address: 'info@magnifichcs.com' },
-      { label: 'Email Address', address: 'royb24898@gmail.com' }
+      { address: 'info@magnifichcs.com' },
+      { address: 'royb24898@gmail.com' }
     ],
   },
   copyright: {
@@ -172,14 +171,12 @@ const migrateContactData = (contactData: any): any => {
   if (contactData.address && !contactData.addresses) {
     // Old format: single address object
     result.addresses = [{
-      label: contactData.address.label || 'Address',
       text: contactData.address.text || '',
       mapLink: contactData.address.mapLink || '',
     }];
   } else if (contactData.addresses && Array.isArray(contactData.addresses)) {
-    // New format: addresses array - preserve all items
+    // New format: addresses array - preserve all items without labels
     result.addresses = contactData.addresses.map((addr: any) => ({
-      label: addr.label || 'Address',
       text: addr.text || '',
       mapLink: addr.mapLink || '',
     }));
@@ -188,13 +185,11 @@ const migrateContactData = (contactData: any): any => {
   if (contactData.phone && !contactData.phones) {
     // Old format: single phone object
     result.phones = [{
-      label: contactData.phone.label || 'Phone Number',
       number: contactData.phone.number || '',
     }];
   } else if (contactData.phones && Array.isArray(contactData.phones)) {
-    // New format: phones array - preserve all items
+    // New format: phones array - preserve all items without labels
     result.phones = contactData.phones.map((phone: any) => ({
-      label: phone.label || 'Phone Number',
       number: phone.number || '',
     }));
   }
@@ -202,13 +197,11 @@ const migrateContactData = (contactData: any): any => {
   if (contactData.email && !contactData.emails) {
     // Old format: single email object
     result.emails = [{
-      label: contactData.email.label || 'Email Address',
       address: contactData.email.address || '',
     }];
   } else if (contactData.emails && Array.isArray(contactData.emails)) {
-    // New format: emails array - preserve all items
+    // New format: emails array - preserve all items without labels
     result.emails = contactData.emails.map((email: any) => ({
-      label: email.label || 'Email Address',
       address: email.address || '',
     }));
   }
@@ -241,32 +234,29 @@ if (fetchFromSanity) {
         data.contactColumn = migrateContactData(result.contactColumn);
       }
 
-      // Process contact info - generate links for each item
+      // Process contact info - generate links for each item (NO LABELS)
       if (data.contactColumn) {
-        // Process multiple phones
+        // Process multiple phones - remove labels
         if (data.contactColumn.phones && Array.isArray(data.contactColumn.phones)) {
           data.contactColumn.phones = data.contactColumn.phones.map((phone: any) => ({
-            ...phone,
+            number: phone.number || '',
             link: getPhoneLink(phone.number),
-            label: phone.label || 'Phone Number',
           }));
         }
 
-        // Process multiple emails
+        // Process multiple emails - remove labels
         if (data.contactColumn.emails && Array.isArray(data.contactColumn.emails)) {
           data.contactColumn.emails = data.contactColumn.emails.map((email: any) => ({
-            ...email,
+            address: email.address || '',
             link: getEmailLink(email.address),
-            label: email.label || 'Email Address',
           }));
         }
 
-        // Process multiple addresses
+        // Process multiple addresses - remove labels
         if (data.contactColumn.addresses && Array.isArray(data.contactColumn.addresses)) {
           data.contactColumn.addresses = data.contactColumn.addresses.map((address: any) => ({
-            ...address,
+            text: address.text || '',
             _generatedMapLink: getGoogleMapsLink(address.text, address.mapLink),
-            label: address.label || 'Address',
           }));
         }
       }
@@ -349,11 +339,11 @@ const firstEmail = contactColumn?.emails?.[0]?.address || 'info@example.com';
         </ul>
       </nav>
 
-      <!-- ===== Contact column ===== -->
+      <!-- ===== Contact column - NO LABELS ===== -->
       <div class="ttc-col ttc-contact">
         <h5 class="ttc-heading">{contactColumn.title}</h5>
         <ul class="ttc-contact-list">
-          {/* Phones */}
+          {/* Phones - no labels */}
           {contactColumn.phones?.map((phone, index) => (
             <li key={`p-${index}`}>
               <a href={phone.link || `tel:${String(phone.number).replace(/[^0-9+]/g, '')}`}>
@@ -361,7 +351,7 @@ const firstEmail = contactColumn?.emails?.[0]?.address || 'info@example.com';
               </a>
             </li>
           ))}
-          {/* Emails */}
+          {/* Emails - no labels */}
           {contactColumn.emails?.map((email, index) => (
             <li key={`e-${index}`}>
               <a href={email.link || `mailto:${email.address}`}>
@@ -369,7 +359,7 @@ const firstEmail = contactColumn?.emails?.[0]?.address || 'info@example.com';
               </a>
             </li>
           ))}
-          {/* Addresses */}
+          {/* Addresses - no labels */}
           {contactColumn.addresses?.map((address, index) => (
             <li key={`a-${index}`}>
               <a href={address._generatedMapLink || '#'} target="_blank" rel="noopener noreferrer">
@@ -473,7 +463,7 @@ footer.ttc-footer {
 }
 .ttc-links a:hover { color: var(--theme-colour, #a60c13); }
 
-/* Contact list — COMPACT spacing */
+/* Contact list — COMPACT spacing, NO LABELS */
 .ttc-contact-list { 
   margin: 0; 
   padding: 0; 
@@ -494,11 +484,8 @@ footer.ttc-footer {
   transition: color 0.3s ease;
   word-break: break-word;
 }
-.ttc-contact-list a:hover { color: var(--theme-colour, #a60c13); }
-
-/* Address specifically - can be longer, keep compact */
-.ttc-contact-list li:has(a[target="_blank"]) a {
-  line-height: 1.5;
+.ttc-contact-list a:hover { 
+  color: var(--theme-colour, #a60c13); 
 }
 
 /* Full-width copyright bar - WHITE BACKGROUND */
