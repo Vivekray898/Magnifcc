@@ -307,38 +307,56 @@ const getIconForItem = (text: string): string => {
     100% { transform: translateX(0); }
   }
 
-  /* Fade edges */
+  /* ===== FIXED: Fade edges - BOTH SIDES SOFT ===== */
   .marquee-wrapper::before,
   .marquee-wrapper::after {
     content: '';
     position: absolute;
     top: 0;
     bottom: 0;
-    width: 80px;
+    width: 120px;
     z-index: 2;
     pointer-events: none;
   }
 
+  /* LEFT side - soft fade from background to transparent */
   .marquee-wrapper::before {
     left: 0;
-    background: linear-gradient(90deg, 
-      var(--color-offwhite, #f7f5f0) 0%, 
+    background: linear-gradient(
+      to right,
+      var(--color-offwhite, #f7f5f0) 0%,
+      var(--color-offwhite, #f7f5f0) 20%,
       transparent 100%
     );
   }
 
+  /* RIGHT side - soft fade from transparent to background (same as left) */
   .marquee-wrapper::after {
     right: 0;
-    background: linear-gradient(270deg, 
-      var(--color-offwhite, #f7f5f0) 0%, 
+    background: linear-gradient(
+      to left,
+      var(--color-offwhite, #f7f5f0) 0%,
+      var(--color-offwhite, #f7f5f0) 20%,
       transparent 100%
     );
   }
 
+  /* Secondary marquee fades - use the same background color */
   .marquee-secondary-wrapper::before,
   .marquee-secondary-wrapper::after {
-    background: linear-gradient(90deg, 
-      var(--color-offwhite, #f7f5f0) 0%, 
+    background: linear-gradient(
+      to right,
+      var(--color-offwhite, #f7f5f0) 0%,
+      var(--color-offwhite, #f7f5f0) 20%,
+      transparent 100%
+    );
+  }
+
+  .marquee-secondary-wrapper::after {
+    background: linear-gradient(
+      to left,
+      var(--color-offwhite, #f7f5f0) 0%,
+      var(--color-offwhite, #f7f5f0) 20%,
       transparent 100%
     );
   }
@@ -346,6 +364,32 @@ const getIconForItem = (text: string): string => {
   @media (prefers-reduced-motion: reduce) {
     .marquee-content {
       animation: none;
+    }
+  }
+
+  /* Responsive fade width */
+  @media (max-width: 768px) {
+    .marquee-wrapper::before,
+    .marquee-wrapper::after {
+      width: 60px;
+    }
+    
+    .marquee-wrapper::before {
+      background: linear-gradient(
+        to right,
+        var(--color-offwhite, #f7f5f0) 0%,
+        var(--color-offwhite, #f7f5f0) 30%,
+        transparent 100%
+      );
+    }
+    
+    .marquee-wrapper::after {
+      background: linear-gradient(
+        to left,
+        var(--color-offwhite, #f7f5f0) 0%,
+        var(--color-offwhite, #f7f5f0) 30%,
+        transparent 100%
+      );
     }
   }
 </style>
