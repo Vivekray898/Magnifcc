@@ -1,12 +1,12 @@
 # Astro Project Map
 
-Generated: 8/10/2026, 2:48:07 PM
+Generated: 8/12/2026, 2:27:09 PM
 
 ## Statistics
 
 - **Folders:** 0
 - **Files:** 0
-- **Size:** 22.66 MB
+- **Size:** 22.96 MB
 
 ---
 
@@ -547,7 +547,7 @@ Magnifcc
 │   │   │   ├── portfolio-img-1.jpg
 │   │   │   ├── portfolio-img-2.jpg
 │   │   │   ├── portfolio-img-3.jpg
-│   │   │   ├── preloader.png
+│   │   │   ├── preloader1.png
 │   │   │   ├── pricing-plan-shap-1.png
 │   │   │   ├── pricing-plan-shap.png
 │   │   │   ├── project-2-2.jpg
@@ -573,6 +573,7 @@ Magnifcc
 │   │   │   ├── shaps-8.png
 │   │   │   ├── shaps-9.png
 │   │   │   ├── signature.png
+│   │   │   ├── t31jPl_HMfE7Ogt0ClBKuD5ZfzYtWdq7GQ0TryESTcXnTY4LcSmlpAJ-OjwpoXInZU_m5wJJanwx9K1vraALLkQAMAipjCKOwLDsXiEgiU0enl5u5DfT-ER1B6oTCFhD_IJ9kdqx8A_AOyMveW7PseI6YTxhqUBwYF24nCJpaPAMTxy98w5aWJuAaV-kZWfk.jpeg
 │   │   │   ├── team-1.png
 │   │   │   ├── team-2.png
 │   │   │   ├── team-3.png
@@ -794,8 +795,10 @@ Magnifcc
 │   │   │       ├── aboutSection.ts
 │   │   │       ├── blogSection.ts
 │   │   │       ├── brandLogosSection.ts
+│   │   │       ├── faqSection.ts
 │   │   │       ├── heroBanner.ts
 │   │   │       ├── marqueeSection.ts
+│   │   │       ├── ourApproachSection.ts
 │   │   │       ├── portfolioSection.ts
 │   │   │       ├── pricingSection.ts
 │   │   │       ├── servicesSection.ts
@@ -818,6 +821,8 @@ Magnifcc
 │   │   └── background.svg
 │   ├── components
 │   │   ├── common
+│   │   │   ├── FloatingWhatsApp.astro
+│   │   │   ├── foot-d.astro
 │   │   │   ├── Footer.astro
 │   │   │   └── Header.astro
 │   │   └── sections
@@ -849,9 +854,15 @@ Magnifcc
 │   │       ├── Blog.astro
 │   │       ├── BrandLogos.astro
 │   │       ├── BrandLogosAdvanced.astro
+│   │       ├── DebugSanity.astro
+│   │       ├── EnquiryForm.astro
+│   │       ├── FAQ-1.astro
+│   │       ├── FAQ.astro
+│   │       ├── faqSection-1.ts
 │   │       ├── HeroBanner.astro
 │   │       ├── Marquee.astro
 │   │       ├── MarqueeAdvanced.astro
+│   │       ├── OurApproach.astro
 │   │       ├── Portfolio.astro
 │   │       ├── Pricing.astro
 │   │       ├── Services.astro
@@ -861,10 +872,12 @@ Magnifcc
 │   │   └── Layout.astro
 │   ├── lib
 │   │   ├── icons.ts
+│   │   ├── portable-text-components.tsx
 │   │   ├── portfolio.ts
 │   │   ├── queries.ts
 │   │   ├── sanity-image.ts
-│   │   └── sanity.ts
+│   │   ├── sanity.ts
+│   │   └── utils.ts
 │   ├── pages
 │   │   ├── blog
 │   │   │   ├── [slug].astro
