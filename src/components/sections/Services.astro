@@ -21,7 +21,7 @@ export interface Props {
 
 const { fetchFromSanity = true, data: propData } = Astro.props;
 
-// Default fallback data
+// Default fallback data - ONLY used if no data from Sanity
 const defaultData = {
   subtitle: 'Our Services',
   title: 'Our Medical Services.',
@@ -61,8 +61,8 @@ const defaultData = {
   ],
 };
 
-let sectionData = { subtitle: defaultData.subtitle, title: defaultData.title };
-let services = defaultData.services;
+let sectionData = { subtitle: '', title: '' };
+let services = [];
 
 // Helper function to truncate description
 const truncateDescription = (text: string, maxLength: number = 60): string => {
@@ -86,8 +86,8 @@ if (fetchFromSanity && !propData) {
     
     if (settingsResult?.servicesSection) {
       sectionData = {
-        subtitle: settingsResult.servicesSection.subtitle || defaultData.subtitle,
-        title: settingsResult.servicesSection.title || defaultData.title,
+        subtitle: settingsResult.servicesSection.subtitle || '',
+        title: settingsResult.servicesSection.title || '',
       };
     }
     
@@ -117,10 +117,24 @@ if (fetchFromSanity && !propData) {
   }
 } else if (propData) {
   sectionData = {
-    subtitle: propData.subtitle || defaultData.subtitle,
-    title: propData.title || defaultData.title,
+    subtitle: propData.subtitle || '',
+    title: propData.title || '',
   };
-  services = propData.services?.length > 0 ? propData.services : defaultData.services;
+  services = propData.services || [];
+}
+
+// If no services data from Sanity, show a message or hide the section
+const hasServices = services && services.length > 0;
+const hasSectionData = sectionData.subtitle || sectionData.title;
+
+// If no data at all, don't render the section
+if (!hasServices && !hasSectionData && !propData) {
+  // Use fallback data only if we have absolutely nothing
+  sectionData = { 
+    subtitle: defaultData.subtitle, 
+    title: defaultData.title 
+  };
+  services = defaultData.services;
 }
 
 const { subtitle, title } = sectionData;
@@ -131,9 +145,9 @@ const { subtitle, title } = sectionData;
     <div class="pb-24 md:pb-32 w-[fit-content]">
       <div class="flex items-center gap-10 mb-8">
         <span class="w-24 h-[2px] bg-primary"></span>
-        <span class="font-montserrat text-[11px] font-bold uppercase tracking-[0.18em] text-primary">{subtitle}</span>
+        <span class="font-montserrat text-[11px] font-bold uppercase tracking-[0.18em] text-primary">{subtitle || 'Our Services'}</span>
       </div>
-      <h2 class="xl:text-4xl md:text-3.5xl sm:text-3xl text-2.3xl font-semibold text-secondary font-sora leading-[1.2]">{title}</h2>
+      <h2 class="xl:text-4xl md:text-3.5xl sm:text-3xl text-2.3xl font-semibold text-secondary font-sora leading-[1.2]">{title || 'Our Medical Services.'}</h2>
     </div>
     
     <!-- Services Grid - 4 columns -->
@@ -232,12 +246,51 @@ const { subtitle, title } = sectionData;
     stroke: var(--theme-colour) !important;
   }
   
+  /* FIX: Title text - ensure it stays visible on hover */
   .services-box h4 a {
-    transition: color 0.3s ease;
+    transition: color 0.4s ease;
+    color: var(--common-colour, #1a1a1a) !important;
+    position: relative;
+    z-index: 2;
   }
   
   .services-box h4 a:hover {
     color: var(--theme-colour) !important;
+  }
+  
+  /* FIX: On card hover, title should be white */
+  .services-box:hover h4 a {
+    color: #ffffff !important;
+  }
+  
+  /* FIX: Description text */
+  .services-box p {
+    transition: color 0.4s ease;
+    color: #6f6f6f !important;
+    position: relative;
+    z-index: 2;
+  }
+  
+  .services-box:hover p {
+    color: #ffffff !important;
+  }
+  
+  /* FIX: Read More link */
+  .services-box .inline-flex {
+    transition: color 0.4s ease;
+    color: var(--common-colour, #1a1a1a) !important;
+    position: relative;
+    z-index: 2;
+  }
+  
+  .services-box:hover .inline-flex {
+    color: #ffffff !important;
+  }
+  
+  /* Ensure everything has proper z-index to stay above the pseudo-element */
+  .services-box > * {
+    position: relative;
+    z-index: 2;
   }
 
   /* Responsive adjustments */
