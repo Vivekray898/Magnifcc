@@ -16,8 +16,20 @@ function normalizeLinks(obj: any): any {
     const result: any = {};
     for (const [key, value] of Object.entries(obj)) {
       // If the property is 'link' and it's a string, add leading slash
-      if (key === 'link' && typeof value === 'string' && value && !value.startsWith('/') && !value.startsWith('javascript:') && !value.startsWith('#')) {
-        result[key] = '/' + value;
+      if (key === 'link' && typeof value === 'string' && value) {
+        // Don't add slash to external links, tel:, mailto:, javascript:, or anchors
+        if (
+          !value.startsWith('/') && 
+          !value.startsWith('#') &&
+          !value.startsWith('javascript:') && 
+          !value.startsWith('tel:') &&
+          !value.startsWith('mailto:') && 
+          !value.includes('://')
+        ) {
+          result[key] = '/' + value;
+        } else {
+          result[key] = value;
+        }
       } else {
         result[key] = normalizeLinks(value);
       }
@@ -58,76 +70,102 @@ export async function getHeader() {
   return normalizeLinks(rawData);
 }
 
+// ===== FIXED: getFooter now fetches the array fields! =====
 export async function getFooter() {
   const rawData = await client.fetch(`*[_type == "footer"][0]{
     title,
-    newsletter {
-      title,
-      placeholder,
-      buttonText,
-      formAction,
-      enabled
+    newsletter { 
+      title, 
+      placeholder, 
+      buttonText, 
+      formAction, 
+      enabled 
     },
     aboutColumn {
-      logo {
-        asset->{
-          _id,
-          url
-        }
+      logo { 
+        asset->{ 
+          _id, 
+          url 
+        } 
       },
+      tagline,
       description,
-      socialLinks[] {
-        platform,
-        url,
-        icon
+      socialLinks[] { 
+        platform, 
+        url, 
+        icon 
       }
     },
-    linkColumn1 {
-      title,
-      links[] {
-        label,
-        link
-      }
+    linkColumn1 { 
+      title, 
+      links[] { 
+        label, 
+        link 
+      } 
     },
-    linkColumn2 {
-      title,
-      links[] {
-        label,
-        link
-      }
+    linkColumn2 { 
+      title, 
+      links[] { 
+        label, 
+        link 
+      } 
     },
     contactColumn {
       title,
-      address {
-        label,
-        text
+      // NEW: Fetch the array fields
+      addresses[] { 
+        label, 
+        text, 
+        mapLink 
       },
-      phone {
-        label,
-        number,
-        link
+      phones[] { 
+        label, 
+        number 
       },
-      email {
-        label,
-        address,
-        link
+      emails[] { 
+        label, 
+        address 
+      },
+      // Keep old fields for backward compatibility during migration
+      address { 
+        label, 
+        text 
+      },
+      phone { 
+        label, 
+        number, 
+        link 
+      },
+      email { 
+        label, 
+        address, 
+        link 
       }
     },
-    copyright {
-      text,
-      links[] {
-        label,
-        link
-      }
+    whatsapp { 
+      enabled, 
+      phoneNumber, 
+      message, 
+      position, 
+      size, 
+      showTooltip, 
+      tooltipText, 
+      bottomOffset 
+    },
+    copyright { 
+      text, 
+      links[] { 
+        label, 
+        link 
+      } 
     }
   }`);
   
-  // Normalize all links to have leading slashes
   return normalizeLinks(rawData);
 }
 
 // ============================================
-// FIXED QUERIES - Fetch from homePage document
+// OTHER QUERIES
 // ============================================
 
 /**
@@ -212,30 +250,6 @@ export async function getHomePageSections() {
         },
         url
       }
-    },
-    heroBanner {
-      // Your hero fields here
-    },
-    servicesSection {
-      // Your services fields here
-    },
-    aboutSection {
-      // Your about fields here
-    },
-    marqueeSection {
-      // Your marquee fields here
-    },
-    portfolioSection {
-      // Your portfolio fields here
-    },
-    whyChooseUsSection {
-      // Your why choose us fields here
-    },
-    pricingSection {
-      // Your pricing fields here
-    },
-    blogSection {
-      // Your blog fields here
     }
   }`);
 }

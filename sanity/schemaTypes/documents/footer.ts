@@ -20,18 +20,58 @@ export default defineType({
       type: 'object',
       options: { collapsible: true, collapsed: false },
       fields: [
-        { name: 'logo', title: 'Logo', type: 'image', options: { hotspot: true } },
-        { name: 'description', title: 'Description', type: 'text', initialValue: 'We are committed to delivering exceptional healthcare with compassion, expertise, and innovation. Our dedicated.' },
-        { name: 'buttonImage', title: 'Button Image (e.g., app store badge)', type: 'image', options: { hotspot: true } },
-        { name: 'socialLinks', title: 'Social Links', type: 'array', of: [
-          { type: 'object', fields: [
-            { name: 'platform', title: 'Platform', type: 'string', options: { 
-              list: ['Facebook', 'Twitter', 'Instagram', 'YouTube', 'LinkedIn', 'TikTok', 'Pinterest'] 
-            }},
-            { name: 'url', title: 'URL', type: 'url' },
-            { name: 'icon', title: 'Icon Class', type: 'string', description: 'e.g., fa-brands fa-facebook-f' },
-          ]},
-        ]},
+        { 
+          name: 'logo', 
+          title: 'Logo', 
+          type: 'image', 
+          options: { hotspot: true } 
+        },
+        { 
+          name: 'description', 
+          title: 'Description', 
+          type: 'text', 
+          initialValue: 'We are committed to delivering exceptional healthcare with compassion, expertise, and innovation. Our dedicated.' 
+        },
+        { 
+          name: 'socialLinks', 
+          title: 'Social Links', 
+          type: 'array', 
+          of: [
+            { 
+              type: 'object', 
+              fields: [
+                { 
+                  name: 'platform', 
+                  title: 'Platform', 
+                  type: 'string', 
+                  options: { 
+                    list: [
+                      { title: 'Facebook', value: 'Facebook' },
+                      { title: 'Twitter', value: 'Twitter' },
+                      { title: 'Instagram', value: 'Instagram' },
+                      { title: 'YouTube', value: 'YouTube' },
+                      { title: 'LinkedIn', value: 'LinkedIn' },
+                      { title: 'TikTok', value: 'TikTok' },
+                      { title: 'Pinterest', value: 'Pinterest' },
+                    ] 
+                  }
+                },
+                { 
+                  name: 'url', 
+                  title: 'Profile URL', 
+                  type: 'url',
+                  description: 'Full URL to your profile (e.g., https://facebook.com/yourpage)'
+                },
+                { 
+                  name: 'icon', 
+                  title: 'Icon Class', 
+                  type: 'string', 
+                  description: 'e.g., fa-brands fa-facebook-f (auto-filled if left empty)',
+                },
+              ],
+            },
+          ],
+        },
       ],
     }),
     // Link Column 1
@@ -41,13 +81,35 @@ export default defineType({
       type: 'object',
       options: { collapsible: true, collapsed: false },
       fields: [
-        { name: 'title', title: 'Column Title', type: 'string', initialValue: 'Link' },
-        { name: 'links', title: 'Links', type: 'array', of: [
-          { type: 'object', fields: [
-            { name: 'label', title: 'Label', type: 'string' },
-            { name: 'link', title: 'Link', type: 'string' },
-          ]},
-        ]},
+        { 
+          name: 'title', 
+          title: 'Column Title', 
+          type: 'string', 
+          initialValue: 'Quick Links' 
+        },
+        { 
+          name: 'links', 
+          title: 'Links', 
+          type: 'array', 
+          of: [
+            { 
+              type: 'object', 
+              fields: [
+                { 
+                  name: 'label', 
+                  title: 'Link Label', 
+                  type: 'string' 
+                },
+                { 
+                  name: 'link', 
+                  title: 'URL', 
+                  type: 'string',
+                  description: 'e.g., /about, /services, or full URL'
+                },
+              ],
+            },
+          ],
+        },
       ],
     }),
     // Link Column 2
@@ -57,37 +119,135 @@ export default defineType({
       type: 'object',
       options: { collapsible: true, collapsed: false },
       fields: [
-        { name: 'title', title: 'Column Title', type: 'string', initialValue: 'Services' },
-        { name: 'links', title: 'Links', type: 'array', of: [
-          { type: 'object', fields: [
-            { name: 'label', title: 'Label', type: 'string' },
-            { name: 'link', title: 'Link', type: 'string' },
-          ]},
-        ]},
+        { 
+          name: 'title', 
+          title: 'Column Title', 
+          type: 'string', 
+          initialValue: 'Our Services' 
+        },
+        { 
+          name: 'links', 
+          title: 'Links', 
+          type: 'array', 
+          of: [
+            { 
+              type: 'object', 
+              fields: [
+                { 
+                  name: 'label', 
+                  title: 'Link Label', 
+                  type: 'string' 
+                },
+                { 
+                  name: 'link', 
+                  title: 'URL', 
+                  type: 'string',
+                  description: 'e.g., /services/patient-resources'
+                },
+              ],
+            },
+          ],
+        },
       ],
     }),
-    // Contact Column
+    // Contact Column - Multiple entries with proper field names!
     defineField({
       name: 'contactColumn',
-      title: '📞 Contact Column',
+      title: '📞 Contact Information',
       type: 'object',
       options: { collapsible: true, collapsed: false },
       fields: [
-        { name: 'title', title: 'Column Title', type: 'string', initialValue: 'Contact Us' },
-        { name: 'address', title: 'Address', type: 'object', fields: [
-          { name: 'label', title: 'Label', type: 'string', initialValue: 'Address' },
-          { name: 'text', title: 'Address Text', type: 'string', initialValue: '1901 Thornridge Cir. Shiloh' },
-        ]},
-        { name: 'phone', title: 'Phone', type: 'object', fields: [
-          { name: 'label', title: 'Label', type: 'string', initialValue: 'Phone Number' },
-          { name: 'number', title: 'Phone Number', type: 'string', initialValue: '+91-7047145306' },
-          { name: 'link', title: 'Phone Link', type: 'string', initialValue: 'tel:+917047145306' },
-        ]},
-        { name: 'email', title: 'Email', type: 'object', fields: [
-          { name: 'label', title: 'Label', type: 'string', initialValue: 'Email Address' },
-          { name: 'address', title: 'Email Address', type: 'string', initialValue: 'info@example.com' },
-          { name: 'link', title: 'Email Link', type: 'string', initialValue: 'mailto:info@example.com' },
-        ]},
+        { 
+          name: 'title', 
+          title: 'Column Title', 
+          type: 'string', 
+          initialValue: 'Contact Us' 
+        },
+        { 
+          name: 'addresses', 
+          title: '📍 Addresses (Multiple)', 
+          type: 'array',
+          of: [
+            { 
+              type: 'object', 
+              fields: [
+                { 
+                  name: 'label', 
+                  title: 'Label', 
+                  type: 'string', 
+                  initialValue: 'Address' 
+                },
+                { 
+                  name: 'text', 
+                  title: 'Address Text', 
+                  type: 'text', 
+                  rows: 3,
+                  description: 'Full address (will be linked to Google Maps automatically)'
+                },
+                { 
+                  name: 'mapLink', 
+                  title: 'Custom Google Maps Link', 
+                  type: 'url',
+                  description: 'Optional: Custom Google Maps URL. Leave empty to auto-generate.',
+                  placeholder: 'https://maps.google.com/?q=Your+Address'
+                },
+              ],
+            },
+          ],
+          description: 'Add one or more addresses'
+        },
+        { 
+          name: 'phones', 
+          title: '📱 Phone Numbers (Multiple)', 
+          type: 'array',
+          of: [
+            { 
+              type: 'object', 
+              fields: [
+                { 
+                  name: 'label', 
+                  title: 'Label', 
+                  type: 'string', 
+                  initialValue: 'Phone Number' 
+                },
+                { 
+                  name: 'number', 
+                  title: 'Phone Number', 
+                  type: 'string',
+                  description: 'Enter number with country code (e.g., +917047145306)',
+                  placeholder: '+917047145306'
+                },
+              ],
+            },
+          ],
+          description: 'Add one or more phone numbers'
+        },
+        { 
+          name: 'emails', 
+          title: '✉️ Email Addresses (Multiple)', 
+          type: 'array',
+          of: [
+            { 
+              type: 'object', 
+              fields: [
+                { 
+                  name: 'label', 
+                  title: 'Label', 
+                  type: 'string', 
+                  initialValue: 'Email Address' 
+                },
+                { 
+                  name: 'address', 
+                  title: 'Email Address', 
+                  type: 'string',
+                  description: 'Enter email address (will be linked automatically)',
+                  placeholder: 'info@example.com'
+                },
+              ],
+            },
+          ],
+          description: 'Add one or more email addresses'
+        },
       ],
     }),
     // WhatsApp Settings
@@ -175,13 +335,34 @@ export default defineType({
       type: 'object',
       options: { collapsible: true, collapsed: false },
       fields: [
-        { name: 'title', title: 'Title', type: 'string', initialValue: 'Instagram' },
-        { name: 'images', title: 'Instagram Images', type: 'array', of: [
-          { type: 'object', fields: [
-            { name: 'src', title: 'Image URL', type: 'string' },
-            { name: 'link', title: 'Link URL', type: 'url' },
-          ]},
-        ]},
+        { 
+          name: 'title', 
+          title: 'Title', 
+          type: 'string', 
+          initialValue: 'Instagram' 
+        },
+        { 
+          name: 'images', 
+          title: 'Instagram Images', 
+          type: 'array', 
+          of: [
+            { 
+              type: 'object', 
+              fields: [
+                { 
+                  name: 'src', 
+                  title: 'Image URL', 
+                  type: 'string' 
+                },
+                { 
+                  name: 'link', 
+                  title: 'Link URL', 
+                  type: 'url' 
+                },
+              ],
+            },
+          ],
+        },
       ],
     }),
     // Copyright
@@ -191,13 +372,35 @@ export default defineType({
       type: 'object',
       options: { collapsible: true, collapsed: false },
       fields: [
-        { name: 'text', title: 'Copyright Text', type: 'string', initialValue: 'Copyright © 2026 Creativoxa. All Rights Reserved.' },
-        { name: 'links', title: 'Footer Links', type: 'array', of: [
-          { type: 'object', fields: [
-            { name: 'label', title: 'Label', type: 'string' },
-            { name: 'link', title: 'Link', type: 'string' },
-          ]},
-        ]},
+        { 
+          name: 'text', 
+          title: 'Copyright Text', 
+          type: 'string', 
+          initialValue: 'Copyright © 2026 Creativoxa. All Rights Reserved.' 
+        },
+        { 
+          name: 'links', 
+          title: 'Legal Links', 
+          type: 'array', 
+          of: [
+            { 
+              type: 'object', 
+              fields: [
+                { 
+                  name: 'label', 
+                  title: 'Link Label', 
+                  type: 'string' 
+                },
+                { 
+                  name: 'link', 
+                  title: 'URL', 
+                  type: 'string',
+                  placeholder: '/terms or full URL'
+                },
+              ],
+            },
+          ],
+        },
       ],
     }),
     // Footer Appearance
