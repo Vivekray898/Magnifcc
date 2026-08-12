@@ -2,7 +2,6 @@
 // src/components/sections/Marquee.astro
 
 import { client } from '../../lib/sanity';
-import { imageUrlFor } from '../../lib/sanity-image';
 
 export interface Props {
   variant?: 'primary' | 'secondary';
@@ -18,18 +17,17 @@ const {
   speed = 'normal'
 } = Astro.props;
 
-// Default items - updated to match the image
+// Default items — consultancy-focused services from Magnific's profile
 const defaultItems = [
-  { icon: 'health-img-3.png', text: 'Hospital Planning' },
-  { icon: 'health-img-3.png', text: 'NABH & NABL' },
-  { icon: 'health-img-3.png', text: 'Public Health' },
-  { icon: 'health-img-3.png', text: 'RelyHMIS' },
-  { icon: 'health-img-3.png', text: 'Equipment Support' },
-  { icon: 'health-img-3.png', text: 'Management Consulting' },
+  { text: 'Hospital Planning' },
+  { text: 'NABH & NABL' },
+  { text: 'Public Health' },
+  { text: 'RelyHMIS' },
+  { text: 'Equipment Support' },
+  { text: 'Management Consulting' },
 ];
 
 let items = defaultItems;
-const imageBase = '/assets/img/';
 
 // Fetch from Sanity
 if (fetchFromSanity) {
@@ -37,13 +35,7 @@ if (fetchFromSanity) {
     const query = `*[_type == "homePage"][0]{
       marqueeItems {
         items[] {
-          text,
-          icon {
-            asset->{
-              _id,
-              url
-            }
-          }
+          text
         }
       }
     }`;
@@ -53,7 +45,6 @@ if (fetchFromSanity) {
     if (result?.marqueeItems?.items?.length > 0) {
       items = result.marqueeItems.items.map((item: any) => ({
         text: item.text || '',
-        icon: item.icon?.asset?.url || 'health-img-3.png',
       }));
     }
   } catch (error) {
@@ -61,17 +52,73 @@ if (fetchFromSanity) {
   }
 }
 
-// Determine which marquee style to render
 const isPrimary = variant === 'primary';
 const isSecondary = variant === 'secondary';
 
-// Animation duration based on speed
 const speedMap = {
   slow: '40s',
   normal: '25s',
   fast: '15s'
 };
 const animationDuration = speedMap[speed] || speedMap.normal;
+
+// Icon resolver — picks a consultancy-themed SVG based on the item text
+const getIconForItem = (text: string): string => {
+  const t = text.toLowerCase();
+
+  // Hospital Planning — building/blueprint
+  if (t.includes('planning') || t.includes('hospital')) {
+    return `<svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L2 7v2h20V7L12 2zm0 2.3L17.5 7h-11L12 4.3zM4 11v9H7v-6h10v6h3v-9H4zm5 1h2v2H9v-2zm4 0h2v2h-2v-2zm-4 4h2v2H9v-2zm4 0h2v2h-2v-2z"/></svg>`;
+  }
+
+  // NABH & NABL — accreditation certificate
+  if (t.includes('nabh') || t.includes('nabl') || t.includes('accred')) {
+    return `<svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-1.06 15.54L7.4 13l1.41-1.41 2.12 2.12 4.24-4.24 1.41 1.41-5.64 5.66z"/></svg>`;
+  }
+
+  // Public Health — people/community
+  if (t.includes('public') || t.includes('health')) {
+    return `<svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5s-3 1.34-3 3 1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>`;
+  }
+
+  // RelyHMIS — software/dashboard/IT
+  if (t.includes('hmis') || t.includes('rely') || t.includes('it')) {
+    return `<svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M21 3H3c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H3V5h18v14zM5 15h4v2H5v-2zm0-4h4v2H5v-2zm0-4h4v2H5V7zm10 8h4v2h-4v-2zm0-4h4v2h-4v-2zm0-4h4v2h-4V7zM9 15h2v2H9v-2zm0-4h2v2H9v-2zm0-4h2v2H9V7z"/></svg>`;
+  }
+
+  // Equipment Support — gear/tools
+  if (t.includes('equipment') || t.includes('support') || t.includes('procure')) {
+    return `<svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>`;
+  }
+
+  // Management Consulting — chart/strategy
+  if (t.includes('management') || t.includes('consult')) {
+    return `<svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M3 13h2v8H3v-8zm4-6h2v14H7V7zm4-4h2v18h-2V3zm4 8h2v10h-2V11zm4-5h2v15h-2V6z"/></svg>`;
+  }
+
+  // Financial Consultancy — money/chart
+  if (t.includes('financial') || t.includes('budget')) {
+    return `<svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg>`;
+  }
+
+  // HR Consultancy — people with briefcase
+  if (t.includes('hr') || t.includes('human') || t.includes('recruit')) {
+    return `<svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M20 6h-4V4c0-1.1-.9-2-2-2h-4c-1.1 0-2 .9-2 2v2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zM10 4h4v2h-4V4zm10 16H4V8h16v12z"/></svg>`;
+  }
+
+  // Training — graduation cap
+  if (t.includes('training') || t.includes('capacity')) {
+    return `<svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82zM12 3L1 9l11 6 9-4.91V17h2V9L12 3z"/></svg>`;
+  }
+
+  // Branding — megaphone
+  if (t.includes('brand') || t.includes('market')) {
+    return `<svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M18 11v2h4v-2h-4zm-2 6.61c.96.71 2.21 1.65 3.2 2.39.4-.53.8-1.07 1.2-1.6-.99-.74-2.24-1.68-3.2-2.4-.4.54-.8 1.08-1.2 1.61zM20.4 5.6c-.4-.53-.8-1.07-1.2-1.6-.99.74-2.24 1.68-3.2 2.4.4.53.8 1.07 1.2 1.6.96-.72 2.21-1.65 3.2-2.4zM4 9c-1.1 0-2 .9-2 2v2c0 1.1.9 2 2 2h1v4h2v-4h1l5 3V6L8 9H4zm11.5 3c0-1.33-.58-2.53-1.5-3.35v6.69c.92-.81 1.5-2.01 1.5-3.34z"/></svg>`;
+  }
+
+  // Default fallback — generic consultancy star
+  return `<svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M12 2l2.4 7.4H22l-6 4.4 2.3 7.2L12 16.7l-6.3 4.3 2.3-7.2-6-4.4h7.6L12 2z"/></svg>`;
+};
 ---
 
 <!-- Primary Marquee -->
@@ -82,12 +129,7 @@ const animationDuration = speedMap[speed] || speedMap.normal;
         <div class="marquee-content" style={`animation-duration: ${animationDuration}`}>
           {items.map((item, index) => (
             <div key={`primary-1-${index}`} class="marquee-item">
-              <img 
-                src={item.icon.startsWith('http') ? item.icon : `${imageBase}${item.icon}`}
-                alt={item.text} 
-                class="marquee-icon"
-                loading="lazy"
-              />
+              <span class="marquee-icon" set:html={getIconForItem(item.text)} aria-hidden="true" />
               <span class="marquee-text">{item.text}</span>
               <span class="marquee-separator">&bull;</span>
             </div>
@@ -96,12 +138,7 @@ const animationDuration = speedMap[speed] || speedMap.normal;
         <div class="marquee-content marquee-content-duplicate" style={`animation-duration: ${animationDuration}`} aria-hidden="true">
           {items.map((item, index) => (
             <div key={`primary-2-${index}`} class="marquee-item">
-              <img 
-                src={item.icon.startsWith('http') ? item.icon : `${imageBase}${item.icon}`}
-                alt="" 
-                class="marquee-icon"
-                loading="lazy"
-              />
+              <span class="marquee-icon" set:html={getIconForItem(item.text)} aria-hidden="true" />
               <span class="marquee-text">{item.text}</span>
               <span class="marquee-separator">&bull;</span>
             </div>
@@ -120,12 +157,7 @@ const animationDuration = speedMap[speed] || speedMap.normal;
         <div class="marquee-content marquee-reverse" style={`animation-duration: ${animationDuration}`}>
           {items.map((item, index) => (
             <div key={`secondary-1-${index}`} class="marquee-item">
-              <img 
-                src={item.icon.startsWith('http') ? item.icon : `${imageBase}${item.icon}`}
-                alt={item.text} 
-                class="marquee-icon"
-                loading="lazy"
-              />
+              <span class="marquee-icon" set:html={getIconForItem(item.text)} aria-hidden="true" />
               <span class="marquee-text">{item.text}</span>
               <span class="marquee-separator">&bull;</span>
             </div>
@@ -134,12 +166,7 @@ const animationDuration = speedMap[speed] || speedMap.normal;
         <div class="marquee-content marquee-content-duplicate marquee-reverse" style={`animation-duration: ${animationDuration}`} aria-hidden="true">
           {items.map((item, index) => (
             <div key={`secondary-2-${index}`} class="marquee-item">
-              <img 
-                src={item.icon.startsWith('http') ? item.icon : `${imageBase}${item.icon}`}
-                alt="" 
-                class="marquee-icon"
-                loading="lazy"
-              />
+              <span class="marquee-icon" set:html={getIconForItem(item.text)} aria-hidden="true" />
               <span class="marquee-text">{item.text}</span>
               <span class="marquee-separator">&bull;</span>
             </div>
@@ -164,7 +191,7 @@ const animationDuration = speedMap[speed] || speedMap.normal;
     z-index: 1;
   }
 
-  /* Marquee Track - the scrolling container */
+  /* Marquee Track */
   .marquee-track {
     display: flex;
     width: 100%;
@@ -184,7 +211,7 @@ const animationDuration = speedMap[speed] || speedMap.normal;
     margin-left: -6%;
   }
 
-  /* Marquee Content - the actual scrolling content */
+  /* Marquee Content */
   .marquee-content {
     display: flex;
     flex-shrink: 0;
@@ -202,7 +229,6 @@ const animationDuration = speedMap[speed] || speedMap.normal;
     animation-name: marquee-scroll-right;
   }
 
-  /* Pause on hover */
   .marquee-track:hover .marquee-content {
     animation-play-state: paused;
   }
@@ -216,19 +242,27 @@ const animationDuration = speedMap[speed] || speedMap.normal;
     white-space: nowrap;
   }
 
-  /* Icon */
+  /* Consultancy Icon — inline SVG inherits white color */
   .marquee-icon {
     width: 32px;
     height: 32px;
-    object-fit: contain;
-    opacity: 0.9;
     flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+  }
+
+  .marquee-icon svg {
+    width: 100%;
+    height: 100%;
+    display: block;
   }
 
   @media (min-width: 768px) {
     .marquee-icon {
-      width: 40px;
-      height: 40px;
+      width: 38px;
+      height: 38px;
     }
   }
 
@@ -264,21 +298,13 @@ const animationDuration = speedMap[speed] || speedMap.normal;
 
   /* Keyframe Animations */
   @keyframes marquee-scroll-left {
-    0% {
-      transform: translateX(0);
-    }
-    100% {
-      transform: translateX(-100%);
-    }
+    0%   { transform: translateX(0); }
+    100% { transform: translateX(-100%); }
   }
 
   @keyframes marquee-scroll-right {
-    0% {
-      transform: translateX(-100%);
-    }
-    100% {
-      transform: translateX(0);
-    }
+    0%   { transform: translateX(-100%); }
+    100% { transform: translateX(0); }
   }
 
   /* Fade edges */
@@ -309,21 +335,14 @@ const animationDuration = speedMap[speed] || speedMap.normal;
     );
   }
 
-  .marquee-secondary-wrapper::before {
+  .marquee-secondary-wrapper::before,
+  .marquee-secondary-wrapper::after {
     background: linear-gradient(90deg, 
       var(--color-offwhite, #f7f5f0) 0%, 
       transparent 100%
     );
   }
 
-  .marquee-secondary-wrapper::after {
-    background: linear-gradient(270deg, 
-      var(--color-offwhite, #f7f5f0) 0%, 
-      transparent 100%
-    );
-  }
-
-  /* Accessibility: Respect reduced motion */
   @media (prefers-reduced-motion: reduce) {
     .marquee-content {
       animation: none;
