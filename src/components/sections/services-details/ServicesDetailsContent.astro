@@ -106,6 +106,7 @@ const {
   icon,
   title,
   description,
+  longDescription,
   sectionTitle,
   sectionContent,
   image,
@@ -120,7 +121,6 @@ const {
 const servicesList = allServicesList.length > 0 ? allServicesList : [];
 ---
 
-<!-- Rest of the component remains the same -->
 <section class="xxl:py-120 lg:py-100 md:py-80 py-60">
   <div class="container">
     <div class="grid grid-cols-12 gap-25">
@@ -146,9 +146,9 @@ const servicesList = allServicesList.length > 0 ? allServicesList : [];
                   const isActive = service.link === `/services/${slug}`;
                   return (
                     <li key={index} class={`xxl:mb-24 mb-16 w-full relative ${isActive ? 'active' : ''}`}>
-                      <a href={service.link} class={isActive ? 'text-primary font-bold' : ''}>
+                      <a href={service.link} class={`block break-words ${isActive ? 'text-primary font-bold' : ''}`}>
                         {service.title}
-                        <i class="fa-solid fa-arrow-right"></i>
+                        <i class="fa-solid fa-arrow-right absolute right-0 top-1/2 -translate-y-1/2"></i>
                       </a>
                     </li>
                   );
@@ -164,10 +164,10 @@ const servicesList = allServicesList.length > 0 ? allServicesList : [];
           <!-- Social Links -->
           <div class="xl:p-30 p-20 border border-[#D8D8D8] mb-24">
             <h3 class="xl:text-2xl text-xl font-semibold pb-20 text-secondary capitalize font-sora">tags</h3>
-            <ul class="flex gap-x-10">
+            <ul class="flex gap-x-10 flex-wrap">
               {socialLinks && socialLinks.length > 0 ? (
                 socialLinks.map((social, index) => (
-                  <li key={index}>
+                  <li key={index} class="mb-2">
                     <a href={social.url} class="flex items-center justify-center xxl:size-50 size-40 max-xxl:text-sm border border-[#D8D8D8] rounded-full hover:bg-primary duration-500 hover:text-white hover:border-transparent" target="_blank">
                       <i class={social.icon}></i>
                     </a>
@@ -185,7 +185,7 @@ const servicesList = allServicesList.length > 0 ? allServicesList : [];
       
       <!-- Main Content -->
       <div class="lg:col-span-8 col-span-12">
-        <div>
+        <div class="w-full overflow-hidden">
           {data ? (
             <>
               <!-- Icon -->
@@ -195,18 +195,25 @@ const servicesList = allServicesList.length > 0 ? allServicesList : [];
               
               <!-- Title -->
               {title && (
-                <h2 class="pt-20 pb-10 xxl:text-5.2xl xl:text-4.65xl lg:text-3.8xl md:text-3.8xl sm:text-3xl text-2.5xl font-bold font-sora text-secondary">
-                  <a href="javascript:void(0);">{title}</a>
+                <h2 class="pt-20 pb-10 xxl:text-5.2xl xl:text-4.65xl lg:text-3.8xl md:text-3.8xl sm:text-3xl text-2.5xl font-bold font-sora text-secondary break-words">
+                  <a href="javascript:void(0);" class="break-words">{title}</a>
                 </h2>
               )}
               
-              <!-- Description (keep as-is — it's still plain text) -->
+              <!-- Description (plain text) -->
               {description && (
-                <p class="text-base xxl:leading-30 xl:leading-28 leading-26 text-gary font-normal">
+                <p class="text-base xxl:leading-30 xl:leading-28 leading-26 text-gary font-normal whitespace-pre-wrap">
                   {description}
                 </p>
               )}
-              
+
+              <!-- NEW: Long Description → Portable Text -->
+              {longDescription && (
+                <div class="rich-content xxl:pt-30 pt-20">
+                  <PortableText value={longDescription} components={richComponents} />
+                </div>
+              )}
+
               <!-- Section Title -->
               {sectionTitle && (
                 <h3 class="xxl:text-2.3xl xl:text-2.5xl sm:text-2xl text-xxl max-sm:leading-32 font-bold font-sora text-secondary pt-40 max-xl:pt-30 pb-10">{sectionTitle}</h3>
@@ -215,10 +222,7 @@ const servicesList = allServicesList.length > 0 ? allServicesList : [];
               <!-- Section Content → Portable Text -->
               {sectionContent && (
                 <div class="rich-content">
-                  <PortableText
-                    value={sectionContent}
-                    components={richComponents}
-                  />
+                  <PortableText value={sectionContent} components={richComponents} />
                 </div>
               )}
               
@@ -233,7 +237,7 @@ const servicesList = allServicesList.length > 0 ? allServicesList : [];
               
               <!-- Bottom Text → Portable Text -->
               {bottomText && (
-                <div class="rich-content">
+                <div class="rich-content w-full max-w-full">
                   <PortableText
                     value={bottomText}
                     components={richComponents}
@@ -244,17 +248,17 @@ const servicesList = allServicesList.length > 0 ? allServicesList : [];
               <!-- FAQs -->
               {faqs && faqs.length > 0 && (
                 <>
-                  <h3 class="xxl:text-2.3xl xl:text-2.5xl sm:text-2xl text-xxl max-sm:leading-32 font-bold font-sora text-secondary xxl:pt-50 xl:40 pt-30 pb-10">Frequently Asked Questions</h3>
+                  <h3 class="xxl:text-2.3xl xl:text-2.5xl sm:text-2xl text-xxl max-sm:leading-32 font-bold font-sora text-secondary xxl:pt-50 xl:40 pt-30 pb-10 break-words">Frequently Asked Questions</h3>
                   
                   <div class="accordion xxl:pt-50 pt-40 xxl:pb-25 pb-15">
                     {faqs.map((faq, index) => (
                       <div class={`accordion-item ${index === 0 ? 'active' : ''}`} key={index}>
                         <a href="javascript:void(0)" class="heading block capitalize text-black font-bold text-2xl relative duration-500 w-full">
                           <div class="icon block absolute top-11 -translate-y-1/2 right-13 duration-500"><i class="fa-solid fa-plus"></i></div>
-                          <div class="title">{faq.question}</div>
+                          <div class="title break-words pr-12">{faq.question}</div>
                         </a>
                         <div class="content pb-24 pt-0 bg-[#24243500]" style={index === 0 ? 'display: block;' : 'display: none;'}>
-                          <div class="rich-content">
+                          <div class="rich-content w-full max-w-full">
                             <PortableText
                               value={faq.answer}
                               components={richComponents}
@@ -268,18 +272,18 @@ const servicesList = allServicesList.length > 0 ? allServicesList : [];
               )}
               
               <!-- Prev/Next Navigation -->
-              <div class="justify-between flex mt-60 bg-[#f4f4ff] p-20">
-                <a href={prevService?.link || 'javascript:void(0);'} class="font-bold flex items-center gap-20 text-secondary">
-                  <i class="bg-primary xxl:size-60 xl:size-50 size-40 flex items-center justify-center hover:bg-secondary duration-500">
+              <div class="justify-between flex mt-60 bg-[#f4f4ff] p-20 flex-wrap gap-4">
+                <a href={prevService?.link || 'javascript:void(0);'} class="font-bold flex items-center gap-20 text-secondary break-words max-w-[45%]">
+                  <i class="bg-primary xxl:size-60 xl:size-50 size-40 flex items-center justify-center hover:bg-secondary duration-500 flex-shrink-0">
                     <svg width="20" height="11" viewBox="0 0 20 11" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <path d="M0.731215 3.66545L3.95657 0.257795C4.03405 0.176108 4.12623 0.111272 4.22779 0.0670259C4.32935 0.0227798 4.43828 0 4.5483 0C4.65832 0 4.76726 0.0227798 4.86882 0.0670259C4.97038 0.111272 5.06256 0.176108 5.14003 0.257795C5.29526 0.421085 5.38239 0.641974 5.38239 0.872218C5.38239 1.10246 5.29526 1.32335 5.14003 1.48664L2.17304 4.61541H19.1666C19.3876 4.61541 19.5996 4.70723 19.7559 4.87067C19.9122 5.03411 20 5.25578 20 5.48693C20 5.71807 19.9122 5.93974 19.7559 6.10319C19.5996 6.26663 19.3876 6.35845 19.1666 6.35845H2.12303L5.14003 9.50464C5.21815 9.58566 5.28015 9.68205 5.32246 9.78826C5.36477 9.89446 5.38656 10.0084 5.38656 10.1234C5.38656 10.2385 5.36477 10.3524 5.32246 10.4586C5.28015 10.5648 5.21815 10.6612 5.14003 10.7422C5.06256 10.8239 4.97038 10.8887 4.86882 10.933C4.76726 10.9772 4.65832 11 4.5483 11C4.43828 11 4.32935 10.9772 4.22779 10.933C4.12623 10.8887 4.03405 10.8239 3.95657 10.7422L0.731215 7.3607C0.262995 6.87047 0 6.20594 0 5.51307C0 4.82021 0.262995 4.15568 0.731215 3.66545Z" fill="white"/>
                     </svg>
                   </i>
-                  {prevService?.title || 'Previous'}
+                  <span class="break-words">{prevService?.title || 'Previous'}</span>
                 </a>
-                <a href={nextService?.link || 'javascript:void(0);'} class="font-bold flex items-center gap-20 text-secondary">
-                  {nextService?.title || 'Next'}
-                  <i class="bg-primary xxl:size-60 xl:size-50 size-40 flex items-center justify-center hover:bg-secondary duration-500">
+                <a href={nextService?.link || 'javascript:void(0);'} class="font-bold flex items-center gap-20 text-secondary break-words max-w-[45%] text-right">
+                  <span class="break-words">{nextService?.title || 'Next'}</span>
+                  <i class="bg-primary xxl:size-60 xl:size-50 size-40 flex items-center justify-center hover:bg-secondary duration-500 flex-shrink-0">
                     <svg width="20" height="11" viewBox="0 0 20 11" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <path d="M19.2688 3.66545L16.0434 0.257795C15.966 0.176108 15.8738 0.111272 15.7722 0.0670259C15.6707 0.0227798 15.5617 0 15.4517 0C15.3417 0 15.2327 0.0227798 15.1312 0.0670259C15.0296 0.111272 14.9374 0.176108 14.86 0.257795C14.7047 0.421085 14.6176 0.641974 14.6176 0.872218C14.6176 1.10246 14.7047 1.32335 14.86 1.48664L17.827 4.61541H0.833425C0.612387 4.61541 0.400402 4.70723 0.244105 4.87067C0.087807 5.03411 0 5.25578 0 5.48693C0 5.71807 0.087807 5.93974 0.244105 6.10319C0.400402 6.26663 0.612387 6.35845 0.833425 6.35845H17.877L14.86 9.50464C14.7819 9.58566 14.7198 9.68205 14.6775 9.78826C14.6352 9.89446 14.6134 10.0084 14.6134 10.1234C14.6134 10.2385 14.6352 10.3524 14.6775 10.4586C14.7198 10.5648 14.7819 10.6612 14.86 10.7422C14.9374 10.8239 15.0296 10.8887 15.1312 10.933C15.2327 10.9772 15.3417 11 15.4517 11C15.5617 11 15.6707 10.9772 15.7722 10.933C15.8738 10.8887 15.966 10.8239 16.0434 10.7422L19.2688 7.3607C19.737 6.87047 20 6.20594 20 5.51307C20 4.82021 19.737 4.15568 19.2688 3.66545Z" fill="white"/>
                     </svg>
@@ -298,29 +302,196 @@ const servicesList = allServicesList.length > 0 ? allServicesList : [];
   </div>
 </section>
 
-<style>
-  .services-list li.active a {
-    color: #F05DA8;
-    font-weight: 700;
-  }
-  
-  .services-list li.active i {
-    color: #F05DA8;
+<style is:global>
+  .services-list li.active a { color: var(--theme-colour, #a60c13); font-weight: 700; }
+  .services-list li.active i { color: var(--theme-colour, #a60c13); }
+
+  /* =========================================================
+     RICH CONTENT (Portable Text) — spacious typography.
+     Increased margins for better readability and breathing room.
+     ========================================================= */
+  .rich-content {
+    color: var(--color-gary, #4a4a4a);
+    font-size: 17px;
+    line-height: 1.8;
+    overflow-wrap: break-word;
+    word-break: break-word;
+    letter-spacing: 0.01em;
   }
 
-  .rich-content > :first-child {
-    margin-top: 0;
+  .rich-content > :first-child { margin-top: 0 !important; }
+  .rich-content > :last-child { margin-bottom: 0 !important; }
+
+  /* Paragraphs - more spacing for readability */
+  .rich-content .rt-p {
+    margin: 0 0 24px;
+    line-height: 1.8;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    font-size: 17px;
   }
-  
-  .rich-content > :last-child {
-    margin-bottom: 0;
+
+  /* Headings - more space above, less below */
+  .rich-content .rt-h2,
+  .rich-content .rt-h3,
+  .rich-content .rt-h4 {
+    font-family: 'Sora', sans-serif;
+    color: var(--common-colour, #1a1a1a);
+    font-weight: 700;
+    line-height: 1.4;
+    overflow-wrap: break-word;
+    margin-top: 48px;
+    margin-bottom: 18px;
   }
-  
-  .rich-content ul ul,
-  .rich-content ol ol,
-  .rich-content ul ol,
-  .rich-content ol ul {
-    margin-top: 0.5rem;
-    margin-bottom: 0.5rem;
+  .rich-content .rt-h2 { 
+    font-size: 32px; 
+    margin-top: 56px;
+    margin-bottom: 20px;
+  }
+  .rich-content .rt-h3 { 
+    font-size: 26px; 
+    margin-top: 44px;
+    margin-bottom: 16px;
+  }
+  .rich-content .rt-h4 { 
+    font-size: 22px; 
+    margin-top: 36px;
+    margin-bottom: 14px;
+  }
+
+  /* First heading after intro should have less top margin */
+  .rich-content .rt-h2:first-of-type,
+  .rich-content .rt-h3:first-of-type {
+    margin-top: 8px;
+  }
+
+  /* Lists — more breathing room */
+  .rich-content .rt-ul,
+  .rich-content .rt-ol {
+    margin: 8px 0 28px;
+    padding-left: 28px;
+    line-height: 1.8;
+  }
+  .rich-content .rt-ul { list-style: disc; }
+  .rich-content .rt-ol { list-style: decimal; }
+
+  .rich-content .rt-li {
+    margin: 0 0 14px;
+    padding-left: 8px;
+    line-height: 1.8;
+    overflow-wrap: break-word;
+    font-size: 17px;
+  }
+  .rich-content .rt-li:last-child { margin-bottom: 0; }
+  .rich-content .rt-li::marker {
+    color: var(--theme-colour, #a60c13);
+    font-weight: 600;
+  }
+
+  /* Nested lists */
+  .rich-content .rt-li .rt-ul,
+  .rich-content .rt-li .rt-ol { 
+    margin: 12px 0 8px;
+    padding-left: 20px;
+  }
+
+  /* Inline marks */
+  .rich-content .rt-strong { 
+    color: var(--common-colour, #1a1a1a); 
+    font-weight: 700; 
+  }
+  .rich-content .rt-em { font-style: italic; }
+  .rich-content .rt-u { text-decoration: underline; }
+  .rich-content .rt-s { text-decoration: line-through; }
+  .rich-content .rt-code {
+    background: var(--color-offwhite, #f7f5f0);
+    border: 1px solid var(--color-lightgary, #e8e6e1);
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 0.9em;
+    word-break: break-all;
+  }
+  .rich-content .rt-link {
+    color: var(--theme-colour, #a60c13);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    font-weight: 500;
+  }
+  .rich-content .rt-link:hover { color: var(--theme-colour-hover, #88080d); }
+
+  /* Blockquote - spacious and prominent */
+  .rich-content .rt-blockquote {
+    border-left: 5px solid var(--theme-colour, #a60c13);
+    background: var(--color-pink-light, #fbebee);
+    padding: 20px 30px;
+    margin: 32px 0;
+    border-radius: 0 12px 12px 0;
+    font-style: italic;
+    color: var(--common-colour, #1a1a1a);
+    line-height: 1.8;
+    font-size: 18px;
+  }
+
+  /* Images inside rich text — never overflow */
+  .rich-content .rt-figure { margin: 36px 0; }
+  .rich-content .rt-figure img {
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    border-radius: 14px;
+    display: block;
+  }
+  .rich-content .rt-figure figcaption {
+    text-align: center;
+    font-size: 15px;
+    color: var(--color-gary, #4a4a4a);
+    margin-top: 12px;
+    line-height: 1.6;
+  }
+
+  /* Preserve whitespace in the description field */
+  .whitespace-pre-wrap {
+    white-space: pre-wrap !important;
+  }
+
+  /* Safety net: any long unbroken string (URLs, codes) wraps */
+  .rich-content p,
+  .rich-content li,
+  .rich-content h2,
+  .rich-content h3,
+  .rich-content h4 {
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    hyphens: auto;
+  }
+
+  /* Additional accordion styles */
+  .accordion-item .title {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .services-list li a {
+      font-size: 0.95rem;
+    }
+    
+    .rich-content {
+      font-size: 16px;
+    }
+    
+    .rich-content .rt-p {
+      font-size: 16px;
+    }
+    
+    .rich-content .rt-h2 { font-size: 26px; margin-top: 40px; }
+    .rich-content .rt-h3 { font-size: 22px; margin-top: 32px; }
+    .rich-content .rt-h4 { font-size: 19px; margin-top: 28px; }
+    
+    .rich-content .rt-blockquote {
+      padding: 16px 20px;
+      font-size: 16px;
+    }
   }
 </style>
