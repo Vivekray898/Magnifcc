@@ -6,18 +6,14 @@ import { client } from './sanity';
 function normalizeLinks(obj: any): any {
   if (!obj) return obj;
   
-  // If it's an array, process each item
   if (Array.isArray(obj)) {
     return obj.map(item => normalizeLinks(item));
   }
   
-  // If it's an object, process each property
   if (typeof obj === 'object' && obj !== null) {
     const result: any = {};
     for (const [key, value] of Object.entries(obj)) {
-      // If the property is 'link' and it's a string, add leading slash
       if (key === 'link' && typeof value === 'string' && value) {
-        // Don't add slash to external links, tel:, mailto:, javascript:, or anchors
         if (
           !value.startsWith('/') && 
           !value.startsWith('#') &&
@@ -66,11 +62,9 @@ export async function getHeader() {
     searchEnabled
   }`);
   
-  // Normalize all links to have leading slashes
   return normalizeLinks(rawData);
 }
 
-// ===== FIXED: getFooter now fetches the array fields! =====
 export async function getFooter() {
   const rawData = await client.fetch(`*[_type == "footer"][0]{
     title,
@@ -112,7 +106,6 @@ export async function getFooter() {
     },
     contactColumn {
       title,
-      // NEW: Fetch the array fields
       addresses[] { 
         label, 
         text, 
@@ -126,7 +119,6 @@ export async function getFooter() {
         label, 
         address 
       },
-      // Keep old fields for backward compatibility during migration
       address { 
         label, 
         text 
@@ -165,12 +157,9 @@ export async function getFooter() {
 }
 
 // ============================================
-// OTHER QUERIES
+// HOME PAGE QUERIES
 // ============================================
 
-/**
- * Get testimonials section data from homePage
- */
 export async function getTestimonials() {
   return await client.fetch(`*[_type == "homePage"][0]{
     testimonialsSection {
@@ -193,9 +182,6 @@ export async function getTestimonials() {
   }`);
 }
 
-/**
- * Get brand logos section data from homePage
- */
 export async function getBrandLogos() {
   return await client.fetch(`*[_type == "homePage"][0]{
     brandLogosSection {
@@ -215,9 +201,6 @@ export async function getBrandLogos() {
   }`);
 }
 
-/**
- * Get all home page sections data in one query
- */
 export async function getHomePageSections() {
   return await client.fetch(`*[_type == "homePage"][0]{
     testimonialsSection {
@@ -252,4 +235,121 @@ export async function getHomePageSections() {
       }
     }
   }`);
+}
+
+// ============================================
+// CAREERS/JOB LISTINGS QUERIES (with rich text)
+// ============================================
+
+/**
+ * Get all active job listings for the Careers overview page
+ * Fetches description as rich text array
+ */
+export async function getJobListings() {
+  return await client.fetch(`*[_type == "jobListing"] | order(_createdAt desc) {
+    _id,
+    _createdAt,
+    jobTitle,
+    "slug": slug.current,
+    department,
+    location,
+    jobType,
+    experience,
+    salary,
+    // Get description as rich text array
+    description,
+    requirements,
+    applyLink
+  }`);
+}
+
+/**
+ * Get a single job listing by its slug (for the details page)
+ * Fetches full rich text description
+ */
+export async function getSingleJob(slug: string) {
+  return await client.fetch(`*[_type == "jobListing" && slug.current == $slug][0] {
+    _id,
+    _createdAt,
+    jobTitle,
+    "slug": slug.current,
+    department,
+    location,
+    jobType,
+    experience,
+    salary,
+    description,
+    requirements,
+    applyLink
+  }`, { slug });
+}
+
+// ============================================
+// FILTER HELPERS (based on string fields)
+// ============================================
+
+/**
+ * Get unique departments from all job listings
+ */
+export async function getUniqueDepartments() {
+  const jobs = await getJobListings();
+  const departments = [...new Set(jobs.map((job: any) => job.department).filter(Boolean))];
+  return departments.sort();
+}
+
+/**
+ * Get unique locations from all job listings
+ */
+export async function getUniqueLocations() {
+  const jobs = await getJobListings();
+  const locations = [...new Set(jobs.map((job: any) => job.location).filter(Boolean))];
+  return locations.sort();
+}
+
+/**
+ * Get unique job types from all job listings
+ */
+export async function getUniqueJobTypes() {
+  const jobs = await getJobListings();
+  const jobTypes = [...new Set(jobs.map((job: any) => job.jobType).filter(Boolean))];
+  return jobTypes.sort();
+}
+
+/**
+ * Get filtered job listings by string fields (client-side filtering)
+ * Note: Search is performed on jobTitle only since description is rich text
+ * For better search, consider using GROQ with `pt::text()` or a search index
+ */
+export async function getFilteredJobListings(filters?: {
+  department?: string;
+  location?: string;
+  jobType?: string;
+  search?: string;
+}) {
+  const jobs = await getJobListings();
+  
+  return jobs.filter((job: any) => {
+    let matches = true;
+    
+    if (filters?.department && job.department !== filters.department) {
+      matches = false;
+    }
+    if (filters?.location && job.location !== filters.location) {
+      matches = false;
+    }
+    if (filters?.jobType && job.jobType !== filters.jobType) {
+      matches = false;
+    }
+    if (filters?.search) {
+      const searchLower = filters.search.toLowerCase();
+      const jobTitleMatch = job.jobTitle?.toLowerCase().includes(searchLower);
+      // Description is rich text, so we can't easily search it client-side
+      // If you need description search, use GROQ with pt::text(description) in the query
+      if (!jobTitleMatch) {
+        matches = false;
+      }
+    }
+    
+    return matches;
+  });
 }

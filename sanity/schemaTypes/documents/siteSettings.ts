@@ -158,5 +158,31 @@ export default defineType({
         },
       ],
     }),
+    // NEW: Custom dropdown values for job listings filters
+    defineField({
+      name: 'customDropdownValues',
+      title: 'Custom Dropdown Values',
+      type: 'object',
+      fields: [
+        defineField({
+          name: 'department',
+          title: 'Department Custom Values',
+          type: 'array',
+          of: [{ type: 'string' }],
+        }),
+        defineField({
+          name: 'location',
+          title: 'Location Custom Values',
+          type: 'array',
+          of: [{ type: 'string' }],
+        }),
+        defineField({
+          name: 'jobType',
+          title: 'Job Type Custom Values',
+          type: 'array',
+          of: [{ type: 'string' }],
+        }),
+      ],
+    }),
   ],
 });

@@ -1,0 +1,22 @@
+---
+// src/pages/careers/index.astro
+
+import Layout from '../../layouts/Layout.astro';
+import Header from '../../components/common/Header.astro';
+import Footer from '../../components/common/Footer.astro';
+import CareersHero from '../../components/sections/CareersHero.astro';
+import JobBoard from '../../components/sections/JobBoard.astro';
+import { getHeader, getFooter } from '../../lib/queries';
+
+const headerData = await getHeader();
+const footerData = await getFooter();
+---
+
+<Layout title="Careers | Magnific Healthcare" description="Explore career opportunities and join our dedicated healthcare team.">
+  <Header data={headerData} />
+  <main>
+    <CareersHero />
+    <JobBoard />
+  </main>
+  <Footer data={footerData} />
+</Layout>

@@ -1,0 +1,205 @@
+---
+// src/components/sections/JobDetails.astro
+
+import { PortableText } from '@portabletext/react';
+import { richComponents } from '../../lib/portable-text-components';
+
+interface Props { job: any; otherJobs?: any[]; }
+const { job, otherJobs = [] } = Astro.props;
+
+const deptMeta: Record<string, { icon: string; label: string }> = {
+  'Medical / Clinical': { icon: 'fa-solid fa-user-doctor', label: 'Medical / Clinical' },
+  'Administrative': { icon: 'fa-solid fa-building', label: 'Administrative' },
+  'IT / Tech': { icon: 'fa-solid fa-laptop-code', label: 'IT / Tech' },
+  'Support / HR': { icon: 'fa-solid fa-headset', label: 'Support / HR' },
+};
+const meta = deptMeta[job.department] || { icon: 'fa-solid fa-briefcase', label: job.department || 'General' };
+
+const timeAgo = (iso?: string) => {
+  if (!iso) return 'Recently posted';
+  const hrs = Math.floor((Date.now() - new Date(iso).getTime()) / 3600000);
+  if (hrs < 6) return 'Few hours ago';
+  if (hrs < 24) return 'Today';
+  const days = Math.floor(hrs / 24);
+  if (days < 7) return `${days} day${days > 1 ? 's' : ''} ago`;
+  const weeks = Math.floor(days / 7);
+  if (weeks < 5) return `${weeks} week${weeks > 1 ? 's' : ''} ago`;
+  const months = Math.floor(days / 30);
+  return `${months} month${months > 1 ? 's' : ''} ago`;
+};
+---
+
+<section class="py-40 bg-[#f4f5f7] min-h-screen">
+  <div class="container">
+    <div class="flex items-center gap-8 text-xs text-gary/50 mb-16">
+      <a href="/" class="hover:text-primary">Home</a><span>/</span>
+      <a href="/careers" class="hover:text-primary">Careers</a><span>/</span>
+      <span class="text-secondary font-medium truncate max-w-[200px]">{job.jobTitle}</span>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-20 items-start">
+
+      <!-- ===== MAIN CARD ===== -->
+      <div class="bg-white rounded-lg border border-secondary/10 overflow-hidden">
+        <div class="p-24 md:p-32">
+          <div class="flex items-start justify-between gap-16">
+            <div>
+              <h1 class="text-xl md:text-2xl font-bold font-sora text-secondary leading-tight">{job.jobTitle}</h1>
+              <div class="text-sm text-gary/60 mt-6">Magnific Healthcare <span class="mx-6 text-gary/30">•</span> {meta.label}</div>
+            </div>
+            <div class="w-12 h-12 rounded-lg bg-[#f4f5f7] border border-secondary/10 flex items-center justify-center flex-shrink-0">
+              <i class={`${meta.icon} text-secondary/50 text-lg`}></i>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-16 mt-16 text-sm text-gary/70">
+            {job.experience && <span class="flex items-center gap-8"><i class="fa-regular fa-briefcase text-gary/40"></i>{job.experience}</span>}
+            <span class="w-px h-4 bg-secondary/10"></span>
+            <span class="flex items-center gap-8"><i class="fa-regular fa-location-dot text-gary/40"></i>{job.location}</span>
+            <span class="w-px h-4 bg-secondary/10"></span>
+            <span class="flex items-center gap-8"><i class="fa-solid fa-indian-rupee-sign text-gary/40"></i>{job.salary || 'Not Disclosed'}</span>
+            {job.jobType && (<><span class="w-px h-4 bg-secondary/10"></span><span class="flex items-center gap-8"><i class="fa-regular fa-clock text-gary/40"></i>{job.jobType}</span></>)}
+          </div>
+
+          <div class="flex flex-wrap items-center justify-between gap-12 mt-20 pt-16 border-t border-secondary/10">
+            <span class="text-xs text-gary/50">Posted: <b class="text-secondary font-medium">{timeAgo(job._createdAt)}</b></span>
+            {job.applyLink && (
+              <a href={job.applyLink} target="_blank" rel="noopener noreferrer"
+                 class="inline-flex items-center gap-10 bg-primary text-white text-sm font-semibold px-28 py-10 rounded-md hover:opacity-90 transition">
+                Apply Now <i class="fa-solid fa-arrow-right text-xs"></i>
+              </a>
+            )}
+          </div>
+        </div>
+
+        <div class="px-24 md:px-32 pb-32">
+          <h2 class="text-base font-bold text-secondary mb-12">Job Description</h2>
+          
+          {/* Rich Text Description */}
+          <div class="rich-content prose prose-sm max-w-none">
+            {job.description ? (
+              <PortableText value={job.description} components={richComponents} />
+            ) : (
+              <p class="text-sm text-gary/70">No description available.</p>
+            )}
+          </div>
+
+          {job.requirements && job.requirements.length > 0 && (
+            <div class="mt-28">
+              <h2 class="text-base font-bold text-secondary mb-12">Key Skills & Requirements</h2>
+              <div class="flex flex-wrap gap-8">
+                {job.requirements.map((req: string, i: number) => (
+                  <span class="text-xs font-medium text-gary/70 bg-[#f4f5f7] border border-secondary/10 rounded-full px-14 py-6" key={i}>{req}</span>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      <!-- ===== RIGHT RAIL ===== -->
+      <aside class="space-y-16">
+        {otherJobs.length > 0 && (
+          <div class="bg-white rounded-lg border border-secondary/10 p-20">
+            <h3 class="text-sm font-bold text-secondary pb-12 mb-12 border-b border-secondary/10">Other roles you may like</h3>
+            <div class="space-y-16">
+              {otherJobs.map((other: any) => (
+                <a href={`/careers/${other.slug}`} class="block group" key={other._id}>
+                  <div class="text-sm font-semibold text-secondary group-hover:text-primary transition-colors leading-snug">{other.jobTitle}</div>
+                  <div class="flex items-center gap-12 mt-6 text-xs text-gary/50">
+                    {other.experience && <span class="flex items-center gap-6"><i class="fa-regular fa-briefcase"></i>{other.experience}</span>}
+                    <span class="flex items-center gap-6"><i class="fa-regular fa-location-dot"></i>{other.location}</span>
+                  </div>
+                </a>
+              ))}
+            </div>
+          </div>
+        )}
+      </aside>
+    </div>
+  </div>
+</section>
+
+<style>
+  /* Rich text styles */
+  .rich-content {
+    color: #4a5568;
+  }
+  
+  .rich-content h2 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-top: 1.5rem;
+    margin-bottom: 0.75rem;
+    color: #1a202c;
+  }
+  
+  .rich-content h3 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin-top: 1.25rem;
+    margin-bottom: 0.5rem;
+    color: #2d3748;
+  }
+  
+  .rich-content p {
+    margin-bottom: 1rem;
+    line-height: 1.8;
+  }
+  
+  .rich-content ul {
+    list-style: disc;
+    padding-left: 1.5rem;
+    margin-bottom: 1rem;
+  }
+  
+  .rich-content ol {
+    list-style: decimal;
+    padding-left: 1.5rem;
+    margin-bottom: 1rem;
+  }
+  
+  .rich-content li {
+    margin-bottom: 0.25rem;
+    line-height: 1.6;
+  }
+  
+  .rich-content blockquote {
+    border-left: 4px solid #e2e8f0;
+    padding-left: 1rem;
+    margin: 1rem 0;
+    color: #718096;
+    font-style: italic;
+  }
+  
+  .rich-content a {
+    color: #3182ce;
+    text-decoration: underline;
+  }
+  
+  .rich-content a:hover {
+    color: #2b6cb0;
+  }
+  
+  .rich-content strong {
+    font-weight: 700;
+  }
+  
+  .rich-content img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 0.5rem;
+    margin: 1.5rem 0;
+  }
+  
+  .rich-content figure {
+    margin: 1.5rem 0;
+  }
+  
+  .rich-content figcaption {
+    text-align: center;
+    font-size: 0.875rem;
+    color: #718096;
+    margin-top: 0.5rem;
+  }
+</style>

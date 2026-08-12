@@ -1,0 +1,31 @@
+---
+// src/pages/careers/[slug].astro
+
+import Layout from '../../layouts/Layout.astro';
+import Header from '../../components/common/Header.astro';
+import Footer from '../../components/common/Footer.astro';
+import JobDetails from '../../components/sections/JobDetails.astro';
+import { getHeader, getFooter, getJobListings, getSingleJob } from '../../lib/queries';
+
+export async function getStaticPaths() {
+  const jobs = await getJobListings();
+  return jobs.filter((j: any) => j && j.slug).map((j: any) => ({ params: { slug: j.slug } }));
+}
+
+const { slug } = Astro.params;
+const job = await getSingleJob(slug!);
+if (!job) return Astro.redirect('/careers');
+
+const otherJobs = (await getJobListings()).filter((j: any) => j.slug !== job.slug).slice(0, 4);
+
+const headerData = await getHeader();
+const footerData = await getFooter();
+---
+
+<Layout title={`${job.jobTitle} | Careers`} description={`Apply for ${job.jobTitle} at Magnific Healthcare.`}>
+  <Header data={headerData} />
+  <main class="pt-80">
+    <JobDetails job={job} otherJobs={otherJobs} />
+  </main>
+  <Footer data={footerData} />
+</Layout>

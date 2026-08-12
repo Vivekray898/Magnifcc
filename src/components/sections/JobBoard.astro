@@ -1,0 +1,342 @@
+---
+// src/components/sections/JobBoard.astro
+
+import { getJobListings } from '../../lib/queries';
+
+const jobs = await getJobListings();
+
+// Department icons mapping (only used for filters)
+const deptMeta: Record<string, { icon: string; label: string }> = {
+  'Medical / Clinical': { icon: 'fa-solid fa-user-doctor', label: 'Medical / Clinical' },
+  'Administrative': { icon: 'fa-solid fa-building', label: 'Administrative' },
+  'IT / Tech': { icon: 'fa-solid fa-laptop-code', label: 'IT / Tech' },
+  'Support / HR': { icon: 'fa-solid fa-headset', label: 'Support / HR' },
+};
+
+// Get unique values from jobs for filters
+const departments = [...new Set(jobs.map(j => j.department).filter(Boolean))];
+const locations = [...new Set(jobs.map(j => j.location).filter(Boolean))];
+const jobTypes = [...new Set(jobs.map(j => j.jobType).filter(Boolean))];
+
+// Count jobs by category
+const countBy = (key: string) =>
+  jobs.reduce((acc: Record<string, number>, j: any) => {
+    const v = j[key] || 'other';
+    acc[v] = (acc[v] || 0) + 1;
+    return acc;
+  }, {});
+
+const deptCounts = countBy('department');
+const modeCounts = countBy('location');
+const typeCounts = countBy('jobType');
+
+const timeAgo = (iso?: string) => {
+  if (!iso) return 'Recently posted';
+  const hrs = Math.floor((Date.now() - new Date(iso).getTime()) / 3600000);
+  if (hrs < 6) return 'Few hours ago';
+  if (hrs < 24) return 'Today';
+  const days = Math.floor(hrs / 24);
+  if (days < 7) return `${days} day${days > 1 ? 's' : ''} ago`;
+  const weeks = Math.floor(days / 7);
+  if (weeks < 5) return `${weeks} week${weeks > 1 ? 's' : ''} ago`;
+  const months = Math.floor(days / 30);
+  return `${months} month${months > 1 ? 's' : ''} ago`;
+};
+
+// Helper to get plain text from rich text for search
+function getPlainTextFromPortableText(blocks: any[]): string {
+  if (!blocks || !Array.isArray(blocks)) return '';
+  
+  let text = '';
+  
+  for (const block of blocks) {
+    if (block._type === 'block' && block.children) {
+      for (const child of block.children) {
+        if (child._type === 'span' && child.text) {
+          text += child.text + ' ';
+        }
+      }
+    }
+  }
+  
+  return text.trim();
+}
+
+// Check if job is new (posted within 24 hours)
+function isNewJob(createdAt: string): boolean {
+  if (!createdAt) return false;
+  const hrs = Math.floor((Date.now() - new Date(createdAt).getTime()) / 3600000);
+  return hrs < 24;
+}
+---
+
+<section class="py-40 bg-[#f4f5f7] min-h-screen">
+  <div class="container">
+    <div class="grid grid-cols-1 lg:grid-cols-[260px_1fr] gap-20 items-start">
+
+      <!-- ============ LEFT: FILTERS ============ -->
+      <aside class="bg-white rounded-lg border border-secondary/10 p-20 lg:sticky lg:top-100">
+        <button 
+          data-filter-toggle 
+          class="w-full flex items-center justify-between lg:hidden mb-16 pb-12 border-b border-secondary/10"
+          type="button"
+        >
+          <h2 class="text-base font-bold text-secondary">All Filters</h2>
+          <span class="text-gary/40">
+            <i class="fa-solid fa-chevron-down text-sm transition-transform" data-filter-icon></i>
+          </span>
+        </button>
+
+        <div data-filter-content class="hidden lg:block">
+          <h2 class="text-base font-bold text-secondary pb-12 mb-16 border-b border-secondary/10 hidden lg:block">All Filters</h2>
+
+          <!-- Department -->
+          <div class="mb-20">
+            <h3 class="text-sm font-bold text-secondary mb-12">Department</h3>
+            {departments.map((dept) => {
+              const meta = deptMeta[dept] || { icon: 'fa-solid fa-briefcase', label: dept || 'General' };
+              return (
+                <label class="flex items-center justify-between py-6 cursor-pointer group" key={dept}>
+                  <span class="flex items-center gap-10 text-sm text-gary/70 group-hover:text-secondary">
+                    <input type="checkbox" value={dept} data-filter="department" class="accent-primary w-4 h-4 rounded" />
+                    {meta.label}
+                  </span>
+                  <span class="text-xs text-gary/40">({deptCounts[dept] || 0})</span>
+                </label>
+              );
+            })}
+          </div>
+
+          <!-- Location -->
+          <div class="mb-20">
+            <h3 class="text-sm font-bold text-secondary mb-12">Location</h3>
+            {locations.map((loc) => (
+              <label class="flex items-center justify-between py-6 cursor-pointer group" key={loc}>
+                <span class="flex items-center gap-10 text-sm text-gary/70 group-hover:text-secondary">
+                  <input type="checkbox" value={loc} data-filter="location" class="accent-primary w-4 h-4 rounded" />
+                  {loc}
+                </span>
+                <span class="text-xs text-gary/40">({modeCounts[loc] || 0})</span>
+              </label>
+            ))}
+          </div>
+
+          <!-- Job Type -->
+          <div class="mb-20">
+            <h3 class="text-sm font-bold text-secondary mb-12">Job Type</h3>
+            {jobTypes.map((type) => (
+              <label class="flex items-center justify-between py-6 cursor-pointer group" key={type}>
+                <span class="flex items-center gap-10 text-sm text-gary/70 group-hover:text-secondary">
+                  <input type="checkbox" value={type} data-filter="jobtype" class="accent-primary w-4 h-4 rounded" />
+                  {type}
+                </span>
+                <span class="text-xs text-gary/40">({typeCounts[type] || 0})</span>
+              </label>
+            ))}
+          </div>
+        </div>
+      </aside>
+
+      <!-- ============ RIGHT: RESULTS ============ -->
+      <div>
+        <!-- Toolbar -->
+        <div class="flex flex-wrap items-center justify-between gap-8 mb-16">
+          <div class="text-sm text-gary/70">
+            <b class="text-secondary" data-job-count>{jobs.length}</b> jobs found
+          </div>
+          <div class="flex items-center gap-8">
+            <div class="relative">
+              <i class="fa-solid fa-magnifying-glass absolute left-10 top-1/2 -translate-y-1/2 text-gary/40 text-xs"></i>
+              <input type="text" data-job-search placeholder="Search jobs..."
+                class="w-[160px] md:w-[200px] pl-28 pr-10 py-6 bg-white border border-secondary/10 rounded text-sm focus:border-primary/40 outline-none transition" />
+            </div>
+            <select data-job-sort class="text-xs text-gary/50 bg-white border border-secondary/10 rounded px-8 py-6 outline-none">
+              <option value="newest">Newest</option>
+              <option value="oldest">Oldest</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Job cards - Naukri.com style -->
+        {jobs.length > 0 ? (
+          <div class="space-y-10" data-job-list>
+            {jobs.map((job) => {
+              const searchData = [
+                job.jobTitle,
+                job.department,
+                job.location,
+                job.jobType,
+                job.experience,
+                job.salary,
+                getPlainTextFromPortableText(job.description),
+                ...(job.requirements || [])
+              ].filter(Boolean).join(' ').toLowerCase();
+              
+              const isNew = isNewJob(job._createdAt);
+              
+              return (
+                <div
+                  data-job-card
+                  data-department={job.department || 'other'}
+                  data-location={job.location || 'other'}
+                  data-jobtype={job.jobType || 'other'}
+                  data-posted={new Date(job._createdAt).getTime()}
+                  data-search={searchData}
+                  class="block bg-white border border-secondary/10 rounded-lg p-16 md:p-20 hover:shadow-md hover:border-secondary/20 transition-all"
+                >
+                  <div class="flex flex-col md:flex-row md:items-start gap-12">
+                    {/* Job details */}
+                    <div class="flex-1 min-w-0">
+                      {/* Job Title - Bold */}
+                      <h3 class="text-base font-bold text-secondary hover:text-primary transition-colors leading-snug">
+                        <a href={`/careers/${job.slug}`} class="hover:text-primary">
+                          {job.jobTitle}
+                        </a>
+                      </h3>
+                      
+                      {/* Company Name - Medium weight */}
+                      <div class="text-sm font-medium text-gary/70 mt-2">
+                        Magnific Healthcare
+                      </div>
+
+                      {/* Location & Experience & Salary - with icons */}
+                      <div class="flex flex-wrap items-center gap-12 mt-8 text-sm text-gary/60">
+                        <span class="flex items-center gap-6">
+                          <svg width="12" height="12" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" class="text-gary/40">
+                            <path d="M11.6485 5.89592C11.6485 9.59358 7.00005 12.763 7.00005 12.763C7.00005 12.763 2.35156 9.59358 2.35156 5.89592C2.35156 4.63504 2.84131 3.42581 3.71307 2.53424C4.58483 1.64267 5.76719 1.14178 7.00005 1.14178C8.2329 1.14178 9.41526 1.64267 10.287 2.53424C11.1588 3.42581 11.6485 4.63504 11.6485 5.89592Z" stroke="#717B9E" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M7.0001 7.68477C8.06981 7.68477 8.93697 6.8176 8.93697 5.7479C8.93697 4.6782 8.06981 3.81103 7.0001 3.81103C5.9304 3.81103 5.06323 4.6782 5.06323 5.7479C5.06323 6.8176 5.9304 7.68477 7.0001 7.68477Z" stroke="#717B9E" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+                          </svg>
+                          {job.location}
+                        </span>
+                        {job.experience && (
+                          <span class="flex items-center gap-6">
+                            <svg width="12" height="12" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" class="text-gary/40">
+                              <rect x="1.4118" y="4.27539" width="11.1765" height="7.51443" rx="0.960931" stroke="#717B9E" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+                              <path fill-rule="evenodd" clip-rule="evenodd" d="M1.4118 5.23632C1.4118 4.70561 1.84203 4.27539 2.37273 4.27539H11.6274C12.1581 4.27539 12.5883 4.70561 12.5883 5.23632V5.99034C12.5883 6.4244 12.2978 6.80292 11.8734 6.89387C10.9141 7.09944 9.10467 7.42047 7.15973 7.42047C5.1821 7.42047 3.192 7.08856 2.15166 6.8836C1.71591 6.79776 1.4118 6.41282 1.4118 5.9687V5.23632Z" stroke="#717B9E" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+                              <path d="M9.23495 4.48935V3.17187C9.23495 2.64116 8.80473 2.21094 8.27402 2.21094H5.72527C5.19457 2.21094 4.76434 2.64116 4.76434 3.17187V4.48935" stroke="#717B9E" stroke-width="1.3" stroke-linejoin="round"/>
+                            </svg>
+                            {job.experience}
+                          </span>
+                        )}
+                        {job.salary && (
+                          <span class="flex items-center gap-6">
+                            <svg width="12" height="12" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" class="text-gary/40">
+                              <path d="M2.33333 3.5H11.6667V11.6667H2.33333V3.5Z" stroke="#717B9E" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+                              <path d="M4.66667 7.58333C4.66667 7.58333 5.25 8.16667 7 8.16667C8.75 8.16667 9.33333 7.58333 9.33333 7.58333" stroke="#717B9E" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+                              <path d="M4.66667 10.5C4.66667 10.5 5.25 11.0833 7 11.0833C8.75 11.0833 9.33333 10.5 9.33333 10.5" stroke="#717B9E" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+                              <path d="M7 2.33333V3.5" stroke="#717B9E" stroke-width="1.3" stroke-linecap="round"/>
+                            </svg>
+                            {job.salary}
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Skills/Requirements as inline tags with · separator */}
+                      {job.requirements && job.requirements.length > 0 && (
+                        <div class="flex flex-wrap items-center gap-2 mt-10 text-xs text-gary/60">
+                          {job.requirements.slice(0, 8).map((req: string, i: number) => (
+                            <span key={i} class="inline-block">
+                              {req}
+                              {i < job.requirements.length - 1 && i < 7 && <span class="mx-4 text-gary/30">·</span>}
+                            </span>
+                          ))}
+                          {job.requirements.length > 8 && (
+                            <span class="text-gary/40">+{job.requirements.length - 8} more</span>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Footer - Date + New badge + View Details + Apply */}
+                      <div class="flex flex-wrap items-center justify-between mt-12 pt-10 border-t border-secondary/5">
+                        <div class="flex items-center gap-12">
+                          <span class="text-xs font-medium text-gary/40">{timeAgo(job._createdAt)}</span>
+                          {isNew && (
+                            <span class="text-xs font-bold text-green-600 bg-green-50 px-8 py-2 rounded-full">New</span>
+                          )}
+                        </div>
+                        <div class="flex items-center gap-8">
+                          <a href={`/careers/${job.slug}`} class="text-sm font-semibold text-primary hover:underline">
+                            View Details
+                          </a>
+                          {job.applyLink && (
+                            <a href={job.applyLink} target="_blank" rel="noopener noreferrer" 
+                               class="text-sm font-semibold text-white bg-primary px-14 py-6 rounded hover:opacity-90 transition">
+                              Apply
+                            </a>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        ) : null}
+
+        {/* Empty state */}
+        <div data-job-empty class={`${jobs.length > 0 ? 'hidden' : ''} bg-white border border-secondary/10 rounded-lg p-60 text-center`}>
+          <div class="w-14 h-14 rounded-full bg-[#f4f5f7] flex items-center justify-center mx-auto mb-16">
+            <i class="fa-regular fa-folder-open text-xl text-gary/40"></i>
+          </div>
+          <h3 class="text-base font-bold text-secondary mb-6">No matching positions</h3>
+          <p class="text-sm text-gary/60 max-w-sm mx-auto">Try clearing filters, or check back soon — new roles are added regularly.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  const cards = Array.from(document.querySelectorAll('[data-job-card]')) as HTMLElement[];
+  const checkboxes = Array.from(document.querySelectorAll('[data-filter]')) as HTMLInputElement[];
+  const search = document.querySelector('[data-job-search]') as HTMLInputElement | null;
+  const sort = document.querySelector('[data-job-sort]') as HTMLSelectElement | null;
+  const count = document.querySelector('[data-job-count]');
+  const empty = document.querySelector('[data-job-empty]');
+  const list = document.querySelector('[data-job-list]');
+
+  const filterToggle = document.querySelector('[data-filter-toggle]');
+  const filterContent = document.querySelector('[data-filter-content]');
+  const filterIcon = document.querySelector('[data-filter-icon]');
+
+  if (filterToggle && filterContent && filterIcon) {
+    filterToggle.addEventListener('click', () => {
+      const isHidden = filterContent.classList.toggle('hidden');
+      filterIcon.style.transform = isHidden ? 'rotate(0deg)' : 'rotate(180deg)';
+    });
+  }
+
+  function applyFilters() {
+    const active: Record<string, string[]> = { department: [], location: [], jobtype: [] };
+    checkboxes.forEach((cb) => { if (cb.checked) active[cb.dataset.filter!].push(cb.value); });
+    const q = (search?.value || '').toLowerCase().trim();
+
+    let visible = 0;
+    cards.forEach((card) => {
+      const okDept = !active.department.length || active.department.includes(card.dataset.department!);
+      const okMode = !active.location.length || active.location.includes(card.dataset.location!);
+      const okType = !active.jobtype.length || active.jobtype.includes(card.dataset.jobtype!);
+      const okQ = !q || (card.dataset.search || '').includes(q);
+      const show = okDept && okMode && okType && okQ;
+      card.classList.toggle('hidden', !show);
+      if (show) visible++;
+    });
+
+    if (count) count.textContent = String(visible);
+    if (empty) empty.classList.toggle('hidden', visible !== 0);
+  }
+
+  checkboxes.forEach((cb) => cb.addEventListener('change', applyFilters));
+  search?.addEventListener('input', applyFilters);
+
+  sort?.addEventListener('change', () => {
+    if (!list) return;
+    const sorted = [...cards].sort((a, b) =>
+      sort.value === 'oldest'
+        ? Number(a.dataset.posted) - Number(b.dataset.posted)
+        : Number(b.dataset.posted) - Number(a.dataset.posted)
+    );
+    sorted.forEach((c) => list.appendChild(c));
+  });
+</script>
