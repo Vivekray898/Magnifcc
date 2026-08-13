@@ -141,7 +141,47 @@ const statsGridClass =
 
 <section class="hero-texture relative bg-[#f8f6f5] pt-100 pb-56 overflow-hidden z-10">
     <div class="container relative z-10">
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-40 items-start">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-40 lg:gap-60 items-center">
+
+            <!-- LEFT: COPY (Mobile: Bottom) -->
+            <div class="order-last lg:order-first">
+                <!-- Editorial eyebrow -->
+                <div class="flex items-center gap-10 mb-16">
+                    <span class="w-24 h-[2px] bg-primary"></span>
+                    <span class="font-montserrat text-[11px] font-bold uppercase tracking-[0.18em] text-primary">
+                        {subtitle}
+                    </span>
+                </div>
+
+                <h1 class="text-3xl sm:text-4xl md:text-4.6xl xl:text-5.2xl font-bold font-sora text-secondary leading-[1.18] tracking-tight" set:html={highlightedHeading}>
+                </h1>
+
+                <p class="text-base leading-27 text-gary font-normal max-w-[46ch] pt-16">
+                    {description}
+                </p>
+
+                <!-- ===== FEATURE POINT CHIPS ===== -->
+                {features && features.length > 0 && (
+                  <div class="pt-20">
+                    <span class="block w-40 h-[3px] rounded-full bg-primary/70 mb-14 sm:mb-18"></span>
+                    <div class="feature-chips">
+                      {features.map((feature: any) => (
+                        <div class="feature-chip">
+                          <i class={feature.icon || 'fa-solid fa-circle-check'}></i>
+                          <span>{feature.label}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <div class="flex items-center gap-24 flex-wrap pt-20">
+                    <a href={ctaLink} class="hero-cta inline-flex items-center gap-10 bg-primary text-white font-semibold text-sm px-28 py-15 rounded-lg">
+                        <span>{ctaText}</span>
+                        <i class="fa-solid fa-arrow-right text-xs"></i>
+                    </a>
+                </div>
+            </div>
 
             <!-- RIGHT: VIDEO CARD + STATS (Mobile: Top) -->
             <div class="relative order-first lg:order-last">
@@ -190,7 +230,7 @@ const statsGridClass =
                             const hasSuffixChar = hasSuffix(stat.number);
 
                             return (
-                                <div class="flex flex-col items-center justify-center text-center px-10 py-20 sm:py-24">
+                                <div class="flex flex-col items-center justify-center text-center px-10 py-20 sm:py-24" key={index}>
                                     <h2 class="font-sora font-bold text-secondary text-2xl sm:text-3xl md:text-3.5xl leading-none mb-8">
                                         <span
                                             class="stat-number"
@@ -207,47 +247,6 @@ const statsGridClass =
                             );
                         })}
                     </div>
-                </div>
-            </div>
-
-            <!-- LEFT: COPY (Mobile: Bottom) -->
-            <div class="grid grid-cols-1 gap-16 order-last lg:order-first lg:pt-30">
-
-                <!-- Editorial eyebrow -->
-                <div class="flex items-center gap-10">
-                    <span class="w-24 h-[2px] bg-primary"></span>
-                    <span class="font-montserrat text-[11px] font-bold uppercase tracking-[0.18em] text-primary">
-                        {subtitle}
-                    </span>
-                </div>
-
-                <h1 class="text-3xl sm:text-4xl md:text-4.6xl xl:text-5.2xl font-bold font-sora text-secondary leading-[1.18] tracking-tight" set:html={highlightedHeading}>
-                </h1>
-
-                <p class="text-base leading-27 text-gary font-normal max-w-[46ch] pt-4">
-                    {description}
-                </p>
-
-                <!-- ===== FEATURE POINT CHIPS ===== -->
-                {features && features.length > 0 && (
-                  <div class="pt-10">
-                    <span class="block w-40 h-[3px] rounded-full bg-primary/70 mb-14 sm:mb-18"></span>
-                    <div class="feature-chips">
-                      {features.map((feature: any) => (
-                        <div class="feature-chip">
-                          <i class={feature.icon || 'fa-solid fa-circle-check'}></i>
-                          <span>{feature.label}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                <div class="flex items-center gap-24 flex-wrap pt-14">
-                    <a href={ctaLink} class="hero-cta inline-flex items-center gap-10 bg-primary text-white font-semibold text-sm px-28 py-15 rounded-lg">
-                        <span>{ctaText}</span>
-                        <i class="fa-solid fa-arrow-right text-xs"></i>
-                    </a>
                 </div>
             </div>
         </div>
