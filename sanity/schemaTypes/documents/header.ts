@@ -38,86 +38,33 @@ export default defineType({
                 { name: 'link', title: 'Link', type: 'string' },
               ]}
             ], hidden: ({ parent }) => !parent?.hasDropdown },
-            { 
-              name: 'isContact', 
-              title: 'Is Contact Link?', 
-              type: 'boolean', 
-              initialValue: false,
-              description: 'Enable this to make the link scroll to the contact form section'
-            },
           ],
         },
       ],
       initialValue: [
-        { label: 'Home', link: 'index.html', hasDropdown: true, dropdownItems: [
-          { label: 'Home 1', link: 'index.html' },
-          { label: 'Home 2', link: 'index-2.html' },
-          { label: 'Home 3', link: 'index-3.html' },
+        { label: 'Home', link: '/', hasDropdown: true, dropdownItems: [
+          { label: 'Home 1', link: '/' },
+          { label: 'Home 2', link: '/' },
+          { label: 'Home 3', link: '/' },
         ]},
         { label: 'About', link: '/about', hasDropdown: false },
         { label: 'Research', link: 'javascript:void(0);', hasDropdown: true, dropdownItems: [
-          { label: 'Portfolio', link: 'portfolio.html' },
-          { label: 'Portfolio Details', link: 'portfolio-details.html' },
+          { label: 'Portfolio', link: '/portfolio' },
+          { label: 'Portfolio Details', link: '/portfolio' },
         ]},
         { label: 'Page', link: 'javascript:void(0);', hasDropdown: true, dropdownItems: [
-          { label: 'Services', link: 'services.html' },
-          { label: 'Services Details', link: 'services-details.html' },
-          { label: 'Testimonials', link: 'testimonials.html' },
-          { label: 'Pricing Table', link: 'pricing-table.html' },
-          { label: 'FAQ', link: 'faq.html' },
-          { label: 'Appointment', link: 'appointment.html' },
+          { label: 'Services', link: '/services' },
+          { label: 'Services Details', link: '/services' },
+          { label: 'Testimonials', link: '/testimonials' },
+          { label: 'Pricing Table', link: '/pricing' },
+          { label: 'FAQ', link: '/faq' },
+          { label: 'Appointment', link: '/appointment' },
         ]},
         { label: 'Blog', link: 'javascript:void(0);', hasDropdown: true, dropdownItems: [
-          { label: 'Our Blog', link: 'our-blog.html' },
-          { label: 'Blog Details', link: 'blog-details.html' },
+          { label: 'Our Blog', link: '/blog' },
+          { label: 'Blog Details', link: '/blog' },
         ]},
-        { label: 'Contact', link: 'contact.html', hasDropdown: false, isContact: true },
-      ],
-    }),
-    defineField({
-      name: 'contactLinkSettings',
-      title: 'Contact Link Settings',
-      type: 'object',
-      options: { collapsible: true, collapsed: false },
-      fields: [
-        defineField({
-          name: 'contactPageSlug',
-          title: 'Contact Page Slug',
-          type: 'string',
-          initialValue: 'contact',
-          description: 'The URL slug where the contact form is located (e.g., "contact" for /contact)',
-        }),
-        defineField({
-          name: 'contactSectionId',
-          title: 'Contact Section ID',
-          type: 'string',
-          initialValue: 'contact',
-          description: 'The ID of the contact form section (default: "contact")',
-        }),
-        defineField({
-          name: 'pagesWithContactForm',
-          title: 'Pages with Contact Form',
-          type: 'array',
-          of: [
-            {
-              type: 'string',
-              options: {
-                list: [
-                  { title: 'Homepage', value: 'home' },
-                  { title: 'Contact Page', value: 'contact' },
-                  { title: 'About Page', value: 'about' },
-                  { title: 'Services Page', value: 'services' },
-                  { title: 'Blog Page', value: 'blog' },
-                  { title: 'Portfolio Page', value: 'portfolio' },
-                  { title: 'Appointment Page', value: 'appointment' },
-                  { title: 'All Pages', value: 'all' },
-                ],
-              },
-            },
-          ],
-          initialValue: ['home', 'contact'],
-          description: 'Select which pages have the contact form embedded. The contact link will scroll to the form on these pages.'
-        }),
+        { label: 'Contact', link: '/contact', hasDropdown: false },
       ],
     }),
     defineField({
@@ -126,15 +73,8 @@ export default defineType({
       type: 'object',
       fields: [
         { name: 'text', title: 'Button Text', type: 'string', initialValue: 'Book Appointment' },
-        { name: 'link', title: 'Button Link', type: 'string', initialValue: 'appointment.html' },
+        { name: 'link', title: 'Button Link', type: 'string', initialValue: '/appointment' },
         { name: 'show', title: 'Show Button?', type: 'boolean', initialValue: true },
-        { 
-          name: 'isContact', 
-          title: 'Link to Contact Section?', 
-          type: 'boolean', 
-          initialValue: false,
-          description: 'Enable to make the CTA button scroll to the contact form section'
-        },
       ],
     }),
     defineField({
