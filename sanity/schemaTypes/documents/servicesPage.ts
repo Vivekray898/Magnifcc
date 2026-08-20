@@ -35,12 +35,69 @@ export default defineType({
         collapsed: false,
       },
       fields: [
-        { name: 'title', title: 'Hero Title', type: 'string', initialValue: 'Services' },
-        { name: 'subtitle', title: 'Breadcrumb Text', type: 'string', initialValue: 'Services' },
-        { name: 'image', title: 'Hero Image', type: 'image', options: { hotspot: true } },
+        { 
+          name: 'title', 
+          title: 'Hero Title', 
+          type: 'string', 
+          initialValue: 'Services' 
+        },
+        { 
+          name: 'subtitle', 
+          title: 'Breadcrumb Text', 
+          type: 'string', 
+          initialValue: 'Services' 
+        },
+        // NEW: Media Type Selector
+        defineField({
+          name: 'mediaType',
+          title: 'Media Type',
+          type: 'string',
+          initialValue: 'image',
+          options: {
+            list: [
+              { title: 'Image', value: 'image' },
+              { title: 'YouTube Video', value: 'youtube' },
+            ],
+          },
+          description: 'Choose whether to show an image or YouTube video',
+        }),
+        // Image (kept for backward compatibility)
+        { 
+          name: 'image', 
+          title: 'Hero Image', 
+          type: 'image', 
+          options: { hotspot: true },
+          description: 'Upload an image (used when Media Type is "Image")',
+          hidden: ({ parent }: any) => parent?.mediaType !== 'image',
+        },
+        // NEW: YouTube Video Fields
+        defineField({
+          name: 'youtubeUrl',
+          title: 'YouTube Video URL',
+          type: 'url',
+          description: 'Enter the YouTube video URL (e.g., https://www.youtube.com/watch?v=VIDEO_ID)',
+          placeholder: 'https://www.youtube.com/watch?v=VIDEO_ID',
+          hidden: ({ parent }: any) => parent?.mediaType !== 'youtube',
+        }),
+        defineField({
+          name: 'youtubeThumbnail',
+          title: 'YouTube Thumbnail (Optional)',
+          type: 'image',
+          options: { hotspot: true },
+          description: 'Optional: Upload a custom thumbnail. If not provided, YouTube will auto-generate one.',
+          hidden: ({ parent }: any) => parent?.mediaType !== 'youtube',
+        }),
+        defineField({
+          name: 'videoTitle',
+          title: 'Video Title',
+          type: 'string',
+          description: 'Title text displayed on the video (for accessibility & SEO)',
+          placeholder: 'Introduction to Our Services',
+          hidden: ({ parent }: any) => parent?.mediaType !== 'youtube',
+        }),
       ],
     }),
-    // ADDED: Services Section Settings
+    // Services Section Settings
     defineField({
       name: 'servicesSection',
       title: '📋 Services Section',

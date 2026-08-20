@@ -8,6 +8,10 @@ export interface Props {
   title?: string;
   subtitle?: string;
   image?: string;
+  mediaType?: 'image' | 'youtube';
+  youtubeUrl?: string;
+  youtubeThumbnail?: string;
+  videoTitle?: string;
 }
 
 const { 
@@ -15,10 +19,41 @@ const {
   title = "Services",
   subtitle = "Services",
   image = "/assets/img/bannr-img-6.png",
+  mediaType = "image",
+  youtubeUrl = "",
+  youtubeThumbnail = "",
+  videoTitle = "Introduction to Our Services",
 } = Astro.props;
 
-let data = { title, subtitle, image };
+let data = { 
+  title, 
+  subtitle, 
+  image, 
+  mediaType, 
+  youtubeUrl, 
+  youtubeThumbnail, 
+  videoTitle 
+};
 let imageUrl = image;
+let videoId = "";
+
+// Extract YouTube video ID from URL
+const getYouTubeId = (url: string): string => {
+  if (!url) return "";
+  
+  const patterns = [
+    /(?:youtube\.com\/watch\?v=)([\w-]+)/,
+    /(?:youtu\.be\/)([\w-]+)/,
+    /(?:youtube\.com\/embed\/)([\w-]+)/,
+    /(?:youtube\.com\/v\/)([\w-]+)/,
+  ];
+  
+  for (const pattern of patterns) {
+    const match = url.match(pattern);
+    if (match) return match[1];
+  }
+  return "";
+};
 
 // Fetch from Sanity
 if (fetchFromSanity) {
@@ -27,28 +62,62 @@ if (fetchFromSanity) {
       heroSection {
         title,
         subtitle,
+        mediaType,
         image {
           asset->{
             _id,
             url
           }
-        }
+        },
+        youtubeUrl,
+        youtubeThumbnail {
+          asset->{
+            _id,
+            url
+          }
+        },
+        videoTitle
       }
     }`;
     
     const result = await client.fetch(query);
     
     if (result?.heroSection) {
-      data = { ...data, ...result.heroSection };
+      // Merge data
+      data = { 
+        ...data, 
+        ...result.heroSection 
+      };
       
+      // Process image if exists
       if (result.heroSection.image?.asset?.url) {
         imageUrl = result.heroSection.image.asset.url;
+        data.image = imageUrl;
+      }
+      
+      // Process YouTube thumbnail if exists
+      if (result.heroSection.youtubeThumbnail?.asset?.url) {
+        data.youtubeThumbnail = result.heroSection.youtubeThumbnail.asset.url;
+      }
+      
+      // Extract video ID
+      if (result.heroSection.youtubeUrl) {
+        videoId = getYouTubeId(result.heroSection.youtubeUrl);
       }
     }
   } catch (error) {
     console.error('Error fetching services hero data:', error);
   }
 }
+
+// If we have a YouTube URL but no thumbnail, use YouTube's default thumbnail
+const getYouTubeThumbnail = (id: string): string => {
+  return `https://img.youtube.com/vi/${id}/maxresdefault.jpg`;
+};
+
+const finalThumbnail = data.youtubeThumbnail || (videoId ? getYouTubeThumbnail(videoId) : '');
+const hasVideo = data.mediaType === 'youtube' && videoId;
+const hasImage = data.mediaType === 'image' && imageUrl;
 ---
 
 <section class="pt-90 relative max-lg:bg-[right_center] bg-[#f4f4f4] bg-[url(../img/bannr-bg-img.png)] about-banner overflow-hidden">
@@ -69,12 +138,32 @@ if (fetchFromSanity) {
       </div>
       <div class="lg:w-1/2 w-full">
         <div class="relative">
-          <img 
-            src={imageUrl} 
-            alt="img" 
-            class="w-[120%] xxl:max-w-[unset]"
-            loading="lazy"
-          >
+          {hasVideo ? (
+            // YouTube Video
+            <div class="relative w-full rounded-lg overflow-hidden shadow-2xl" style="aspect-ratio: 16/9;">
+              <iframe
+                src={`https://www.youtube.com/embed/${videoId}?autoplay=0&rel=0&modestbranding=1`}
+                title={data.videoTitle || "YouTube video player"}
+                class="absolute inset-0 w-full h-full"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowfullscreen
+                loading="lazy"
+              ></iframe>
+            </div>
+          ) : hasImage ? (
+            // Image
+            <img 
+              src={imageUrl} 
+              alt="img" 
+              class="w-[120%] xxl:max-w-[unset]"
+              loading="lazy"
+            >
+          ) : (
+            // Fallback: Show nothing or a placeholder
+            <div class="w-full bg-gary/10 rounded-lg flex items-center justify-center" style="aspect-ratio: 16/9;">
+              <span class="text-gary/50 text-sm">No media selected</span>
+            </div>
+          )}
         </div>
       </div>
     </div>
